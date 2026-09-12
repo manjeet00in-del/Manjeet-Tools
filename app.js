@@ -1,32 +1,40 @@
 /* =========================================================
-   MANJEET TOOLS - APP.JS
-   Browser based tools - No backend/API required
+   MANJEET TOOLS - COMPLETE APP.JS
    ========================================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
+"use strict";
+
+document.addEventListener("DOMContentLoaded", function () {
 
   /* =======================================================
-     BASIC ELEMENTS
-  ======================================================= */
+     ELEMENTS
+     ======================================================= */
 
   const modal = document.getElementById("toolModal");
+  const modalOverlay = document.getElementById("modalOverlay");
+  const closeTool = document.getElementById("closeTool");
+
   const modalTitle = document.getElementById("modalTitle");
   const modalIcon = document.getElementById("modalIcon");
   const toolContent = document.getElementById("toolContent");
-  const closeTool = document.getElementById("closeTool");
-  const modalOverlay = document.querySelector(".modal-overlay");
+
   const searchInput = document.getElementById("toolSearch");
   const noResults = document.getElementById("noResults");
-  const year = document.getElementById("year");
+  const currentYear = document.getElementById("currentYear");
 
-  if (year) {
-    year.textContent = new Date().getFullYear();
+
+  /* =======================================================
+     YEAR
+     ======================================================= */
+
+  if (currentYear) {
+    currentYear.textContent = new Date().getFullYear();
   }
 
 
   /* =======================================================
      TOOL DATA
-  ======================================================= */
+     ======================================================= */
 
   const toolData = {
 
@@ -35,24 +43,24 @@ document.addEventListener("DOMContentLoaded", () => {
       icon: "🗜️"
     },
 
-    resize: {
+    resizer: {
       title: "Image Resizer",
-      icon: "📐"
+      icon: "↔️"
     },
 
-    crop: {
+    cropper: {
       title: "Image Cropper",
       icon: "✂️"
     },
 
-    convert: {
+    converter: {
       title: "Image Converter",
       icon: "🔄"
     },
 
-    "photo-size": {
+    reducer: {
       title: "Photo Size Reducer",
-      icon: "📦"
+      icon: "📉"
     },
 
     social: {
@@ -60,24 +68,24 @@ document.addEventListener("DOMContentLoaded", () => {
       icon: "📱"
     },
 
-    "image-pdf": {
+    pdf: {
       title: "Images to PDF",
-      icon: "📑"
+      icon: "📄"
     },
 
     qr: {
-      title: "QR Code Generator",
-      icon: "🔳"
+      title: "QR Generator",
+      icon: "▦"
     },
 
-    "word-counter": {
+    words: {
       title: "Word Counter",
-      icon: "🔢"
+      icon: "Aa"
     },
 
     case: {
       title: "Case Converter",
-      icon: "🔤"
+      icon: "Aa"
     },
 
     invoice: {
@@ -87,12 +95,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     emi: {
       title: "EMI Calculator",
-      icon: "💰"
+      icon: "₹"
     },
 
     gst: {
       title: "GST Calculator",
-      icon: "🧾"
+      icon: "%"
     },
 
     percentage: {
@@ -110,65 +118,124 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* =======================================================
      OPEN TOOL
-  ======================================================= */
+     ======================================================= */
 
-  document.querySelectorAll(".tool-card").forEach(card => {
+  function openTool(toolName) {
 
-    card.addEventListener("click", () => {
+    const data = toolData[toolName];
 
-      const tool = card.dataset.tool;
+    if (!data) {
+      return;
+    }
 
-      openTool(tool);
+    if (modalTitle) {
+      modalTitle.textContent = data.title;
+    }
 
-    });
+    if (modalIcon) {
+      modalIcon.textContent = data.icon;
+    }
 
-  });
+    if (modal) {
+      modal.classList.add("active");
+      modal.setAttribute("aria-hidden", "false");
+    }
 
+    document.body.classList.add("modal-open");
 
-  function openTool(tool) {
+    loadTool(toolName);
 
-    const data = toolData[tool];
+    setTimeout(function () {
 
-    if (!data) return;
+      const firstInput =
+        toolContent.querySelector(
+          "input:not([type='file']), textarea, select"
+        );
 
-    modalTitle.textContent = data.title;
-    modalIcon.textContent = data.icon;
+      if (firstInput) {
+        firstInput.focus();
+      }
 
-    modal.classList.add("active");
-    modal.setAttribute("aria-hidden", "false");
-
-    document.body.style.overflow = "hidden";
-
-    loadTool(tool);
+    }, 100);
 
   }
 
 
   /* =======================================================
      CLOSE TOOL
-  ======================================================= */
+     ======================================================= */
 
   function closeModal() {
 
-    modal.classList.remove("active");
+    if (modal) {
+      modal.classList.remove("active");
+      modal.setAttribute("aria-hidden", "true");
+    }
 
-    modal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
 
-    document.body.style.overflow = "";
-
-    toolContent.innerHTML = "";
+    if (toolContent) {
+      toolContent.innerHTML = "";
+    }
 
   }
 
 
-  closeTool.addEventListener("click", closeModal);
+  /* =======================================================
+     CARD CLICK
+     ======================================================= */
 
-  modalOverlay.addEventListener("click", closeModal);
+  document.querySelectorAll(".tool-card").forEach(function (card) {
+
+    card.addEventListener("click", function () {
+
+      const tool = card.getAttribute("data-tool");
+
+      if (tool) {
+        openTool(tool);
+      }
+
+    });
 
 
-  document.addEventListener("keydown", e => {
+    const button = card.querySelector(".tool-button");
 
-    if (e.key === "Escape") {
+    if (button) {
+
+      button.addEventListener("click", function (event) {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const tool = card.getAttribute("data-tool");
+
+        if (tool) {
+          openTool(tool);
+        }
+
+      });
+
+    }
+
+  });
+
+
+  /* =======================================================
+     MODAL CLOSE
+     ======================================================= */
+
+  if (closeTool) {
+    closeTool.addEventListener("click", closeModal);
+  }
+
+  if (modalOverlay) {
+    modalOverlay.addEventListener("click", closeModal);
+  }
+
+
+  document.addEventListener("keydown", function (event) {
+
+    if (event.key === "Escape") {
       closeModal();
     }
 
@@ -176,123 +243,109 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =======================================================
-     LOAD TOOL
-  ======================================================= */
+     SEARCH
+     ======================================================= */
 
-  function loadTool(tool) {
+  if (searchInput) {
 
-    switch (tool) {
+    searchInput.addEventListener("input", function () {
 
-      case "compressor":
-        imageCompressor();
-        break;
+      const query =
+        searchInput.value
+          .trim()
+          .toLowerCase();
 
-      case "resize":
-        imageResizer();
-        break;
+      const cards =
+        document.querySelectorAll(".tool-card");
 
-      case "crop":
-        imageCropper();
-        break;
+      let visible = 0;
 
-      case "convert":
-        imageConverter();
-        break;
+      cards.forEach(function (card) {
 
-      case "photo-size":
-        photoSizeReducer();
-        break;
+        const name =
+          (
+            card.getAttribute("data-name") ||
+            card.textContent ||
+            ""
+          ).toLowerCase();
 
-      case "social":
-        socialResizer();
-        break;
+        if (!query || name.includes(query)) {
 
-      case "image-pdf":
-        imageToPDF();
-        break;
+          card.style.display = "";
 
-      case "qr":
-        qrGenerator();
-        break;
+          visible++;
 
-      case "word-counter":
-        wordCounter();
-        break;
+        } else {
 
-      case "case":
-        caseConverter();
-        break;
+          card.style.display = "none";
 
-      case "invoice":
-        invoiceGenerator();
-        break;
+        }
 
-      case "emi":
-        emiCalculator();
-        break;
+      });
 
-      case "gst":
-        gstCalculator();
-        break;
 
-      case "percentage":
-        percentageCalculator();
-        break;
+      if (noResults) {
 
-      case "age":
-        ageCalculator();
-        break;
+        if (visible === 0) {
+          noResults.classList.add("show");
+        } else {
+          noResults.classList.remove("show");
+        }
 
-    }
+      }
+
+    });
 
   }
 
 
   /* =======================================================
-     COMMON FILE READER
-  ======================================================= */
+     HELPER FUNCTIONS
+     ======================================================= */
 
-  function readImage(file, callback) {
+  function escapeHTML(value) {
 
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-
-      alert("Please select a valid image.");
-
-      return;
-    }
-
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-
-      const img = new Image();
-
-      img.onload = function() {
-
-        callback(img, e.target.result);
-
-      };
-
-      img.src = e.target.result;
-
-    };
-
-    reader.readAsDataURL(file);
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
 
   }
 
 
-  /* =======================================================
-     DOWNLOAD HELPER
-  ======================================================= */
+  function formatNumber(value) {
+
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+      return "0";
+    }
+
+    return number.toLocaleString("en-IN", {
+      maximumFractionDigits: 2
+    });
+
+  }
+
+
+  function formatKB(bytes) {
+
+    return (
+      bytes / 1024
+    ).toFixed(2) + " KB";
+
+  }
+
 
   function downloadBlob(blob, filename) {
 
-    const url = URL.createObjectURL(blob);
+    const url =
+      URL.createObjectURL(blob);
 
-    const a = document.createElement("a");
+    const a =
+      document.createElement("a");
 
     a.href = url;
     a.download = filename;
@@ -303,19 +356,69 @@ document.addEventListener("DOMContentLoaded", () => {
 
     a.remove();
 
-    setTimeout(() => {
+    setTimeout(function () {
       URL.revokeObjectURL(url);
     }, 1000);
 
   }
 
 
-  function canvasToBlob(canvas, type, quality = 0.9) {
+  function loadImage(file) {
 
-    return new Promise(resolve => {
+    return new Promise(function (resolve, reject) {
+
+      const img =
+        new Image();
+
+      const url =
+        URL.createObjectURL(file);
+
+      img.onload = function () {
+
+        URL.revokeObjectURL(url);
+
+        resolve(img);
+
+      };
+
+      img.onerror = function () {
+
+        URL.revokeObjectURL(url);
+
+        reject(
+          new Error("Image could not be loaded.")
+        );
+
+      };
+
+      img.src = url;
+
+    });
+
+  }
+
+
+  function canvasToBlob(
+    canvas,
+    type = "image/jpeg",
+    quality = 0.85
+  ) {
+
+    return new Promise(function (resolve, reject) {
 
       canvas.toBlob(
-        blob => resolve(blob),
+        function (blob) {
+
+          if (!blob) {
+            reject(
+              new Error("Could not create image.")
+            );
+            return;
+          }
+
+          resolve(blob);
+
+        },
         type,
         quality
       );
@@ -325,794 +428,1228 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
+  function createFileDrop(
+    accept,
+    multiple = false
+  ) {
+
+    const wrapper =
+      document.createElement("div");
+
+    wrapper.innerHTML = `
+
+      <div class="file-drop">
+
+        <div class="file-drop-icon">
+          📁
+        </div>
+
+        <h4>
+          Select ${multiple ? "images" : "an image"}
+        </h4>
+
+        <p>
+          Click here or drag and drop your file
+        </p>
+
+        <label class="file-select-button">
+          Choose File
+          <input
+            type="file"
+            accept="${accept}"
+            ${multiple ? "multiple" : ""}
+          >
+        </label>
+
+      </div>
+
+    `;
+
+    const drop =
+      wrapper.querySelector(".file-drop");
+
+    const input =
+      wrapper.querySelector("input");
+
+    drop.addEventListener("dragover", function (event) {
+
+      event.preventDefault();
+
+      drop.classList.add("dragover");
+
+    });
+
+    drop.addEventListener("dragleave", function () {
+
+      drop.classList.remove("dragover");
+
+    });
+
+    drop.addEventListener("drop", function (event) {
+
+      event.preventDefault();
+
+      drop.classList.remove("dragover");
+
+      if (event.dataTransfer.files.length) {
+
+        const dataTransfer =
+          new DataTransfer();
+
+        Array.from(event.dataTransfer.files)
+          .forEach(function (file) {
+
+            dataTransfer.items.add(file);
+
+          });
+
+        input.files =
+          dataTransfer.files;
+
+        input.dispatchEvent(
+          new Event("change")
+        );
+
+      }
+
+    });
+
+    return {
+      wrapper,
+      drop,
+      input
+    };
+
+  }
+
+
+  /* =======================================================
+     LOAD TOOL
+     ======================================================= */
+
+  function loadTool(tool) {
+
+    if (!toolContent) {
+      return;
+    }
+
+    toolContent.innerHTML = "";
+
+    switch (tool) {
+
+      case "compressor":
+        loadCompressor();
+        break;
+
+      case "resizer":
+        loadResizer();
+        break;
+
+      case "cropper":
+        loadCropper();
+        break;
+
+      case "converter":
+        loadConverter();
+        break;
+
+      case "reducer":
+        loadReducer();
+        break;
+
+      case "social":
+        loadSocialResizer();
+        break;
+
+      case "pdf":
+        loadImagesPDF();
+        break;
+
+      case "qr":
+        loadQR();
+        break;
+
+      case "words":
+        loadWordCounter();
+        break;
+
+      case "case":
+        loadCaseConverter();
+        break;
+
+      case "invoice":
+        loadInvoice();
+        break;
+
+      case "emi":
+        loadEMI();
+        break;
+
+      case "gst":
+        loadGST();
+        break;
+
+      case "percentage":
+        loadPercentage();
+        break;
+
+      case "age":
+        loadAge();
+        break;
+
+    }
+
+  }
+
+
   /* =======================================================
      1. IMAGE COMPRESSOR
-  ======================================================= */
+     ======================================================= */
 
-  function imageCompressor() {
+  function loadCompressor() {
 
     toolContent.innerHTML = `
 
-      <div class="file-drop" id="compressDrop">
+      <div class="tool-form">
 
-        <div class="file-drop-icon">🗜️</div>
+        <div id="compressorFile"></div>
 
-        <h3>Select Image</h3>
+        <div class="form-group">
 
-        <p>JPG, PNG or WebP</p>
+          <label>
+            Image Quality
+          </label>
 
-        <input
-          type="file"
-          id="compressFile"
-          accept="image/*"
-          hidden
+          <div class="range-row">
+
+            <input
+              id="compressQuality"
+              type="range"
+              min="10"
+              max="100"
+              value="80"
+            >
+
+            <span
+              id="compressQualityValue"
+              class="range-value"
+            >
+              80%
+            </span>
+
+          </div>
+
+        </div>
+
+        <button
+          id="compressButton"
+          class="primary-button"
         >
+          Compress Image
+        </button>
+
+        <div id="compressResult"></div>
 
       </div>
-
-      <div style="margin-top:20px">
-
-        <label>
-          Compression Quality:
-          <strong id="qualityValue">80%</strong>
-        </label>
-
-        <input
-          type="range"
-          id="quality"
-          min="10"
-          max="100"
-          value="80"
-          style="margin-top:10px"
-        >
-
-      </div>
-
-      <div
-        id="compressResult"
-        style="margin-top:20px"
-      ></div>
 
     `;
 
 
-    const drop = document.getElementById("compressDrop");
-    const input = document.getElementById("compressFile");
-    const quality = document.getElementById("quality");
-    const qualityValue = document.getElementById("qualityValue");
+    const dropData =
+      createFileDrop(
+        "image/jpeg,image/png,image/webp"
+      );
 
-    drop.onclick = () => input.click();
-
-    quality.oninput = () => {
-
-      qualityValue.textContent =
-        quality.value + "%";
-
-    };
+    document
+      .getElementById("compressorFile")
+      .appendChild(dropData.wrapper);
 
 
-    input.onchange = () => {
+    const quality =
+      document.getElementById(
+        "compressQuality"
+      );
 
-      const file = input.files[0];
+    const qualityValue =
+      document.getElementById(
+        "compressQualityValue"
+      );
 
-      if (!file) return;
+    quality.addEventListener(
+      "input",
+      function () {
 
-      readImage(file, async (img) => {
+        qualityValue.textContent =
+          quality.value + "%";
 
-        const canvas = document.createElement("canvas");
+      }
+    );
 
-        canvas.width = img.width;
-        canvas.height = img.height;
 
-        const ctx = canvas.getContext("2d");
+    document
+      .getElementById("compressButton")
+      .addEventListener("click", async function () {
 
-        ctx.drawImage(img, 0, 0);
+        const file =
+          dropData.input.files[0];
 
-        const blob = await canvasToBlob(
-          canvas,
-          "image/jpeg",
-          Number(quality.value) / 100
-        );
+        if (!file) {
 
-        const oldKB =
-          (file.size / 1024).toFixed(1);
+          alert("Please select an image first.");
 
-        const newKB =
-          (blob.size / 1024).toFixed(1);
+          return;
 
-        const result =
-          document.getElementById("compressResult");
+        }
 
-        result.innerHTML = `
 
-          <div class="result-box">
+        try {
 
-            <h3>Compression Complete</h3>
+          const img =
+            await loadImage(file);
 
-            <p>
-              Original:
-              <strong>${oldKB} KB</strong>
-            </p>
+          const canvas =
+            document.createElement("canvas");
 
-            <p>
-              New:
-              <strong>${newKB} KB</strong>
-            </p>
+          canvas.width =
+            img.naturalWidth;
 
-            <br>
+          canvas.height =
+            img.naturalHeight;
 
-            <button
-              class="primary-btn"
-              id="downloadCompressed"
-            >
-              ⬇️ Download Compressed Image
-            </button>
+          const ctx =
+            canvas.getContext("2d");
 
-          </div>
+          ctx.drawImage(img, 0, 0);
 
-        `;
 
-        document
-          .getElementById("downloadCompressed")
-          .onclick = () => {
-
-            downloadBlob(
-              blob,
-              "compressed-image.jpg"
+          const blob =
+            await canvasToBlob(
+              canvas,
+              "image/jpeg",
+              Number(quality.value) / 100
             );
 
-          };
+
+          const originalSize =
+            file.size;
+
+          const newSize =
+            blob.size;
+
+          const saved =
+            Math.max(
+              0,
+              ((originalSize - newSize) /
+                originalSize) * 100
+            );
+
+
+          document
+            .getElementById("compressResult")
+            .innerHTML = `
+
+              <div class="result-box">
+
+                <h4>
+                  Compression Complete
+                </h4>
+
+                <div class="result-grid">
+
+                  <div class="result-item">
+                    <span>Original Size</span>
+                    <strong>
+                      ${formatKB(originalSize)}
+                    </strong>
+                  </div>
+
+                  <div class="result-item">
+                    <span>New Size</span>
+                    <strong>
+                      ${formatKB(newSize)}
+                    </strong>
+                  </div>
+
+                  <div class="result-item">
+                    <span>Saved</span>
+                    <strong>
+                      ${saved.toFixed(1)}%
+                    </strong>
+                  </div>
+
+                  <div class="result-item">
+                    <span>Quality</span>
+                    <strong>
+                      ${quality.value}%
+                    </strong>
+                  </div>
+
+                </div>
+
+                <br>
+
+                <button
+                  id="downloadCompressed"
+                  class="download-button"
+                >
+                  ⬇ Download Compressed Image
+                </button>
+
+              </div>
+
+            `;
+
+
+          document
+            .getElementById("downloadCompressed")
+            .addEventListener(
+              "click",
+              function () {
+
+                downloadBlob(
+                  blob,
+                  "manjeet-compressed.jpg"
+                );
+
+              }
+            );
+
+        } catch (error) {
+
+          alert(
+            "Unable to compress this image."
+          );
+
+        }
 
       });
-
-    };
 
   }
 
 
   /* =======================================================
      2. IMAGE RESIZER
-  ======================================================= */
+     ======================================================= */
 
-  function imageResizer() {
+  function loadResizer() {
 
     toolContent.innerHTML = `
 
-      <div class="file-drop" id="resizeDrop">
+      <div class="tool-form">
 
-        <div class="file-drop-icon">📐</div>
+        <div id="resizerFile"></div>
 
-        <h3>Select Image</h3>
+        <div class="form-row">
 
-        <p>Choose an image to resize</p>
+          <div class="form-group">
 
-        <input
-          type="file"
-          id="resizeFile"
-          accept="image/*"
-          hidden
+            <label>
+              Width (px)
+            </label>
+
+            <input
+              id="resizeWidth"
+              type="number"
+              min="1"
+              placeholder="Width"
+            >
+
+          </div>
+
+          <div class="form-group">
+
+            <label>
+              Height (px)
+            </label>
+
+            <input
+              id="resizeHeight"
+              type="number"
+              min="1"
+              placeholder="Height"
+            >
+
+          </div>
+
+        </div>
+
+
+        <label class="check-row">
+
+          <input
+            id="keepRatio"
+            type="checkbox"
+            checked
+          >
+
+          Keep aspect ratio
+
+        </label>
+
+
+        <button
+          id="resizeButton"
+          class="primary-button"
         >
+          Resize Image
+        </button>
+
+        <div id="resizeResult"></div>
 
       </div>
-
-      <div id="resizeForm"></div>
 
     `;
 
 
-    const drop = document.getElementById("resizeDrop");
-    const input = document.getElementById("resizeFile");
+    const dropData =
+      createFileDrop(
+        "image/jpeg,image/png,image/webp"
+      );
 
-    drop.onclick = () => input.click();
+    document
+      .getElementById("resizerFile")
+      .appendChild(dropData.wrapper);
 
 
-    input.onchange = () => {
+    let image = null;
 
-      const file = input.files[0];
 
-      if (!file) return;
+    dropData.input.addEventListener(
+      "change",
+      async function () {
 
-      readImage(file, img => {
+        const file =
+          dropData.input.files[0];
 
-        document.getElementById("resizeForm").innerHTML = `
+        if (!file) {
+          return;
+        }
 
-          <div class="form-grid" style="margin-top:20px">
+        image =
+          await loadImage(file);
 
-            <div class="form-group">
+        document.getElementById(
+          "resizeWidth"
+        ).value =
+          image.naturalWidth;
 
-              <label>Width (px)</label>
+        document.getElementById(
+          "resizeHeight"
+        ).value =
+          image.naturalHeight;
 
-              <input
-                type="number"
-                id="resizeWidth"
-                value="${img.width}"
-              >
+      }
+    );
 
-            </div>
 
-            <div class="form-group">
+    const widthInput =
+      document.getElementById(
+        "resizeWidth"
+      );
 
-              <label>Height (px)</label>
+    const heightInput =
+      document.getElementById(
+        "resizeHeight"
+      );
 
-              <input
-                type="number"
-                id="resizeHeight"
-                value="${img.height}"
-              >
+    const keepRatio =
+      document.getElementById(
+        "keepRatio"
+      );
 
-            </div>
 
-          </div>
+    widthInput.addEventListener(
+      "input",
+      function () {
 
-          <div style="margin-top:20px">
+        if (
+          keepRatio.checked &&
+          image
+        ) {
 
-            <label>
-              <input
-                type="checkbox"
-                id="keepRatio"
-                checked
-              >
-              Keep aspect ratio
-            </label>
+          const ratio =
+            image.naturalHeight /
+            image.naturalWidth;
 
-          </div>
+          heightInput.value =
+            Math.round(
+              Number(widthInput.value) * ratio
+            );
 
-          <div style="margin-top:20px">
+        }
 
-            <button
-              class="primary-btn"
-              id="resizeBtn"
-            >
-              Resize & Download
-            </button>
+      }
+    );
 
-          </div>
 
-          <div
-            class="image-preview"
-            id="resizePreview"
-          ></div>
+    document
+      .getElementById("resizeButton")
+      .addEventListener("click", async function () {
 
-        `;
+        if (!image) {
+
+          alert("Please select an image first.");
+
+          return;
+
+        }
 
 
         const width =
-          document.getElementById("resizeWidth");
+          Math.max(
+            1,
+            Number(widthInput.value)
+          );
 
         const height =
-          document.getElementById("resizeHeight");
-
-        width.addEventListener("input", () => {
-
-          if (
-            document.getElementById("keepRatio").checked
-          ) {
-
-            height.value =
-              Math.round(
-                width.value *
-                img.height /
-                img.width
-              );
-
-          }
-
-        });
+          Math.max(
+            1,
+            Number(heightInput.value)
+          );
 
 
-        document.getElementById("resizeBtn").onclick =
-          async () => {
+        const canvas =
+          document.createElement("canvas");
 
-            const canvas =
-              document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
 
-            canvas.width =
-              Number(width.value);
+        const ctx =
+          canvas.getContext("2d");
 
-            canvas.height =
-              Number(height.value);
+        ctx.drawImage(
+          image,
+          0,
+          0,
+          width,
+          height
+        );
 
-            const ctx =
-              canvas.getContext("2d");
 
-            ctx.drawImage(
-              img,
-              0,
-              0,
-              canvas.width,
-              canvas.height
-            );
+        const blob =
+          await canvasToBlob(
+            canvas,
+            "image/jpeg",
+            0.90
+          );
 
-            const blob =
-              await canvasToBlob(
-                canvas,
-                "image/jpeg",
-                0.92
-              );
 
-            document.getElementById(
-              "resizePreview"
-            ).innerHTML = `
+        const url =
+          URL.createObjectURL(blob);
 
-              <img src="${URL.createObjectURL(blob)}">
 
-              <br><br>
+        document
+          .getElementById("resizeResult")
+          .innerHTML = `
+
+            <div class="result-box">
+
+              <h4>
+                Image Resized
+              </h4>
+
+              <div class="preview-area">
+
+                <div class="preview-card">
+
+                  <span>
+                    Preview
+                  </span>
+
+                  <img
+                    src="${url}"
+                    alt="Resized image"
+                  >
+
+                </div>
+
+              </div>
+
+              <br>
 
               <button
-                class="primary-btn"
-                id="downloadResize"
+                id="downloadResized"
+                class="download-button"
               >
-                ⬇️ Download
+                ⬇ Download Resized Image
               </button>
 
-            `;
+            </div>
 
-            document.getElementById(
-              "downloadResize"
-            ).onclick = () => {
+          `;
+
+
+        document
+          .getElementById("downloadResized")
+          .addEventListener(
+            "click",
+            function () {
 
               downloadBlob(
                 blob,
-                "resized-image.jpg"
+                "manjeet-resized.jpg"
               );
 
-            };
-
-          };
+            }
+          );
 
       });
-
-    };
 
   }
 
 
   /* =======================================================
      3. IMAGE CROPPER
-  ======================================================= */
+     ======================================================= */
 
-  function imageCropper() {
+  function loadCropper() {
 
     toolContent.innerHTML = `
 
-      <div class="file-drop" id="cropDrop">
+      <div class="tool-form">
 
-        <div class="file-drop-icon">✂️</div>
+        <div id="cropFile"></div>
 
-        <h3>Select Image</h3>
+        <div class="form-row">
 
-        <p>Choose an image to crop</p>
+          <div class="form-group">
+            <label>X</label>
+            <input id="cropX" type="number" min="0" value="0">
+          </div>
 
-        <input
-          type="file"
-          id="cropFile"
-          accept="image/*"
-          hidden
+          <div class="form-group">
+            <label>Y</label>
+            <input id="cropY" type="number" min="0" value="0">
+          </div>
+
+        </div>
+
+
+        <div class="form-row">
+
+          <div class="form-group">
+            <label>Width</label>
+            <input id="cropW" type="number" min="1">
+          </div>
+
+          <div class="form-group">
+            <label>Height</label>
+            <input id="cropH" type="number" min="1">
+          </div>
+
+        </div>
+
+
+        <button
+          id="cropButton"
+          class="primary-button"
         >
+          Crop Image
+        </button>
+
+        <div id="cropResult"></div>
 
       </div>
-
-      <div id="cropArea"></div>
 
     `;
 
 
-    const drop =
-      document.getElementById("cropDrop");
+    const dropData =
+      createFileDrop(
+        "image/jpeg,image/png,image/webp"
+      );
 
-    const input =
-      document.getElementById("cropFile");
-
-    drop.onclick = () => input.click();
-
-
-    input.onchange = () => {
-
-      const file = input.files[0];
-
-      if (!file) return;
-
-      readImage(file, img => {
-
-        document.getElementById("cropArea").innerHTML = `
-
-          <div class="form-grid" style="margin-top:20px">
-
-            <div class="form-group">
-
-              <label>Crop X</label>
-
-              <input
-                type="number"
-                id="cropX"
-                value="0"
-              >
-
-            </div>
-
-            <div class="form-group">
-
-              <label>Crop Y</label>
-
-              <input
-                type="number"
-                id="cropY"
-                value="0"
-              >
-
-            </div>
-
-            <div class="form-group">
-
-              <label>Crop Width</label>
-
-              <input
-                type="number"
-                id="cropWidth"
-                value="${Math.round(img.width * 0.8)}"
-              >
-
-            </div>
-
-            <div class="form-group">
-
-              <label>Crop Height</label>
-
-              <input
-                type="number"
-                id="cropHeight"
-                value="${Math.round(img.height * 0.8)}"
-              >
-
-            </div>
-
-          </div>
-
-          <div style="margin-top:20px">
-
-            <button
-              class="primary-btn"
-              id="cropBtn"
-            >
-              ✂️ Crop & Download
-            </button>
-
-          </div>
-
-          <div
-            class="image-preview"
-            id="cropPreview"
-          ></div>
-
-        `;
+    document
+      .getElementById("cropFile")
+      .appendChild(dropData.wrapper);
 
 
-        document.getElementById("cropBtn").onclick =
-          async () => {
+    let image = null;
 
-            const x =
-              Number(document.getElementById("cropX").value);
 
-            const y =
-              Number(document.getElementById("cropY").value);
+    dropData.input.addEventListener(
+      "change",
+      async function () {
 
-            const w =
-              Number(document.getElementById("cropWidth").value);
+        const file =
+          dropData.input.files[0];
 
-            const h =
-              Number(document.getElementById("cropHeight").value);
+        if (!file) {
+          return;
+        }
 
-            const canvas =
-              document.createElement("canvas");
+        image =
+          await loadImage(file);
 
-            canvas.width = w;
-            canvas.height = h;
+        document.getElementById(
+          "cropW"
+        ).value =
+          image.naturalWidth;
 
-            const ctx =
-              canvas.getContext("2d");
+        document.getElementById(
+          "cropH"
+        ).value =
+          image.naturalHeight;
 
-            ctx.drawImage(
-              img,
-              x,
-              y,
-              w,
-              h,
+      }
+    );
+
+
+    document
+      .getElementById("cropButton")
+      .addEventListener(
+        "click",
+        async function () {
+
+          if (!image) {
+
+            alert("Please select an image first.");
+
+            return;
+
+          }
+
+
+          let x =
+            Math.max(
               0,
-              0,
-              w,
-              h
+              Number(
+                document.getElementById("cropX").value
+              )
             );
 
-            const blob =
-              await canvasToBlob(
-                canvas,
-                "image/jpeg",
-                0.92
-              );
+          let y =
+            Math.max(
+              0,
+              Number(
+                document.getElementById("cropY").value
+              )
+            );
 
-            document.getElementById(
-              "cropPreview"
-            ).innerHTML = `
+          let w =
+            Math.max(
+              1,
+              Number(
+                document.getElementById("cropW").value
+              )
+            );
 
-              <img src="${URL.createObjectURL(blob)}">
+          let h =
+            Math.max(
+              1,
+              Number(
+                document.getElementById("cropH").value
+              )
+            );
 
-              <br><br>
 
-              <button
-                class="primary-btn"
-                id="downloadCrop"
-              >
-                ⬇️ Download Cropped Image
-              </button>
+          x =
+            Math.min(
+              x,
+              image.naturalWidth - 1
+            );
+
+          y =
+            Math.min(
+              y,
+              image.naturalHeight - 1
+            );
+
+          w =
+            Math.min(
+              w,
+              image.naturalWidth - x
+            );
+
+          h =
+            Math.min(
+              h,
+              image.naturalHeight - y
+            );
+
+
+          const canvas =
+            document.createElement("canvas");
+
+          canvas.width = w;
+          canvas.height = h;
+
+          const ctx =
+            canvas.getContext("2d");
+
+          ctx.drawImage(
+            image,
+            x,
+            y,
+            w,
+            h,
+            0,
+            0,
+            w,
+            h
+          );
+
+
+          const blob =
+            await canvasToBlob(
+              canvas,
+              "image/jpeg",
+              0.90
+            );
+
+
+          const url =
+            URL.createObjectURL(blob);
+
+
+          document
+            .getElementById("cropResult")
+            .innerHTML = `
+
+              <div class="result-box">
+
+                <h4>
+                  Crop Complete
+                </h4>
+
+                <div class="preview-area">
+
+                  <div class="preview-card">
+
+                    <span>
+                      Cropped Image
+                    </span>
+
+                    <img
+                      src="${url}"
+                      alt="Cropped image"
+                    >
+
+                  </div>
+
+                </div>
+
+                <br>
+
+                <button
+                  id="downloadCrop"
+                  class="download-button"
+                >
+                  ⬇ Download Cropped Image
+                </button>
+
+              </div>
 
             `;
 
-            document.getElementById(
-              "downloadCrop"
-            ).onclick = () => {
 
-              downloadBlob(
-                blob,
-                "cropped-image.jpg"
-              );
+          document
+            .getElementById("downloadCrop")
+            .addEventListener(
+              "click",
+              function () {
 
-            };
+                downloadBlob(
+                  blob,
+                  "manjeet-cropped.jpg"
+                );
 
-          };
+              }
+            );
 
-      });
-
-    };
+        }
+      );
 
   }
 
 
   /* =======================================================
      4. IMAGE CONVERTER
-  ======================================================= */
+     ======================================================= */
 
-  function imageConverter() {
+  function loadConverter() {
 
     toolContent.innerHTML = `
 
-      <div class="file-drop" id="convertDrop">
+      <div class="tool-form">
 
-        <div class="file-drop-icon">🔄</div>
+        <div id="converterFile"></div>
 
-        <h3>Select Image</h3>
+        <div class="form-group">
 
-        <p>Convert JPG, PNG or WebP</p>
+          <label>
+            Convert To
+          </label>
 
-        <input
-          type="file"
-          id="convertFile"
-          accept="image/*"
-          hidden
+          <select id="convertType">
+
+            <option value="image/jpeg">
+              JPG
+            </option>
+
+            <option value="image/png">
+              PNG
+            </option>
+
+            <option value="image/webp">
+              WebP
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <button
+          id="convertButton"
+          class="primary-button"
         >
+          Convert Image
+        </button>
+
+        <div id="convertResult"></div>
 
       </div>
-
-      <div id="convertArea"></div>
 
     `;
 
 
-    const drop =
-      document.getElementById("convertDrop");
+    const dropData =
+      createFileDrop(
+        "image/jpeg,image/png,image/webp"
+      );
 
-    const input =
-      document.getElementById("convertFile");
-
-    drop.onclick = () => input.click();
-
-
-    input.onchange = () => {
-
-      const file = input.files[0];
-
-      if (!file) return;
-
-      readImage(file, img => {
-
-        document.getElementById(
-          "convertArea"
-        ).innerHTML = `
-
-          <div class="form-group" style="margin-top:20px">
-
-            <label>Convert To</label>
-
-            <select id="convertType">
-
-              <option value="image/jpeg">
-                JPG
-              </option>
-
-              <option value="image/png">
-                PNG
-              </option>
-
-              <option value="image/webp">
-                WebP
-              </option>
-
-            </select>
-
-          </div>
-
-          <div style="margin-top:20px">
-
-            <button
-              class="primary-btn"
-              id="convertBtn"
-            >
-              🔄 Convert & Download
-            </button>
-
-          </div>
-
-        `;
+    document
+      .getElementById("converterFile")
+      .appendChild(dropData.wrapper);
 
 
-        document.getElementById("convertBtn").onclick =
-          async () => {
+    document
+      .getElementById("convertButton")
+      .addEventListener(
+        "click",
+        async function () {
 
-            const type =
-              document.getElementById(
-                "convertType"
-              ).value;
+          const file =
+            dropData.input.files[0];
 
-            const canvas =
-              document.createElement("canvas");
+          if (!file) {
 
-            canvas.width = img.width;
-            canvas.height = img.height;
+            alert("Please select an image first.");
 
-            canvas
-              .getContext("2d")
-              .drawImage(img, 0, 0);
+            return;
 
-            const blob =
-              await canvasToBlob(
-                canvas,
-                type,
-                0.92
-              );
+          }
 
-            let extension = "jpg";
 
-            if (type === "image/png") {
-              extension = "png";
-            }
+          const image =
+            await loadImage(file);
 
-            if (type === "image/webp") {
-              extension = "webp";
-            }
 
-            downloadBlob(
-              blob,
-              `converted-image.${extension}`
+          const canvas =
+            document.createElement("canvas");
+
+          canvas.width =
+            image.naturalWidth;
+
+          canvas.height =
+            image.naturalHeight;
+
+
+          const ctx =
+            canvas.getContext("2d");
+
+          ctx.drawImage(
+            image,
+            0,
+            0
+          );
+
+
+          const type =
+            document.getElementById(
+              "convertType"
+            ).value;
+
+
+          const blob =
+            await canvasToBlob(
+              canvas,
+              type,
+              0.92
             );
 
-          };
 
-      });
+          let extension = "jpg";
 
-    };
+          if (type === "image/png") {
+            extension = "png";
+          }
+
+          if (type === "image/webp") {
+            extension = "webp";
+          }
+
+
+          document
+            .getElementById("convertResult")
+            .innerHTML = `
+
+              <div class="result-box">
+
+                <h4>
+                  Conversion Complete
+                </h4>
+
+                <p>
+                  Format: ${extension.toUpperCase()}
+                </p>
+
+                <br>
+
+                <button
+                  id="downloadConverted"
+                  class="download-button"
+                >
+                  ⬇ Download ${extension.toUpperCase()}
+                </button>
+
+              </div>
+
+            `;
+
+
+          document
+            .getElementById("downloadConverted")
+            .addEventListener(
+              "click",
+              function () {
+
+                downloadBlob(
+                  blob,
+                  "manjeet-converted." + extension
+                );
+
+              }
+            );
+
+        }
+      );
 
   }
 
 
   /* =======================================================
      5. PHOTO SIZE REDUCER
-  ======================================================= */
+     ======================================================= */
 
-  function photoSizeReducer() {
+  function loadReducer() {
 
     toolContent.innerHTML = `
 
-      <div class="file-drop" id="smallDrop">
+      <div class="tool-form">
 
-        <div class="file-drop-icon">📦</div>
+        <div id="reducerFile"></div>
 
-        <h3>Select Photo</h3>
+        <div class="form-group">
 
-        <p>Reduce photo to a target size</p>
+          <label>
+            Target Size (KB)
+          </label>
 
-        <input
-          type="file"
-          id="smallFile"
-          accept="image/*"
-          hidden
+          <input
+            id="targetKB"
+            type="number"
+            min="5"
+            value="100"
+          >
+
+        </div>
+
+
+        <button
+          id="reduceButton"
+          class="primary-button"
         >
+          Reduce Photo Size
+        </button>
+
+        <div id="reduceResult"></div>
 
       </div>
-
-      <div id="smallArea"></div>
 
     `;
 
 
-    const drop =
-      document.getElementById("smallDrop");
+    const dropData =
+      createFileDrop(
+        "image/jpeg,image/png,image/webp"
+      );
 
-    const input =
-      document.getElementById("smallFile");
-
-    drop.onclick = () => input.click();
-
-
-    input.onchange = () => {
-
-      const file = input.files[0];
-
-      if (!file) return;
-
-      readImage(file, img => {
-
-        document.getElementById(
-          "smallArea"
-        ).innerHTML = `
-
-          <div class="form-group" style="margin-top:20px">
-
-            <label>
-              Target size (KB)
-            </label>
-
-            <input
-              type="number"
-              id="targetKB"
-              value="100"
-              min="5"
-            >
-
-          </div>
-
-          <div style="margin-top:20px">
-
-            <button
-              class="primary-btn"
-              id="reduceBtn"
-            >
-              📦 Reduce Photo Size
-            </button>
-
-          </div>
-
-          <div id="smallResult"></div>
-
-        `;
+    document
+      .getElementById("reducerFile")
+      .appendChild(dropData.wrapper);
 
 
-        document.getElementById(
-          "reduceBtn"
-        ).onclick = async () => {
+    document
+      .getElementById("reduceButton")
+      .addEventListener(
+        "click",
+        async function () {
+
+          const file =
+            dropData.input.files[0];
+
+          if (!file) {
+
+            alert("Please select an image first.");
+
+            return;
+
+          }
+
 
           const target =
-            Number(
-              document.getElementById(
-                "targetKB"
-              ).value
+            Math.max(
+              5,
+              Number(
+                document.getElementById(
+                  "targetKB"
+                ).value
+              )
             ) * 1024;
+
+
+          const image =
+            await loadImage(file);
+
 
           const canvas =
             document.createElement("canvas");
 
-          canvas.width = img.width;
-          canvas.height = img.height;
+          canvas.width =
+            image.naturalWidth;
 
-          canvas
-            .getContext("2d")
-            .drawImage(img, 0, 0);
+          canvas.height =
+            image.naturalHeight;
+
+          const ctx =
+            canvas.getContext("2d");
+
+          ctx.drawImage(
+            image,
+            0,
+            0
+          );
 
 
           let low = 0.05;
           let high = 0.95;
+
           let bestBlob = null;
 
 
-          for (let i = 0; i < 8; i++) {
+          for (let i = 0; i < 9; i++) {
 
             const quality =
               (low + high) / 2;
@@ -1124,218 +1661,276 @@ document.addEventListener("DOMContentLoaded", () => {
                 quality
               );
 
-            bestBlob = blob;
 
-            if (blob.size > target) {
-              high = quality;
-            } else {
+            if (blob.size <= target) {
+
+              bestBlob = blob;
+
               low = quality;
+
+            } else {
+
+              high = quality;
+
             }
 
           }
 
 
-          document.getElementById(
-            "smallResult"
-          ).innerHTML = `
+          if (!bestBlob) {
 
-            <div class="result-box">
+            bestBlob =
+              await canvasToBlob(
+                canvas,
+                "image/jpeg",
+                0.05
+              );
 
-              <h3>Done</h3>
-
-              <p>
-                Original:
-                ${(file.size / 1024).toFixed(1)} KB
-              </p>
-
-              <p>
-                New:
-                ${(bestBlob.size / 1024).toFixed(1)} KB
-              </p>
-
-              <br>
-
-              <button
-                class="primary-btn"
-                id="downloadSmall"
-              >
-                ⬇️ Download Photo
-              </button>
-
-            </div>
-
-          `;
+          }
 
 
-          document.getElementById(
-            "downloadSmall"
-          ).onclick = () => {
+          document
+            .getElementById("reduceResult")
+            .innerHTML = `
 
-            downloadBlob(
-              bestBlob,
-              "reduced-photo.jpg"
+              <div class="result-box">
+
+                <h4>
+                  Photo Size Reduced
+                </h4>
+
+                <div class="result-grid">
+
+                  <div class="result-item">
+
+                    <span>
+                      Original
+                    </span>
+
+                    <strong>
+                      ${formatKB(file.size)}
+                    </strong>
+
+                  </div>
+
+
+                  <div class="result-item">
+
+                    <span>
+                      New Size
+                    </span>
+
+                    <strong>
+                      ${formatKB(bestBlob.size)}
+                    </strong>
+
+                  </div>
+
+                </div>
+
+                <br>
+
+                <button
+                  id="downloadReduced"
+                  class="download-button"
+                >
+                  ⬇ Download Reduced Photo
+                </button>
+
+              </div>
+
+            `;
+
+
+          document
+            .getElementById("downloadReduced")
+            .addEventListener(
+              "click",
+              function () {
+
+                downloadBlob(
+                  bestBlob,
+                  "manjeet-reduced.jpg"
+                );
+
+              }
             );
 
-          };
-
-        };
-
-      });
-
-    };
+        }
+      );
 
   }
 
 
   /* =======================================================
      6. SOCIAL MEDIA RESIZER
-  ======================================================= */
+     ======================================================= */
 
-  function socialResizer() {
+  function loadSocialResizer() {
 
     toolContent.innerHTML = `
 
-      <div class="file-drop" id="socialDrop">
+      <div class="tool-form">
 
-        <div class="file-drop-icon">📱</div>
+        <div id="socialFile"></div>
 
-        <h3>Select Image</h3>
+        <div class="form-group">
 
-        <p>Resize for social media</p>
+          <label>
+            Select Platform Size
+          </label>
 
-        <input
-          type="file"
-          id="socialFile"
-          accept="image/*"
-          hidden
+          <select id="socialSize">
+
+            <option value="1080,1080">
+              Instagram Square — 1080 × 1080
+            </option>
+
+            <option value="1080,1350">
+              Instagram Portrait — 1080 × 1350
+            </option>
+
+            <option value="1080,1920">
+              Instagram / Facebook Story — 1080 × 1920
+            </option>
+
+            <option value="1280,720">
+              YouTube Thumbnail — 1280 × 720
+            </option>
+
+            <option value="1200,630">
+              Facebook Post — 1200 × 630
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <button
+          id="socialButton"
+          class="primary-button"
         >
+          Resize for Social Media
+        </button>
+
+        <div id="socialResult"></div>
 
       </div>
-
-      <div id="socialArea"></div>
 
     `;
 
 
-    const drop =
-      document.getElementById("socialDrop");
+    const dropData =
+      createFileDrop(
+        "image/jpeg,image/png,image/webp"
+      );
 
-    const input =
-      document.getElementById("socialFile");
-
-    drop.onclick = () => input.click();
-
-
-    input.onchange = () => {
-
-      const file = input.files[0];
-
-      if (!file) return;
-
-      readImage(file, img => {
-
-        document.getElementById(
-          "socialArea"
-        ).innerHTML = `
-
-          <div class="form-group" style="margin-top:20px">
-
-            <label>Choose Platform / Size</label>
-
-            <select id="socialSize">
-
-              <option value="1080,1080">
-                Instagram Square - 1080 × 1080
-              </option>
-
-              <option value="1080,1350">
-                Instagram Portrait - 1080 × 1350
-              </option>
-
-              <option value="1080,1920">
-                Instagram / Facebook Story - 1080 × 1920
-              </option>
-
-              <option value="1280,720">
-                YouTube Thumbnail - 1280 × 720
-              </option>
-
-              <option value="1200,630">
-                Facebook Post - 1200 × 630
-              </option>
-
-            </select>
-
-          </div>
-
-          <div style="margin-top:20px">
-
-            <button
-              class="primary-btn"
-              id="socialBtn"
-            >
-              📱 Resize & Download
-            </button>
-
-          </div>
-
-        `;
+    document
+      .getElementById("socialFile")
+      .appendChild(dropData.wrapper);
 
 
-        document.getElementById(
-          "socialBtn"
-        ).onclick = async () => {
+    document
+      .getElementById("socialButton")
+      .addEventListener(
+        "click",
+        async function () {
 
-          const values =
-            document.getElementById(
-              "socialSize"
-            ).value
-            .split(",");
+          const file =
+            dropData.input.files[0];
 
-          const width =
-            Number(values[0]);
+          if (!file) {
 
-          const height =
-            Number(values[1]);
+            alert("Please select an image first.");
+
+            return;
+
+          }
+
+
+          const image =
+            await loadImage(file);
+
+
+          const parts =
+            document
+              .getElementById("socialSize")
+              .value
+              .split(",");
+
+
+          const targetW =
+            Number(parts[0]);
+
+          const targetH =
+            Number(parts[1]);
 
 
           const canvas =
             document.createElement("canvas");
 
-          canvas.width = width;
-          canvas.height = height;
+          canvas.width =
+            targetW;
+
+          canvas.height =
+            targetH;
+
 
           const ctx =
             canvas.getContext("2d");
 
 
-          /* Cover crop */
+          const sourceRatio =
+            image.naturalWidth /
+            image.naturalHeight;
 
-          const scale =
-            Math.max(
-              width / img.width,
-              height / img.height
-            );
+          const targetRatio =
+            targetW /
+            targetH;
 
-          const newWidth =
-            img.width * scale;
 
-          const newHeight =
-            img.height * scale;
+          let drawW;
+          let drawH;
+          let offsetX;
+          let offsetY;
 
-          const x =
-            (width - newWidth) / 2;
 
-          const y =
-            (height - newHeight) / 2;
+          if (sourceRatio > targetRatio) {
+
+            drawH =
+              targetH;
+
+            drawW =
+              targetH * sourceRatio;
+
+            offsetX =
+              (targetW - drawW) / 2;
+
+            offsetY = 0;
+
+          } else {
+
+            drawW =
+              targetW;
+
+            drawH =
+              targetW / sourceRatio;
+
+            offsetX = 0;
+
+            offsetY =
+              (targetH - drawH) / 2;
+
+          }
 
 
           ctx.drawImage(
-            img,
-            x,
-            y,
-            newWidth,
-            newHeight
+            image,
+            offsetX,
+            offsetY,
+            drawW,
+            drawH
           );
 
 
@@ -1347,380 +1942,473 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
 
-          downloadBlob(
-            blob,
-            "social-media-image.jpg"
-          );
+          const url =
+            URL.createObjectURL(blob);
 
-        };
 
-      });
+          document
+            .getElementById("socialResult")
+            .innerHTML = `
 
-    };
+              <div class="result-box">
+
+                <h4>
+                  Social Media Image Ready
+                </h4>
+
+                <div class="preview-area">
+
+                  <div class="preview-card">
+
+                    <span>
+                      ${targetW} × ${targetH}
+                    </span>
+
+                    <img
+                      src="${url}"
+                      alt="Social media image"
+                    >
+
+                  </div>
+
+                </div>
+
+                <br>
+
+                <button
+                  id="downloadSocial"
+                  class="download-button"
+                >
+                  ⬇ Download Image
+                </button>
+
+              </div>
+
+            `;
+
+
+          document
+            .getElementById("downloadSocial")
+            .addEventListener(
+              "click",
+              function () {
+
+                downloadBlob(
+                  blob,
+                  "manjeet-social-image.jpg"
+                );
+
+              }
+            );
+
+        }
+      );
 
   }
 
 
   /* =======================================================
-     7. IMAGE TO PDF
-  ======================================================= */
+     7. IMAGES TO PDF
+     ======================================================= */
 
-  function imageToPDF() {
+  function loadImagesPDF() {
 
     toolContent.innerHTML = `
 
-      <div class="file-drop" id="pdfDrop">
+      <div class="tool-form">
 
-        <div class="file-drop-icon">📑</div>
+        <div id="pdfFile"></div>
 
-        <h3>Select Images</h3>
+        <div class="result-box">
 
-        <p>
-          Select one or multiple images
-        </p>
+          <h4>
+            How it works
+          </h4>
 
-        <input
-          type="file"
-          id="pdfFiles"
-          accept="image/*"
-          multiple
-          hidden
+          <p>
+            Select multiple images. A print-ready PDF
+            window will open. Choose "Save as PDF"
+            from your browser's print options.
+          </p>
+
+        </div>
+
+        <button
+          id="pdfButton"
+          class="primary-button"
         >
+          Create PDF
+        </button>
+
+        <div id="pdfResult"></div>
 
       </div>
-
-      <div id="pdfArea"></div>
 
     `;
 
 
-    const drop =
-      document.getElementById("pdfDrop");
+    const dropData =
+      createFileDrop(
+        "image/jpeg,image/png,image/webp",
+        true
+      );
 
-    const input =
-      document.getElementById("pdfFiles");
-
-    drop.onclick = () => input.click();
-
-
-    input.onchange = () => {
-
-      const files =
-        Array.from(input.files);
-
-      if (!files.length) return;
+    document
+      .getElementById("pdfFile")
+      .appendChild(dropData.wrapper);
 
 
-      document.getElementById(
-        "pdfArea"
-      ).innerHTML = `
+    document
+      .getElementById("pdfButton")
+      .addEventListener(
+        "click",
+        async function () {
 
-        <div class="result-box">
-
-          <h3>
-            ${files.length} image(s) selected
-          </h3>
-
-          <p>
-            Browser print dialog will be used
-            to save the images as PDF.
-          </p>
-
-          <br>
-
-          <button
-            class="primary-btn"
-            id="makePDF"
-          >
-            📄 Create PDF
-          </button>
-
-        </div>
-
-      `;
+          const files =
+            Array.from(
+              dropData.input.files
+            );
 
 
-      document.getElementById(
-        "makePDF"
-      ).onclick = async () => {
+          if (!files.length) {
 
-        let images = "";
+            alert(
+              "Please select at least one image."
+            );
+
+            return;
+
+          }
 
 
-        for (const file of files) {
+          const printWindow =
+            window.open(
+              "",
+              "_blank"
+            );
 
-          const data =
-            await fileToDataURL(file);
 
-          images += `
+          if (!printWindow) {
 
-            <div
-              style="
-                page-break-after:always;
-                text-align:center;
-              "
-            >
+            alert(
+              "Please allow pop-ups for this website."
+            );
 
-              <img
-                src="${data}"
-                style="
-                  max-width:100%;
-                  max-height:95vh;
-                "
-              >
+            return;
 
-            </div>
+          }
 
-          `;
+
+          printWindow.document.write(`
+
+            <!DOCTYPE html>
+
+            <html>
+
+            <head>
+
+              <title>
+                Manjeet Tools - Images to PDF
+              </title>
+
+              <style>
+
+                * {
+                  box-sizing: border-box;
+                }
+
+                body {
+                  margin: 0;
+                  background: #ddd;
+                  font-family: Arial, sans-serif;
+                }
+
+                .page {
+                  width: 210mm;
+                  min-height: 297mm;
+                  margin: 10mm auto;
+                  padding: 10mm;
+                  background: white;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  page-break-after: always;
+                }
+
+                .page img {
+                  max-width: 100%;
+                  max-height: 277mm;
+                  object-fit: contain;
+                }
+
+                @media print {
+
+                  body {
+                    background: white;
+                  }
+
+                  .page {
+                    margin: 0;
+                    width: 210mm;
+                    min-height: 297mm;
+                  }
+
+                }
+
+              </style>
+
+            </head>
+
+            <body>
+
+          `);
+
+
+          for (const file of files) {
+
+            const image =
+              await loadImage(file);
+
+            const canvas =
+              document.createElement("canvas");
+
+            canvas.width =
+              image.naturalWidth;
+
+            canvas.height =
+              image.naturalHeight;
+
+            const ctx =
+              canvas.getContext("2d");
+
+            ctx.drawImage(
+              image,
+              0,
+              0
+            );
+
+
+            const dataURL =
+              canvas.toDataURL(
+                "image/jpeg",
+                0.92
+              );
+
+
+            printWindow.document.write(`
+
+              <div class="page">
+
+                <img
+                  src="${dataURL}"
+                >
+
+              </div>
+
+            `);
+
+          }
+
+
+          printWindow.document.write(`
+
+            </body>
+
+            </html>
+
+          `);
+
+
+          printWindow.document.close();
+
+
+          printWindow.onload =
+            function () {
+
+              setTimeout(
+                function () {
+
+                  printWindow.focus();
+
+                  printWindow.print();
+
+                },
+                500
+              );
+
+            };
+
+
+          document
+            .getElementById("pdfResult")
+            .innerHTML = `
+
+              <div class="result-box">
+
+                <p>
+                  PDF print window opened successfully.
+                  Select <strong>Save as PDF</strong>.
+                </p>
+
+              </div>
+
+            `;
 
         }
-
-
-        const printWindow =
-          window.open("", "_blank");
-
-
-        printWindow.document.write(`
-
-          <!DOCTYPE html>
-
-          <html>
-
-          <head>
-
-            <title>Manjeet Tools PDF</title>
-
-            <style>
-
-              body {
-                margin: 0;
-                padding: 10px;
-              }
-
-              @media print {
-                body {
-                  padding: 0;
-                }
-              }
-
-            </style>
-
-          </head>
-
-          <body>
-
-            ${images}
-
-          </body>
-
-          </html>
-
-        `);
-
-
-        printWindow.document.close();
-
-        setTimeout(() => {
-
-          printWindow.focus();
-
-          printWindow.print();
-
-        }, 700);
-
-      };
-
-    };
-
-  }
-
-
-  function fileToDataURL(file) {
-
-    return new Promise(resolve => {
-
-      const reader = new FileReader();
-
-      reader.onload = e => {
-        resolve(e.target.result);
-      };
-
-      reader.readAsDataURL(file);
-
-    });
+      );
 
   }
 
 
   /* =======================================================
      8. QR GENERATOR
-  ======================================================= */
+     ======================================================= */
 
-  function qrGenerator() {
+  function loadQR() {
 
     toolContent.innerHTML = `
 
-      <div class="form-group">
+      <div class="tool-form">
 
-        <label>
-          Enter text or website URL
-        </label>
+        <div class="form-group">
 
-        <textarea
-          id="qrText"
-          placeholder="https://example.com"
-        ></textarea>
+          <label>
+            Enter Text or URL
+          </label>
 
-      </div>
+          <textarea
+            id="qrText"
+            placeholder="https://example.com"
+          ></textarea>
 
-      <div style="margin-top:20px">
+        </div>
+
 
         <button
-          class="primary-btn"
-          id="qrBtn"
+          id="qrButton"
+          class="primary-button"
         >
-          🔳 Generate QR
+          Generate QR Code
         </button>
 
-      </div>
 
-      <div
-        id="qrResult"
-        class="image-preview"
-      ></div>
+        <div
+          id="qrResult"
+          class="qr-result"
+        ></div>
+
+      </div>
 
     `;
 
 
-    document.getElementById("qrBtn").onclick = () => {
+    document
+      .getElementById("qrButton")
+      .addEventListener(
+        "click",
+        function () {
 
-      const text =
-        document.getElementById(
-          "qrText"
-        ).value.trim();
-
-
-      if (!text) {
-
-        alert("Please enter text or URL.");
-
-        return;
-
-      }
+          const text =
+            document
+              .getElementById("qrText")
+              .value
+              .trim();
 
 
-      const qrURL =
-        "https://api.qrserver.com/v1/create-qr-code/?" +
-        "size=500x500&data=" +
-        encodeURIComponent(text);
+          if (!text) {
+
+            alert(
+              "Please enter text or a URL."
+            );
+
+            return;
+
+          }
 
 
-      document.getElementById(
-        "qrResult"
-      ).innerHTML = `
+          const qrURL =
+            "https://api.qrserver.com/v1/create-qr-code/?" +
+            "size=500x500&data=" +
+            encodeURIComponent(text);
 
-        <img
-          id="qrImage"
-          src="${qrURL}"
-          alt="QR Code"
-          style="width:300px;height:300px"
-        >
 
-        <br><br>
+          document
+            .getElementById("qrResult")
+            .innerHTML = `
 
-        <a
-          class="primary-btn"
-          href="${qrURL}"
-          download="qr-code.png"
-          target="_blank"
-          style="
-            display:inline-block;
-            text-decoration:none;
-          "
-        >
-          ⬇️ Download QR
-        </a>
+              <img
+                src="${qrURL}"
+                alt="Generated QR Code"
+              >
 
-      `;
+              <a
+                class="download-button"
+                href="${qrURL}"
+                target="_blank"
+                rel="noopener"
+              >
+                Open QR Image
+              </a>
 
-    };
+            `;
+
+        }
+      );
 
   }
 
 
   /* =======================================================
      9. WORD COUNTER
-  ======================================================= */
+     ======================================================= */
 
-  function wordCounter() {
+  function loadWordCounter() {
 
     toolContent.innerHTML = `
 
-      <div class="form-group">
+      <div class="tool-form">
 
-        <label>Enter / Paste Text</label>
+        <div class="form-group">
 
-        <textarea
-          id="counterText"
-          placeholder="Type or paste your text here..."
-          style="min-height:250px"
-        ></textarea>
+          <label>
+            Enter or paste your text
+          </label>
 
-      </div>
-
-      <div
-        class="form-grid"
-        style="margin-top:20px"
-      >
-
-        <div class="result-box">
-
-          <h3>Words</h3>
-
-          <div
-            class="result-value"
-            id="wordCount"
-          >
-            0
-          </div>
+          <textarea
+            id="wordText"
+            placeholder="Start typing here..."
+          ></textarea>
 
         </div>
 
-        <div class="result-box">
 
-          <h3>Characters</h3>
+        <div
+          id="wordStats"
+          class="result-box"
+        >
 
-          <div
-            class="result-value"
-            id="charCount"
-          >
-            0
-          </div>
+          <div class="result-grid">
 
-        </div>
+            <div class="result-item">
+              <span>Words</span>
+              <strong id="wordCount">0</strong>
+            </div>
 
-        <div class="result-box">
+            <div class="result-item">
+              <span>Characters</span>
+              <strong id="charCount">0</strong>
+            </div>
 
-          <h3>Characters Without Spaces</h3>
+            <div class="result-item">
+              <span>No Spaces</span>
+              <strong id="charNoSpace">0</strong>
+            </div>
 
-          <div
-            class="result-value"
-            id="charNoSpace"
-          >
-            0
-          </div>
+            <div class="result-item">
+              <span>Sentences</span>
+              <strong id="sentenceCount">0</strong>
+            </div>
 
-        </div>
-
-        <div class="result-box">
-
-          <h3>Sentences</h3>
-
-          <div
-            class="result-value"
-            id="sentenceCount"
-          >
-            0
           </div>
 
         </div>
@@ -1731,52 +2419,63 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     const textarea =
-      document.getElementById(
-        "counterText"
-      );
+      document.getElementById("wordText");
 
 
     textarea.addEventListener(
       "input",
-      () => {
+      function () {
 
         const text =
           textarea.value;
+
 
         const words =
           text.trim()
             ? text.trim().split(/\s+/).length
             : 0;
 
-        const chars =
+
+        const characters =
           text.length;
 
-        const charsNoSpace =
+
+        const noSpaces =
           text.replace(/\s/g, "").length;
+
 
         const sentences =
           text.trim()
-            ? text
-                .split(/[.!?]+/)
-                .filter(s => s.trim()).length
+            ? (
+                text.match(
+                  /[.!?]+(?=\s|$)/g
+                ) || []
+              ).length
             : 0;
 
 
         document.getElementById(
           "wordCount"
-        ).textContent = words;
+        ).textContent =
+          words;
+
 
         document.getElementById(
           "charCount"
-        ).textContent = chars;
+        ).textContent =
+          characters;
+
 
         document.getElementById(
           "charNoSpace"
-        ).textContent = charsNoSpace;
+        ).textContent =
+          noSpaces;
+
 
         document.getElementById(
           "sentenceCount"
-        ).textContent = sentences;
+        ).textContent =
+          sentences;
 
       }
     );
@@ -1786,66 +2485,71 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* =======================================================
      10. CASE CONVERTER
-  ======================================================= */
+     ======================================================= */
 
-  function caseConverter() {
+  function loadCaseConverter() {
 
     toolContent.innerHTML = `
 
-      <div class="form-group">
+      <div class="tool-form">
 
-        <label>Enter Text</label>
+        <div class="form-group">
 
-        <textarea
-          id="caseText"
-          style="min-height:220px"
-          placeholder="Enter your text..."
-        ></textarea>
+          <label>
+            Enter Text
+          </label>
 
-      </div>
+          <textarea
+            id="caseText"
+            placeholder="Type or paste your text..."
+          ></textarea>
 
-      <div
-        style="
-          display:flex;
-          flex-wrap:wrap;
-          gap:10px;
-          margin-top:15px;
-        "
-      >
+        </div>
+
+
+        <div class="form-row">
+
+          <button
+            id="upperCase"
+            class="primary-button"
+          >
+            UPPERCASE
+          </button>
+
+          <button
+            id="lowerCase"
+            class="primary-button"
+          >
+            lowercase
+          </button>
+
+        </div>
+
+
+        <div class="form-row">
+
+          <button
+            id="titleCase"
+            class="primary-button"
+          >
+            Title Case
+          </button>
+
+          <button
+            id="sentenceCase"
+            class="primary-button"
+          >
+            Sentence case
+          </button>
+
+        </div>
+
 
         <button
-          class="primary-btn"
-          id="upperCase"
-        >
-          UPPERCASE
-        </button>
-
-        <button
-          class="secondary-btn"
-          id="lowerCase"
-        >
-          lowercase
-        </button>
-
-        <button
-          class="secondary-btn"
-          id="titleCase"
-        >
-          Title Case
-        </button>
-
-        <button
-          class="secondary-btn"
-          id="sentenceCase"
-        >
-          Sentence case
-        </button>
-
-        <button
-          class="secondary-btn"
           id="copyCase"
+          class="secondary-button"
         >
-          📋 Copy
+          📋 Copy Text
         </button>
 
       </div>
@@ -1857,952 +2561,1194 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("caseText");
 
 
-    document.getElementById(
-      "upperCase"
-    ).onclick = () => {
+    document
+      .getElementById("upperCase")
+      .addEventListener(
+        "click",
+        function () {
 
-      textarea.value =
-        textarea.value.toUpperCase();
+          textarea.value =
+            textarea.value.toUpperCase();
 
-    };
-
-
-    document.getElementById(
-      "lowerCase"
-    ).onclick = () => {
-
-      textarea.value =
-        textarea.value.toLowerCase();
-
-    };
-
-
-    document.getElementById(
-      "titleCase"
-    ).onclick = () => {
-
-      textarea.value =
-        textarea.value
-          .toLowerCase()
-          .replace(
-            /\b\w/g,
-            c => c.toUpperCase()
-          );
-
-    };
-
-
-    document.getElementById(
-      "sentenceCase"
-    ).onclick = () => {
-
-      textarea.value =
-        textarea.value
-          .toLowerCase()
-          .replace(
-            /(^\s*\w|[.!?]\s*\w)/g,
-            c => c.toUpperCase()
-          );
-
-    };
-
-
-    document.getElementById(
-      "copyCase"
-    ).onclick = async () => {
-
-      await navigator.clipboard.writeText(
-        textarea.value
+        }
       );
 
-      alert("Text copied!");
 
-    };
+    document
+      .getElementById("lowerCase")
+      .addEventListener(
+        "click",
+        function () {
+
+          textarea.value =
+            textarea.value.toLowerCase();
+
+        }
+      );
+
+
+    document
+      .getElementById("titleCase")
+      .addEventListener(
+        "click",
+        function () {
+
+          textarea.value =
+            textarea.value
+              .toLowerCase()
+              .replace(
+                /\b\w/g,
+                function (letter) {
+                  return letter.toUpperCase();
+                }
+              );
+
+        }
+      );
+
+
+    document
+      .getElementById("sentenceCase")
+      .addEventListener(
+        "click",
+        function () {
+
+          textarea.value =
+            textarea.value
+              .toLowerCase()
+              .replace(
+                /(^\s*\w|[.!?]\s*\w)/g,
+                function (match) {
+                  return match.toUpperCase();
+                }
+              );
+
+        }
+      );
+
+
+    document
+      .getElementById("copyCase")
+      .addEventListener(
+        "click",
+        async function () {
+
+          try {
+
+            await navigator.clipboard.writeText(
+              textarea.value
+            );
+
+            this.textContent =
+              "✓ Copied";
+
+            setTimeout(
+              () => {
+                this.textContent =
+                  "📋 Copy Text";
+              },
+              1500
+            );
+
+          } catch (error) {
+
+            textarea.select();
+
+            document.execCommand("copy");
+
+          }
+
+        }
+      );
 
   }
 
 
   /* =======================================================
      11. INVOICE GENERATOR
-  ======================================================= */
+     ======================================================= */
 
-  function invoiceGenerator() {
+  function loadInvoice() {
 
     toolContent.innerHTML = `
 
-      <div class="form-grid">
+      <div class="tool-form">
 
-        <div class="form-group">
+        <div class="form-row">
 
-          <label>Business Name</label>
+          <div class="form-group">
 
-          <input
-            id="businessName"
-            placeholder="Your Business"
-          >
+            <label>
+              Business Name
+            </label>
 
-        </div>
+            <input
+              id="businessName"
+              placeholder="Your Business"
+            >
 
-        <div class="form-group">
+          </div>
 
-          <label>Customer Name</label>
 
-          <input
-            id="customerName"
-            placeholder="Customer Name"
-          >
+          <div class="form-group">
 
-        </div>
+            <label>
+              Customer Name
+            </label>
 
-      </div>
+            <input
+              id="customerName"
+              placeholder="Customer Name"
+            >
 
-      <div class="form-grid" style="margin-top:15px">
-
-        <div class="form-group">
-
-          <label>Item / Service</label>
-
-          <input
-            id="invoiceItem"
-            placeholder="Product / Service"
-          >
+          </div>
 
         </div>
 
-        <div class="form-group">
 
-          <label>Amount (₹)</label>
+        <div class="form-row">
 
-          <input
-            id="invoiceAmount"
-            type="number"
-            placeholder="1000"
-          >
+          <div class="form-group">
+
+            <label>
+              Item / Service
+            </label>
+
+            <input
+              id="invoiceItem"
+              placeholder="Product or Service"
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label>
+              Amount (₹)
+            </label>
+
+            <input
+              id="invoiceAmount"
+              type="number"
+              min="0"
+              placeholder="0"
+            >
+
+          </div>
 
         </div>
 
-      </div>
-
-      <div style="margin-top:20px">
 
         <button
-          class="primary-btn"
-          id="invoiceBtn"
+          id="generateInvoice"
+          class="primary-button"
         >
-          🧾 Generate Invoice
+          Generate Invoice
         </button>
 
-      </div>
 
-      <div id="invoicePreview"></div>
+        <div id="invoiceResult"></div>
+
+      </div>
 
     `;
 
 
-    document.getElementById(
-      "invoiceBtn"
-    ).onclick = () => {
+    document
+      .getElementById("generateInvoice")
+      .addEventListener(
+        "click",
+        function () {
 
-      const business =
-        document.getElementById(
-          "businessName"
-        ).value || "My Business";
-
-      const customer =
-        document.getElementById(
-          "customerName"
-        ).value || "Customer";
-
-      const item =
-        document.getElementById(
-          "invoiceItem"
-        ).value || "Service";
-
-      const amount =
-        Number(
-          document.getElementById(
-            "invoiceAmount"
-          ).value
-        ) || 0;
+          const business =
+            document.getElementById(
+              "businessName"
+            ).value.trim() ||
+            "Your Business";
 
 
-      document.getElementById(
-        "invoicePreview"
-      ).innerHTML = `
-
-        <div
-          id="invoicePrint"
-          style="
-            margin-top:25px;
-            padding:25px;
-            border:1px solid #ddd;
-            border-radius:12px;
-            background:white;
-          "
-        >
-
-          <h2>${escapeHTML(business)}</h2>
-
-          <p>
-            Invoice Date:
-            ${new Date().toLocaleDateString("en-IN")}
-          </p>
-
-          <hr style="margin:15px 0">
-
-          <p>
-            <strong>Bill To:</strong>
-            ${escapeHTML(customer)}
-          </p>
-
-          <br>
-
-          <table
-            style="
-              width:100%;
-              border-collapse:collapse;
-            "
-          >
-
-            <tr>
-
-              <th
-                style="
-                  text-align:left;
-                  padding:10px;
-                  border-bottom:1px solid #ddd;
-                "
-              >
-                Item
-              </th>
-
-              <th
-                style="
-                  text-align:right;
-                  padding:10px;
-                  border-bottom:1px solid #ddd;
-                "
-              >
-                Amount
-              </th>
-
-            </tr>
-
-            <tr>
-
-              <td style="padding:10px">
-                ${escapeHTML(item)}
-              </td>
-
-              <td
-                style="
-                  padding:10px;
-                  text-align:right;
-                "
-              >
-                ₹${amount.toFixed(2)}
-              </td>
-
-            </tr>
-
-          </table>
-
-          <hr style="margin:15px 0">
-
-          <h3 style="text-align:right">
-            Total: ₹${amount.toFixed(2)}
-          </h3>
-
-        </div>
-
-        <br>
-
-        <button
-          class="primary-btn"
-          id="printInvoice"
-        >
-          🖨️ Print / Save PDF
-        </button>
-
-      `;
+          const customer =
+            document.getElementById(
+              "customerName"
+            ).value.trim() ||
+            "Customer";
 
 
-      document.getElementById(
-        "printInvoice"
-      ).onclick = () => {
-
-        const invoice =
-          document.getElementById(
-            "invoicePrint"
-          ).innerHTML;
+          const item =
+            document.getElementById(
+              "invoiceItem"
+            ).value.trim() ||
+            "Service";
 
 
-        const win =
-          window.open("", "_blank");
+          const amount =
+            Number(
+              document.getElementById(
+                "invoiceAmount"
+              ).value
+            ) || 0;
 
 
-        win.document.write(`
+          document
+            .getElementById("invoiceResult")
+            .innerHTML = `
 
-          <html>
+              <div class="invoice-preview">
 
-          <head>
+                <div class="invoice-head">
 
-            <title>Invoice</title>
+                  <div>
 
-            <style>
+                    <h2>
+                      INVOICE
+                    </h2>
 
-              body {
-                font-family:Arial,sans-serif;
-                padding:30px;
+                    <p>
+                      ${escapeHTML(business)}
+                    </p>
+
+                  </div>
+
+                  <div>
+
+                    <p>
+                      Date:
+                      ${new Date().toLocaleDateString("en-IN")}
+                    </p>
+
+                  </div>
+
+                </div>
+
+
+                <br>
+
+                <p>
+                  <strong>
+                    Bill To:
+                  </strong>
+                  ${escapeHTML(customer)}
+                </p>
+
+
+                <table class="invoice-items">
+
+                  <thead>
+
+                    <tr>
+
+                      <th>
+                        Description
+                      </th>
+
+                      <th>
+                        Amount
+                      </th>
+
+                    </tr>
+
+                  </thead>
+
+                  <tbody>
+
+                    <tr>
+
+                      <td>
+                        ${escapeHTML(item)}
+                      </td>
+
+                      <td>
+                        ₹${formatNumber(amount)}
+                      </td>
+
+                    </tr>
+
+                  </tbody>
+
+                </table>
+
+
+                <div class="invoice-total">
+
+                  <div class="invoice-total-row final">
+
+                    <span>
+                      Total
+                    </span>
+
+                    <strong>
+                      ₹${formatNumber(amount)}
+                    </strong>
+
+                  </div>
+
+                </div>
+
+
+                <br>
+
+                <button
+                  id="printInvoice"
+                  class="primary-button"
+                >
+                  🖨️ Print / Save PDF
+                </button>
+
+              </div>
+
+            `;
+
+
+          document
+            .getElementById("printInvoice")
+            .addEventListener(
+              "click",
+              function () {
+
+                printInvoice();
+
               }
-
-              table {
-                width:100%;
-              }
-
-            </style>
-
-          </head>
-
-          <body>
-
-            ${invoice}
-
-          </body>
-
-          </html>
-
-        `);
-
-
-        win.document.close();
-
-        setTimeout(() => {
-
-          win.print();
-
-        }, 500);
-
-      };
-
-    };
-
-  }
-
-
-  function escapeHTML(text) {
-
-    return String(text)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-
-  }
-
-
-  /* =======================================================
-     12. EMI CALCULATOR
-  ======================================================= */
-
-  function emiCalculator() {
-
-    toolContent.innerHTML = `
-
-      <div class="form-grid">
-
-        <div class="form-group">
-
-          <label>Loan Amount (₹)</label>
-
-          <input
-            type="number"
-            id="loanAmount"
-            value="500000"
-          >
-
-        </div>
-
-        <div class="form-group">
-
-          <label>Interest Rate (% per year)</label>
-
-          <input
-            type="number"
-            id="interestRate"
-            value="8.5"
-            step="0.01"
-          >
-
-        </div>
-
-        <div class="form-group">
-
-          <label>Loan Tenure (Years)</label>
-
-          <input
-            type="number"
-            id="loanYears"
-            value="10"
-          >
-
-        </div>
-
-      </div>
-
-      <div style="margin-top:20px">
-
-        <button
-          class="primary-btn"
-          id="emiBtn"
-        >
-          Calculate EMI
-        </button>
-
-      </div>
-
-      <div id="emiResult"></div>
-
-    `;
-
-
-    document.getElementById(
-      "emiBtn"
-    ).onclick = () => {
-
-      const P =
-        Number(
-          document.getElementById(
-            "loanAmount"
-          ).value
-        );
-
-      const annualRate =
-        Number(
-          document.getElementById(
-            "interestRate"
-          ).value
-        );
-
-      const years =
-        Number(
-          document.getElementById(
-            "loanYears"
-          ).value
-        );
-
-
-      const r =
-        annualRate / 12 / 100;
-
-      const n =
-        years * 12;
-
-
-      let emi;
-
-
-      if (r === 0) {
-
-        emi = P / n;
-
-      } else {
-
-        emi =
-          P *
-          r *
-          Math.pow(1 + r, n) /
-          (Math.pow(1 + r, n) - 1);
-
-      }
-
-
-      const total =
-        emi * n;
-
-      const interest =
-        total - P;
-
-
-      document.getElementById(
-        "emiResult"
-      ).innerHTML = `
-
-        <div class="form-grid">
-
-          <div class="result-box">
-
-            <h3>Monthly EMI</h3>
-
-            <div class="result-value">
-              ₹${formatNumber(emi)}
-            </div>
-
-          </div>
-
-          <div class="result-box">
-
-            <h3>Total Interest</h3>
-
-            <div class="result-value">
-              ₹${formatNumber(interest)}
-            </div>
-
-          </div>
-
-          <div class="result-box">
-
-            <h3>Total Payment</h3>
-
-            <div class="result-value">
-              ₹${formatNumber(total)}
-            </div>
-
-          </div>
-
-        </div>
-
-      `;
-
-    };
-
-  }
-
-
-  /* =======================================================
-     13. GST CALCULATOR
-  ======================================================= */
-
-  function gstCalculator() {
-
-    toolContent.innerHTML = `
-
-      <div class="form-grid">
-
-        <div class="form-group">
-
-          <label>Amount (₹)</label>
-
-          <input
-            type="number"
-            id="gstAmount"
-            value="1000"
-          >
-
-        </div>
-
-        <div class="form-group">
-
-          <label>GST Rate</label>
-
-          <select id="gstRate">
-
-            <option value="5">5%</option>
-
-            <option value="12">12%</option>
-
-            <option value="18" selected>18%</option>
-
-            <option value="28">28%</option>
-
-          </select>
-
-        </div>
-
-      </div>
-
-      <div style="margin-top:20px">
-
-        <button
-          class="primary-btn"
-          id="gstBtn"
-        >
-          Calculate GST
-        </button>
-
-      </div>
-
-      <div id="gstResult"></div>
-
-    `;
-
-
-    document.getElementById(
-      "gstBtn"
-    ).onclick = () => {
-
-      const amount =
-        Number(
-          document.getElementById(
-            "gstAmount"
-          ).value
-        );
-
-      const rate =
-        Number(
-          document.getElementById(
-            "gstRate"
-          ).value
-        );
-
-
-      const gst =
-        amount * rate / 100;
-
-      const total =
-        amount + gst;
-
-
-      document.getElementById(
-        "gstResult"
-      ).innerHTML = `
-
-        <div class="form-grid">
-
-          <div class="result-box">
-
-            <h3>GST Amount</h3>
-
-            <div class="result-value">
-              ₹${formatNumber(gst)}
-            </div>
-
-          </div>
-
-          <div class="result-box">
-
-            <h3>Total Amount</h3>
-
-            <div class="result-value">
-              ₹${formatNumber(total)}
-            </div>
-
-          </div>
-
-        </div>
-
-      `;
-
-    };
-
-  }
-
-
-  /* =======================================================
-     14. PERCENTAGE CALCULATOR
-  ======================================================= */
-
-  function percentageCalculator() {
-
-    toolContent.innerHTML = `
-
-      <div class="form-group">
-
-        <label>
-          What is X% of Y?
-        </label>
-
-        <div class="form-grid">
-
-          <input
-            type="number"
-            id="percentX"
-            placeholder="X"
-          >
-
-          <input
-            type="number"
-            id="percentY"
-            placeholder="Y"
-          >
-
-        </div>
-
-      </div>
-
-      <div style="margin-top:20px">
-
-        <button
-          class="primary-btn"
-          id="percentBtn"
-        >
-          Calculate
-        </button>
-
-      </div>
-
-      <div id="percentResult"></div>
-
-    `;
-
-
-    document.getElementById(
-      "percentBtn"
-    ).onclick = () => {
-
-      const x =
-        Number(
-          document.getElementById(
-            "percentX"
-          ).value
-        );
-
-      const y =
-        Number(
-          document.getElementById(
-            "percentY"
-          ).value
-        );
-
-
-      const result =
-        x * y / 100;
-
-
-      document.getElementById(
-        "percentResult"
-      ).innerHTML = `
-
-        <div class="result-box">
-
-          <h3>Result</h3>
-
-          <div class="result-value">
-            ${formatNumber(result)}
-          </div>
-
-          <p>
-            ${x}% of ${y} =
-            ${formatNumber(result)}
-          </p>
-
-        </div>
-
-      `;
-
-    };
-
-  }
-
-
-  /* =======================================================
-     15. AGE CALCULATOR
-  ======================================================= */
-
-  function ageCalculator() {
-
-    toolContent.innerHTML = `
-
-      <div class="form-group">
-
-        <label>Date of Birth</label>
-
-        <input
-          type="date"
-          id="dob"
-        >
-
-      </div>
-
-      <div style="margin-top:20px">
-
-        <button
-          class="primary-btn"
-          id="ageBtn"
-        >
-          🎂 Calculate Age
-        </button>
-
-      </div>
-
-      <div id="ageResult"></div>
-
-    `;
-
-
-    document.getElementById(
-      "ageBtn"
-    ).onclick = () => {
-
-      const dobValue =
-        document.getElementById(
-          "dob"
-        ).value;
-
-
-      if (!dobValue) {
-
-        alert("Please select date of birth.");
-
-        return;
-
-      }
-
-
-      const dob =
-        new Date(dobValue);
-
-      const today =
-        new Date();
-
-
-      let years =
-        today.getFullYear() -
-        dob.getFullYear();
-
-      let months =
-        today.getMonth() -
-        dob.getMonth();
-
-      let days =
-        today.getDate() -
-        dob.getDate();
-
-
-      if (days < 0) {
-
-        months--;
-
-        const previousMonth =
-          new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            0
-          );
-
-        days +=
-          previousMonth.getDate();
-
-      }
-
-
-      if (months < 0) {
-
-        years--;
-
-        months += 12;
-
-      }
-
-
-      document.getElementById(
-        "ageResult"
-      ).innerHTML = `
-
-        <div class="result-box">
-
-          <h3>Your Age</h3>
-
-          <div class="result-value">
-
-            ${years} Years
-
-          </div>
-
-          <p>
-            ${months} Months
-            ${days} Days
-          </p>
-
-        </div>
-
-      `;
-
-    };
-
-  }
-
-
-  /* =======================================================
-     NUMBER FORMATTER
-  ======================================================= */
-
-  function formatNumber(number) {
-
-    return Number(number)
-      .toLocaleString("en-IN", {
-        maximumFractionDigits: 2
-      });
-
-  }
-
-
-  /* =======================================================
-     TOOL SEARCH
-  ======================================================= */
-
-  if (searchInput) {
-
-    searchInput.addEventListener(
-      "input",
-      () => {
-
-        const query =
-          searchInput.value
-            .toLowerCase()
-            .trim();
-
-
-        const cards =
-          document.querySelectorAll(
-            ".tool-card"
-          );
-
-
-        let visible = 0;
-
-
-        cards.forEach(card => {
-
-          const name =
-            (
-              card.dataset.name ||
-              card.textContent
-            ).toLowerCase();
-
-
-          if (
-            name.includes(query)
-          ) {
-
-            card.style.display = "";
-
-            visible++;
-
-          } else {
-
-            card.style.display = "none";
-
-          }
-
-        });
-
-
-        if (visible === 0) {
-
-          noResults.style.display =
-            "block";
-
-        } else {
-
-          noResults.style.display =
-            "none";
+            );
 
         }
+      );
 
-      }
+  }
+
+
+  function printInvoice() {
+
+    const invoice =
+      document.querySelector(
+        ".invoice-preview"
+      );
+
+
+    if (!invoice) {
+      return;
+    }
+
+
+    const printWindow =
+      window.open(
+        "",
+        "_blank"
+      );
+
+
+    if (!printWindow) {
+
+      alert(
+        "Please allow pop-ups for printing."
+      );
+
+      return;
+
+    }
+
+
+    printWindow.document.write(`
+
+      <!DOCTYPE html>
+
+      <html>
+
+      <head>
+
+        <title>
+          Invoice
+        </title>
+
+        <style>
+
+          body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+          }
+
+          button {
+            display: none;
+          }
+
+          .invoice-head {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #111;
+            padding-bottom: 15px;
+          }
+
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+          }
+
+          th,
+          td {
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+          }
+
+          .invoice-total {
+            margin-left: auto;
+            width: 250px;
+          }
+
+          .invoice-total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            font-size: 18px;
+            font-weight: bold;
+          }
+
+        </style>
+
+      </head>
+
+      <body>
+
+        ${invoice.innerHTML}
+
+      </body>
+
+      </html>
+
+    `);
+
+
+    printWindow.document.close();
+
+    printWindow.focus();
+
+    setTimeout(
+      function () {
+
+        printWindow.print();
+
+      },
+      400
     );
 
   }
 
 
   /* =======================================================
-     FINISH
-  ======================================================= */
+     12. EMI CALCULATOR
+     ======================================================= */
+
+  function loadEMI() {
+
+    toolContent.innerHTML = `
+
+      <div class="tool-form">
+
+        <div class="form-row">
+
+          <div class="form-group">
+
+            <label>
+              Loan Amount (₹)
+            </label>
+
+            <input
+              id="loanAmount"
+              type="number"
+              min="1"
+              value="1000000"
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label>
+              Interest Rate (% per year)
+            </label>
+
+            <input
+              id="interestRate"
+              type="number"
+              min="0"
+              step="0.01"
+              value="8.5"
+            >
+
+          </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Loan Tenure (Years)
+          </label>
+
+          <input
+            id="loanYears"
+            type="number"
+            min="1"
+            value="20"
+          >
+
+        </div>
+
+
+        <button
+          id="emiButton"
+          class="primary-button"
+        >
+          Calculate EMI
+        </button>
+
+
+        <div id="emiResult"></div>
+
+      </div>
+
+    `;
+
+
+    document
+      .getElementById("emiButton")
+      .addEventListener(
+        "click",
+        function () {
+
+          const principal =
+            Number(
+              document.getElementById(
+                "loanAmount"
+              ).value
+            );
+
+
+          const annualRate =
+            Number(
+              document.getElementById(
+                "interestRate"
+              ).value
+            );
+
+
+          const years =
+            Number(
+              document.getElementById(
+                "loanYears"
+              ).value
+            );
+
+
+          if (
+            principal <= 0 ||
+            years <= 0 ||
+            annualRate < 0
+          ) {
+
+            alert(
+              "Please enter valid values."
+            );
+
+            return;
+
+          }
+
+
+          const months =
+            years * 12;
+
+
+          const monthlyRate =
+            annualRate / 12 / 100;
+
+
+          let emi;
+
+
+          if (monthlyRate === 0) {
+
+            emi =
+              principal / months;
+
+          } else {
+
+            emi =
+              principal *
+              monthlyRate *
+              Math.pow(
+                1 + monthlyRate,
+                months
+              ) /
+              (
+                Math.pow(
+                  1 + monthlyRate,
+                  months
+                ) - 1
+              );
+
+          }
+
+
+          const totalPayment =
+            emi * months;
+
+
+          const totalInterest =
+            totalPayment - principal;
+
+
+          document
+            .getElementById("emiResult")
+            .innerHTML = `
+
+              <div class="calculator-result">
+
+                <div class="result-label">
+                  Monthly EMI
+                </div>
+
+                <div class="main-value">
+                  ₹${formatNumber(emi)}
+                </div>
+
+              </div>
+
+
+              <div class="result-grid">
+
+                <div class="result-item">
+
+                  <span>
+                    Principal
+                  </span>
+
+                  <strong>
+                    ₹${formatNumber(principal)}
+                  </strong>
+
+                </div>
+
+
+                <div class="result-item">
+
+                  <span>
+                    Total Interest
+                  </span>
+
+                  <strong>
+                    ₹${formatNumber(totalInterest)}
+                  </strong>
+
+                </div>
+
+
+                <div class="result-item">
+
+                  <span>
+                    Total Payment
+                  </span>
+
+                  <strong>
+                    ₹${formatNumber(totalPayment)}
+                  </strong>
+
+                </div>
+
+
+                <div class="result-item">
+
+                  <span>
+                    Tenure
+                  </span>
+
+                  <strong>
+                    ${years} Years
+                  </strong>
+
+                </div>
+
+              </div>
+
+            `;
+
+        }
+      );
+
+  }
+
+
+  /* =======================================================
+     13. GST CALCULATOR
+     ======================================================= */
+
+  function loadGST() {
+
+    toolContent.innerHTML = `
+
+      <div class="tool-form">
+
+        <div class="form-row">
+
+          <div class="form-group">
+
+            <label>
+              Amount (₹)
+            </label>
+
+            <input
+              id="gstAmount"
+              type="number"
+              min="0"
+              value="10000"
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label>
+              GST Rate (%)
+            </label>
+
+            <select id="gstRate">
+
+              <option value="0">
+                0%
+              </option>
+
+              <option value="5">
+                5%
+              </option>
+
+              <option value="12">
+                12%
+              </option>
+
+              <option value="18" selected>
+                18%
+              </option>
+
+              <option value="28">
+                28%
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        <button
+          id="gstButton"
+          class="primary-button"
+        >
+          Calculate GST
+        </button>
+
+
+        <div id="gstResult"></div>
+
+      </div>
+
+    `;
+
+
+    document
+      .getElementById("gstButton")
+      .addEventListener(
+        "click",
+        function () {
+
+          const amount =
+            Number(
+              document.getElementById(
+                "gstAmount"
+              ).value
+            );
+
+
+          const rate =
+            Number(
+              document.getElementById(
+                "gstRate"
+              ).value
+            );
+
+
+          if (amount < 0) {
+
+            alert(
+              "Please enter a valid amount."
+            );
+
+            return;
+
+          }
+
+
+          const gst =
+            amount * rate / 100;
+
+
+          const total =
+            amount + gst;
+
+
+          document
+            .getElementById("gstResult")
+            .innerHTML = `
+
+              <div class="result-box">
+
+                <h4>
+                  GST Calculation
+                </h4>
+
+                <div class="result-grid">
+
+                  <div class="result-item">
+
+                    <span>
+                      Amount
+                    </span>
+
+                    <strong>
+                      ₹${formatNumber(amount)}
+                    </strong>
+
+                  </div>
+
+
+                  <div class="result-item">
+
+                    <span>
+                      GST (${rate}%)
+                    </span>
+
+                    <strong>
+                      ₹${formatNumber(gst)}
+                    </strong>
+
+                  </div>
+
+
+                  <div class="result-item">
+
+                    <span>
+                      Final Total
+                    </span>
+
+                    <strong>
+                      ₹${formatNumber(total)}
+                    </strong>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            `;
+
+        }
+      );
+
+  }
+
+
+  /* =======================================================
+     14. PERCENTAGE CALCULATOR
+     ======================================================= */
+
+  function loadPercentage() {
+
+    toolContent.innerHTML = `
+
+      <div class="tool-form">
+
+        <div class="form-row">
+
+          <div class="form-group">
+
+            <label>
+              Percentage (%)
+            </label>
+
+            <input
+              id="percentValue"
+              type="number"
+              value="10"
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label>
+              Number
+            </label>
+
+            <input
+              id="percentNumber"
+              type="number"
+              value="1000"
+            >
+
+          </div>
+
+        </div>
+
+
+        <button
+          id="percentageButton"
+          class="primary-button"
+        >
+          Calculate
+        </button>
+
+
+        <div id="percentageResult"></div>
+
+      </div>
+
+    `;
+
+
+    document
+      .getElementById("percentageButton")
+      .addEventListener(
+        "click",
+        function () {
+
+          const percent =
+            Number(
+              document.getElementById(
+                "percentValue"
+              ).value
+            );
+
+
+          const number =
+            Number(
+              document.getElementById(
+                "percentNumber"
+              ).value
+            );
+
+
+          const result =
+            percent * number / 100;
+
+
+          document
+            .getElementById(
+              "percentageResult"
+            )
+            .innerHTML = `
+
+              <div class="calculator-result">
+
+                <div class="result-label">
+                  Result
+                </div>
+
+                <div class="main-value">
+                  ${formatNumber(result)}
+                </div>
+
+                <p>
+                  ${percent}% of
+                  ${formatNumber(number)}
+                </p>
+
+              </div>
+
+            `;
+
+        }
+      );
+
+  }
+
+
+  /* =======================================================
+     15. AGE CALCULATOR
+     ======================================================= */
+
+  function loadAge() {
+
+    toolContent.innerHTML = `
+
+      <div class="tool-form">
+
+        <div class="form-group">
+
+          <label>
+            Date of Birth
+          </label>
+
+          <input
+            id="dob"
+            type="date"
+          >
+
+        </div>
+
+
+        <button
+          id="ageButton"
+          class="primary-button"
+        >
+          Calculate Age
+        </button>
+
+
+        <div id="ageResult"></div>
+
+      </div>
+
+    `;
+
+
+    const dobInput =
+      document.getElementById("dob");
+
+
+    const today =
+      new Date();
+
+
+    dobInput.max =
+      today.toISOString().split("T")[0];
+
+
+    document
+      .getElementById("ageButton")
+      .addEventListener(
+        "click",
+        function () {
+
+          if (!dobInput.value) {
+
+            alert(
+              "Please select your date of birth."
+            );
+
+            return;
+
+          }
+
+
+          const dob =
+            new Date(
+              dobInput.value + "T00:00:00"
+            );
+
+
+          const now =
+            new Date();
+
+
+          if (dob > now) {
+
+            alert(
+              "Date of birth cannot be in the future."
+            );
+
+            return;
+
+          }
+
+
+          let years =
+            now.getFullYear() -
+            dob.getFullYear();
+
+
+          let months =
+            now.getMonth() -
+            dob.getMonth();
+
+
+          let days =
+            now.getDate() -
+            dob.getDate();
+
+
+          if (days < 0) {
+
+            months--;
+
+            const previousMonth =
+              new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                0
+              );
+
+            days +=
+              previousMonth.getDate();
+
+          }
+
+
+          if (months < 0) {
+
+            years--;
+
+            months += 12;
+
+          }
+
+
+          document
+            .getElementById("ageResult")
+            .innerHTML = `
+
+              <div class="calculator-result">
+
+                <div class="result-label">
+                  Your Exact Age
+                </div>
+
+                <div class="main-value">
+
+                  ${years}
+                  Years
+
+                </div>
+
+                <p>
+
+                  ${months} Months
+                  and
+                  ${days} Days
+
+                </p>
+
+              </div>
+
+            `;
+
+        }
+      );
+
+  }
+
+
+  /* =======================================================
+     INITIAL MESSAGE
+     ======================================================= */
 
   console.log(
-    "Manjeet Tools loaded successfully 🚀"
+    "Manjeet Tools loaded successfully."
   );
 
 });
