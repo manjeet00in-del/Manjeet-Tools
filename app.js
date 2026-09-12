@@ -1,4145 +1,1654 @@
 /* =========================================================
-   MANJEET DIGITAL HUB
-   COMPLETE APP.JS
-   Version 3.0
+   SCHOOL ID CARD MAKER
+   Ready-Made Templates + Custom Design
    ========================================================= */
 
-"use strict";
+function loadSchoolID() {
 
-document.addEventListener("DOMContentLoaded", () => {
+  const box = document.getElementById("toolContent");
 
-  /* =====================================================
-     ELEMENTS
-     ===================================================== */
+  box.innerHTML = `
+    ${toolCSS()}
 
-  const modal = document.getElementById("toolModal");
-  const modalOverlay = document.getElementById("modalOverlay");
-  const closeTool = document.getElementById("closeTool");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalIcon = document.getElementById("modalIcon");
-  const toolContent = document.getElementById("toolContent");
-  const searchInput = document.getElementById("toolSearch");
-  const noResults = document.getElementById("noResults");
-  const currentYear = document.getElementById("currentYear");
-
-  if (currentYear) {
-    currentYear.textContent = new Date().getFullYear();
-  }
-
-
-  /* =====================================================
-     TOOL DATABASE
-     ===================================================== */
-
-  const toolData = {
-
-    /* IMAGE */
-
-    compressor: { title:"Image Compressor", icon:"🗜️", active:true },
-    resizer: { title:"Image Resizer", icon:"↔️", active:true },
-    converter: { title:"Image Converter", icon:"🔄", active:true },
-    reducer: { title:"Photo Size Reducer", icon:"📉", active:true },
-    social: { title:"Social Media Resizer", icon:"📱", active:true },
-    passport: { title:"Passport Photo Maker", icon:"📷", active:true },
-
-    /* PDF */
-
-    jpgpdf: { title:"JPG → PDF", icon:"📄", active:true },
-    pdf: { title:"Images → PDF", icon:"📑", active:true },
-    mergepdf: { title:"Merge PDF", icon:"📚", active:false },
-    splitpdf: { title:"Split PDF", icon:"✂️", active:false },
-    pdfjpg: { title:"PDF → JPG", icon:"🖼️", active:false },
-    pdfpng: { title:"PDF → PNG", icon:"🖼️", active:false },
-    pdfcompressor: { title:"PDF Compressor", icon:"🗜️", active:false },
-    pdfextractor: { title:"PDF Page Extractor", icon:"📑", active:false },
-    pdfreorder: { title:"PDF Page Reorder", icon:"↕️", active:false },
-    pdfrotate: { title:"PDF Rotate", icon:"🔄", active:false },
-    pdfprint: { title:"PDF Print Sheet", icon:"🖨️", active:false },
-
-    /* ID & PRINT */
-
-    schoolid: { title:"School ID Card Maker", icon:"🎓", active:false },
-    employeeid: { title:"Employee ID Card Maker", icon:"👨‍💼", active:false },
-    photosheet: { title:"A4 Photo Sheet Maker", icon:"🖨️", active:true },
-    document: { title:"Document Photo Maker", icon:"📃", active:false },
-    visiting: { title:"Visiting Card Maker", icon:"💼", active:false },
-    resume: { title:"Resume Maker", icon:"📄", active:false },
-    certificate: { title:"Certificate Maker", icon:"🏆", active:false },
-    signature: { title:"Signature Maker", icon:"✍️", active:false },
-    idprint: { title:"ID Card Print Sheet", icon:"🪪", active:false },
-    photolayout: { title:"Photo Print Layout", icon:"🖨️", active:false },
-    label: { title:"Label / Sticker Maker", icon:"🏷️", active:false },
-
-    /* FINANCE */
-
-    emi: { title:"EMI Calculator", icon:"₹", active:true },
-    gst: { title:"GST Calculator", icon:"%", active:true },
-    percentage: { title:"Percentage Calculator", icon:"%", active:true },
-    sip: { title:"SIP Calculator", icon:"📈", active:true },
-    fd: { title:"FD Calculator", icon:"🏦", active:true },
-    rd: { title:"RD Calculator", icon:"💰", active:true },
-    loaninterest: { title:"Loan Interest Calculator", icon:"💳", active:false },
-    interest: { title:"Simple Interest Calculator", icon:"₹", active:true },
-    compound: { title:"Compound Interest Calculator", icon:"📈", active:true },
-    discount: { title:"Discount Calculator", icon:"🏷️", active:true },
-    profit: { title:"Profit & Loss Calculator", icon:"📊", active:true },
-    age: { title:"Age Calculator", icon:"🎂", active:true },
-    insurance: { title:"Insurance Policy Return Calculator", icon:"🛡️", active:false },
-
-    /* STUDENT */
-
-    cgpa: { title:"CGPA → Percentage", icon:"🎓", active:true },
-    gpa: { title:"GPA Calculator", icon:"🎓", active:true },
-    marks: { title:"Marks Required Calculator", icon:"📝", active:true },
-    grade: { title:"Grade Calculator", icon:"🏆", active:true },
-    studytime: { title:"Study Time Calculator", icon:"⏱️", active:true },
-    mocktest: { title:"Mock Test", icon:"📋", active:true },
-
-    /* LEGACY / EXTRA */
-
-    qr: { title:"QR Generator", icon:"▦", active:true },
-    invoice: { title:"Invoice Generator", icon:"🧾", active:true },
-    words: { title:"Word Counter", icon:"Aa", active:true },
-    case: { title:"Case Converter", icon:"Aa", active:true }
-
-  };
-
-
-  /* =====================================================
-     HELPERS
-     ===================================================== */
-
-  function escapeHTML(value) {
-    return String(value)
-      .replace(/&/g,"&amp;")
-      .replace(/</g,"&lt;")
-      .replace(/>/g,"&gt;")
-      .replace(/"/g,"&quot;")
-      .replace(/'/g,"&#039;");
-  }
-
-
-  function formatNumber(value) {
-    const n = Number(value);
-
-    if (!Number.isFinite(n)) return "0";
-
-    return n.toLocaleString("en-IN", {
-      maximumFractionDigits: 2
-    });
-  }
-
-
-  function money(value) {
-    return "₹" + formatNumber(value);
-  }
-
-
-  function downloadBlob(blob, filename) {
-
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-
-    a.href = url;
-    a.download = filename;
-
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-    }, 1000);
-  }
-
-
-  function loadImage(file) {
-
-    return new Promise((resolve,reject) => {
-
-      const img = new Image();
-
-      const url = URL.createObjectURL(file);
-
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-        resolve(img);
-      };
-
-      img.onerror = () => {
-        URL.revokeObjectURL(url);
-        reject(new Error("Image could not be loaded"));
-      };
-
-      img.src = url;
-    });
-  }
-
-
-  function canvasToBlob(
-    canvas,
-    type="image/jpeg",
-    quality=0.9
-  ) {
-
-    return new Promise((resolve,reject) => {
-
-      canvas.toBlob(blob => {
-
-        if (!blob) {
-          reject(new Error("Could not create image"));
-          return;
-        }
-
-        resolve(blob);
-
-      },type,quality);
-    });
-  }
-
-
-  function createFileDrop(
-    accept="image/*",
-    multiple=false
-  ) {
-
-    const wrapper = document.createElement("div");
-
-    wrapper.innerHTML = `
-
-      <div class="file-drop">
-
-        <div class="file-drop-icon">📁</div>
-
-        <h4>
-          ${multiple ? "Select files" : "Select an image"}
-        </h4>
-
-        <p>
-          Click here or drag and drop
-        </p>
-
-        <label class="file-select-button">
-
-          Choose File
-
-          <input
-            type="file"
-            accept="${accept}"
-            ${multiple ? "multiple" : ""}
-          >
-
-        </label>
-
-      </div>
-
-    `;
-
-    const drop = wrapper.querySelector(".file-drop");
-    const input = wrapper.querySelector("input");
-
-    drop.addEventListener("dragover", e => {
-      e.preventDefault();
-      drop.classList.add("dragover");
-    });
-
-    drop.addEventListener("dragleave", () => {
-      drop.classList.remove("dragover");
-    });
-
-    drop.addEventListener("drop", e => {
-
-      e.preventDefault();
-
-      drop.classList.remove("dragover");
-
-      if (
-        e.dataTransfer &&
-        e.dataTransfer.files.length
-      ) {
-
-        try {
-
-          const dt = new DataTransfer();
-
-          Array.from(e.dataTransfer.files).forEach(file => {
-            dt.items.add(file);
-          });
-
-          input.files = dt.files;
-
-          input.dispatchEvent(
-            new Event("change")
-          );
-
-        } catch(err) {
-          console.warn(err);
-        }
-      }
-    });
-
-    return {
-      wrapper,
-      input,
-      drop
-    };
-  }
-
-
-  /* =====================================================
-     MODAL
-     ===================================================== */
-
-  function openModal() {
-
-    if (!modal) return;
-
-    modal.classList.add("active");
-
-    modal.setAttribute(
-      "aria-hidden",
-      "false"
-    );
-
-    document.body.classList.add("modal-open");
-  }
-
-
-  function closeModal() {
-
-    if (modal) {
-
-      modal.classList.remove("active");
-
-      modal.setAttribute(
-        "aria-hidden",
-        "true"
-      );
-    }
-
-    document.body.classList.remove(
-      "modal-open"
-    );
-
-    if (toolContent) {
-      toolContent.innerHTML = "";
-    }
-  }
-
-
-  function showComingSoon(title) {
-
-    if (modalTitle) {
-      modalTitle.textContent = title;
-    }
-
-    if (modalIcon) {
-      modalIcon.textContent = "🚀";
-    }
-
-    openModal();
-
-    if (!toolContent) return;
-
-    toolContent.innerHTML = `
-
-      <div class="coming-soon">
-
-        <div class="coming-icon">
-          🚀
-        </div>
-
-        <h2>
-          Coming Soon
-        </h2>
-
-        <p>
-          <strong>${escapeHTML(title)}</strong>
-          is being developed for Manjeet Digital Hub.
-        </p>
-
-        <div class="coming-features">
-
-          <div>⚡ Fast</div>
-          <div>🔒 Secure</div>
-          <div>🆓 Free</div>
-
-        </div>
-
-        <p class="coming-note">
-          This tool will be available in a future update.
-        </p>
-
-      </div>
-
-    `;
-  }
-
-
-  function openTool(toolName) {
-
-    const data = toolData[toolName];
-
-    if (!data) {
-
-      showComingSoon("Digital Tool");
-
-      return;
-    }
-
-    if (modalTitle) {
-      modalTitle.textContent = data.title;
-    }
-
-    if (modalIcon) {
-      modalIcon.textContent = data.icon;
-    }
-
-    openModal();
-
-    loadTool(toolName);
-
-    setTimeout(() => {
-
-      const firstInput =
-        toolContent?.querySelector(
-          "input:not([type='file']), textarea, select"
-        );
-
-      if (firstInput) {
-        firstInput.focus();
+    <style>
+      .sid-wrap{
+        display:grid;
+        gap:14px;
       }
 
-    },150);
-  }
-
-
-  /* =====================================================
-     CARD CLICK
-     ===================================================== */
-
-  document.querySelectorAll(".tool-card")
-    .forEach(card => {
-
-      card.setAttribute("tabindex","0");
-      card.setAttribute("role","button");
-
-      card.addEventListener("click",() => {
-
-        const tool =
-          card.getAttribute("data-tool");
-
-        if (tool) {
-          openTool(tool);
-        }
-      });
-
-      card.addEventListener("keydown",e => {
-
-        if (
-          e.key === "Enter" ||
-          e.key === " "
-        ) {
-
-          e.preventDefault();
-
-          card.click();
-        }
-      });
-    });
-
-
-  /* =====================================================
-     MODAL CLOSE
-     ===================================================== */
-
-  closeTool?.addEventListener(
-    "click",
-    closeModal
-  );
-
-  modalOverlay?.addEventListener(
-    "click",
-    closeModal
-  );
-
-  document.addEventListener("keydown",e => {
-
-    if (e.key === "Escape") {
-      closeModal();
-    }
-  });
-
-
-  /* =====================================================
-     SEARCH
-     ===================================================== */
-
-  searchInput?.addEventListener(
-    "input",
-    () => {
-
-      const query =
-        searchInput.value
-          .trim()
-          .toLowerCase();
-
-      const cards =
-        document.querySelectorAll(
-          ".tool-card"
-        );
-
-      let visible = 0;
-
-      cards.forEach(card => {
-
-        const name =
-          (
-            card.getAttribute("data-name") ||
-            card.textContent ||
-            ""
-          ).toLowerCase();
-
-        const match =
-          !query ||
-          name.includes(query);
-
-        card.style.display =
-          match ? "" : "none";
-
-        if (match) {
-          visible++;
-        }
-      });
-
-      if (noResults) {
-
-        noResults.classList.toggle(
-          "show",
-          visible === 0
-        );
+      .sid-section{
+        background:#fff;
+        border:1px solid #e5e7eb;
+        border-radius:14px;
+        padding:14px;
       }
-    }
-  );
 
+      .sid-section h3{
+        margin:0 0 12px;
+        font-size:15px;
+      }
 
-  /* =====================================================
-     CTRL + K
-     ===================================================== */
+      .sid-grid{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:9px;
+      }
 
-  document.addEventListener("keydown",e => {
+      .sid-field{
+        display:flex;
+        flex-direction:column;
+        gap:5px;
+      }
 
-    const mac =
-      navigator.platform
-        .toUpperCase()
-        .includes("MAC");
+      .sid-field.full{
+        grid-column:1/-1;
+      }
 
-    if (
-      (mac && e.metaKey && e.key.toLowerCase()==="k") ||
-      (!mac && e.ctrlKey && e.key.toLowerCase()==="k")
-    ) {
+      .sid-field label{
+        font-size:12px;
+        font-weight:700;
+        color:#374151;
+      }
 
-      e.preventDefault();
+      .sid-field input,
+      .sid-field textarea,
+      .sid-field select{
+        width:100%;
+        box-sizing:border-box;
+        border:1px solid #d1d5db;
+        border-radius:9px;
+        padding:9px 10px;
+        font-size:13px;
+        outline:none;
+        background:#fff;
+      }
 
-      searchInput?.focus();
-    }
-  });
+      .sid-field textarea{
+        min-height:65px;
+        resize:vertical;
+      }
 
+      .sid-field input:focus,
+      .sid-field textarea:focus,
+      .sid-field select:focus{
+        border-color:#2563eb;
+      }
 
-  /* =====================================================
-     TOOL LOADER
-     ===================================================== */
+      .sid-templates{
+        display:grid;
+        grid-template-columns:repeat(3,1fr);
+        gap:7px;
+      }
 
-  function loadTool(tool) {
+      .sid-template{
+        border:2px solid #e5e7eb;
+        border-radius:10px;
+        padding:8px 5px;
+        background:#fff;
+        cursor:pointer;
+        text-align:center;
+        font-size:11px;
+        font-weight:700;
+      }
 
-    if (!toolContent) return;
+      .sid-template.active{
+        border-color:#2563eb;
+        background:#eff6ff;
+      }
 
-    toolContent.innerHTML = "";
+      .sid-swatch{
+        height:30px;
+        border-radius:6px;
+        margin-bottom:5px;
+      }
 
-    switch(tool) {
+      .sid-upload{
+        border:1.5px dashed #cbd5e1;
+        border-radius:10px;
+        padding:10px;
+        text-align:center;
+        cursor:pointer;
+        background:#f8fafc;
+        font-size:12px;
+      }
 
-      case "compressor":
-        loadCompressor();
-        break;
+      .sid-upload input{
+        display:none;
+      }
 
-      case "resizer":
-        loadResizer();
-        break;
+      .sid-preview{
+        background:#f1f5f9;
+        border-radius:14px;
+        padding:12px;
+        overflow:auto;
+      }
 
-      case "converter":
-        loadConverter();
-        break;
+      .sid-preview-title{
+        font-size:12px;
+        font-weight:800;
+        margin-bottom:8px;
+      }
 
-      case "reducer":
-        loadReducer();
-        break;
+      .sid-cards{
+        display:flex;
+        gap:12px;
+        min-width:max-content;
+        justify-content:center;
+      }
 
-      case "social":
-        loadSocial();
-        break;
+      .sid-card{
+        width:360px;
+        height:225px;
+        flex:none;
+        position:relative;
+        overflow:hidden;
+        border-radius:12px;
+        box-shadow:0 5px 18px rgba(0,0,0,.16);
+        background:#fff;
+        font-family:Arial,sans-serif;
+      }
 
-      case "passport":
-        loadPassport();
-        break;
+      .sid-front-header{
+        height:65px;
+        color:#fff;
+        padding:9px 12px;
+        box-sizing:border-box;
+        display:flex;
+        align-items:center;
+        gap:9px;
+      }
 
-      case "jpgpdf":
-      case "pdf":
-        loadImagesPDF();
-        break;
+      .sid-logo{
+        width:43px;
+        height:43px;
+        object-fit:cover;
+        border-radius:50%;
+        background:#fff;
+        padding:2px;
+        box-sizing:border-box;
+      }
 
-      case "photosheet":
-        loadPhotoSheet();
-        break;
+      .sid-school{
+        font-size:15px;
+        font-weight:900;
+        line-height:1.05;
+      }
 
-      case "emi":
-        loadEMI();
-        break;
+      .sid-sub{
+        font-size:9px;
+        margin-top:3px;
+        opacity:.9;
+      }
 
-      case "gst":
-        loadGST();
-        break;
+      .sid-front-body{
+        display:flex;
+        gap:12px;
+        padding:13px;
+      }
 
-      case "percentage":
-        loadPercentage();
-        break;
+      .sid-photo{
+        width:82px;
+        height:100px;
+        object-fit:cover;
+        border-radius:7px;
+        border:3px solid #fff;
+        box-shadow:0 1px 5px rgba(0,0,0,.2);
+        background:#e5e7eb;
+      }
 
-      case "sip":
-        loadSIP();
-        break;
+      .sid-details{
+        flex:1;
+        font-size:10px;
+        line-height:1.55;
+      }
 
-      case "fd":
-        loadFD();
-        break;
+      .sid-name{
+        font-size:15px;
+        font-weight:900;
+        margin-bottom:5px;
+      }
 
-      case "rd":
-        loadRD();
-        break;
+      .sid-row b{
+        display:inline-block;
+        width:65px;
+      }
 
-      case "interest":
-        loadSimpleInterest();
-        break;
+      .sid-footer{
+        position:absolute;
+        bottom:0;
+        left:0;
+        right:0;
+        height:25px;
+        color:#fff;
+        font-size:9px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-weight:700;
+      }
 
-      case "compound":
-        loadCompoundInterest();
-        break;
+      .sid-back{
+        padding:15px;
+        box-sizing:border-box;
+      }
 
-      case "discount":
-        loadDiscount();
-        break;
+      .sid-back h2{
+        margin:0 0 12px;
+        font-size:15px;
+      }
 
-      case "profit":
-        loadProfitLoss();
-        break;
+      .sid-back p{
+        font-size:10px;
+        line-height:1.5;
+        margin:6px 0;
+      }
 
-      case "age":
-        loadAge();
-        break;
+      .sid-sign{
+        display:flex;
+        justify-content:space-between;
+        margin-top:35px;
+        font-size:9px;
+        text-align:center;
+      }
 
-      case "cgpa":
-        loadCGPA();
-        break;
+      .sid-sign div{
+        width:90px;
+        border-top:1px solid #333;
+        padding-top:4px;
+      }
 
-      case "gpa":
-        loadGPA();
-        break;
+      .sid-custom{
+        display:none;
+      }
 
-      case "marks":
-        loadMarksRequired();
-        break;
+      .sid-custom.show{
+        display:block;
+      }
 
-      case "grade":
-        loadGrade();
-        break;
+      .sid-color-row{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:9px;
+      }
 
-      case "studytime":
-        loadStudyTime();
-        break;
+      .sid-color-row input{
+        height:42px;
+        padding:3px;
+      }
 
-      case "mocktest":
-        loadMockTest();
-        break;
+      .sid-buttons{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:8px;
+      }
 
-      case "qr":
-        loadQR();
-        break;
+      .sid-btn{
+        border:0;
+        border-radius:10px;
+        padding:11px 8px;
+        font-size:12px;
+        font-weight:800;
+        cursor:pointer;
+      }
 
-      case "invoice":
-        loadInvoice();
-        break;
+      .sid-primary{
+        background:#2563eb;
+        color:#fff;
+      }
 
-      case "words":
-        loadWordCounter();
-        break;
+      .sid-secondary{
+        background:#111827;
+        color:#fff;
+      }
 
-      case "case":
-        loadCaseConverter();
-        break;
+      .sid-light{
+        background:#e5e7eb;
+        color:#111827;
+      }
 
-      default:
-        showComingSoon(
-          toolData[tool]?.title || "This Tool"
-        );
-    }
-  }
+      @media(max-width:600px){
+        .sid-card{
+          width:300px;
+          height:188px;
+        }
 
+        .sid-front-header{
+          height:54px;
+        }
 
-  /* =====================================================
-     IMAGE COMPRESSOR
-     ===================================================== */
+        .sid-logo{
+          width:35px;
+          height:35px;
+        }
 
-  function loadCompressor() {
+        .sid-school{
+          font-size:12px;
+        }
 
-    toolContent.innerHTML = `
+        .sid-photo{
+          width:68px;
+          height:84px;
+        }
 
-      <div class="tool-form">
+        .sid-name{
+          font-size:12px;
+        }
 
-        <div id="compressFile"></div>
+        .sid-details{
+          font-size:8px;
+        }
 
-        <div class="form-group">
+        .sid-front-body{
+          padding:10px;
+          gap:8px;
+        }
 
-          <label>Image Quality</label>
+        .sid-footer{
+          height:21px;
+          font-size:7px;
+        }
+      }
 
-          <input
-            id="compressQuality"
-            type="range"
-            min="10"
-            max="100"
-            value="80"
-          >
+      @media(max-width:400px){
+        .sid-grid{
+          grid-template-columns:1fr;
+        }
 
-          <strong id="qualityValue">
-            80%
-          </strong>
+        .sid-field.full{
+          grid-column:auto;
+        }
+
+        .sid-templates{
+          grid-template-columns:repeat(3,1fr);
+        }
+      }
+    </style>
+
+    <div class="sid-wrap">
+
+      <!-- TEMPLATE -->
+      <div class="sid-section">
+
+        <h3>🎨 Choose ID Card Template</h3>
+
+        <div class="sid-templates">
+
+          <div class="sid-template active" data-template="blue">
+            <div class="sid-swatch" style="background:#2563eb"></div>
+            Classic Blue
+          </div>
+
+          <div class="sid-template" data-template="purple">
+            <div class="sid-swatch" style="background:#7c3aed"></div>
+            Modern Purple
+          </div>
+
+          <div class="sid-template" data-template="green">
+            <div class="sid-swatch" style="background:#059669"></div>
+            Green School
+          </div>
+
+          <div class="sid-template" data-template="red">
+            <div class="sid-swatch" style="background:#dc2626"></div>
+            Red Premium
+          </div>
+
+          <div class="sid-template" data-template="navy">
+            <div class="sid-swatch" style="background:#0f172a"></div>
+            Corporate
+          </div>
+
+          <div class="sid-template" data-template="custom">
+            <div class="sid-swatch" style="background:linear-gradient(135deg,#f97316,#ec4899)"></div>
+            🎨 Custom
+          </div>
 
         </div>
 
-        <button
-          class="primary-button"
-          id="compressBtn"
-        >
-          Compress Image
-        </button>
+      </div>
 
-        <div id="compressResult"></div>
+
+      <!-- SCHOOL DETAILS -->
+
+      <div class="sid-section">
+
+        <h3>🏫 School Details</h3>
+
+        <div class="sid-grid">
+
+          <div class="sid-field full">
+            <label>School Name</label>
+            <input id="sidSchool" value="ABC PUBLIC SCHOOL">
+          </div>
+
+          <div class="sid-field">
+            <label>Session</label>
+            <input id="sidSession" value="2026 - 2027">
+          </div>
+
+          <div class="sid-field">
+            <label>School Contact</label>
+            <input id="sidSchoolPhone" value="9876543210">
+          </div>
+
+          <div class="sid-field full">
+            <label>School Address</label>
+            <textarea id="sidSchoolAddress">Lucknow, Uttar Pradesh</textarea>
+          </div>
+
+        </div>
 
       </div>
-    `;
 
-    const drop =
-      createFileDrop(
-        "image/jpeg,image/png,image/webp"
-      );
 
-    document
-      .getElementById("compressFile")
-      .appendChild(drop.wrapper);
+      <!-- STUDENT DETAILS -->
 
-    const range =
-      document.getElementById("compressQuality");
+      <div class="sid-section">
 
-    range.addEventListener("input",() => {
+        <h3>👨‍🎓 Student Details</h3>
 
-      document.getElementById(
-        "qualityValue"
-      ).textContent =
-        range.value + "%";
-    });
+        <div class="sid-grid">
 
-    document
-      .getElementById("compressBtn")
-      .addEventListener("click",async()=>{
+          <div class="sid-field full">
+            <label>Student Name</label>
+            <input id="sidName" value="Rahul Sharma">
+          </div>
 
-        const file =
-          drop.input.files[0];
+          <div class="sid-field">
+            <label>Class</label>
+            <input id="sidClass" value="10">
+          </div>
 
-        if (!file) {
-          alert("Please select an image first.");
-          return;
-        }
+          <div class="sid-field">
+            <label>Section</label>
+            <input id="sidSection" value="A">
+          </div>
 
-        try {
+          <div class="sid-field">
+            <label>Roll No.</label>
+            <input id="sidRoll" value="101">
+          </div>
 
-          const img =
-            await loadImage(file);
+          <div class="sid-field">
+            <label>DOB</label>
+            <input id="sidDOB" type="date">
+          </div>
 
-          const canvas =
-            document.createElement("canvas");
+          <div class="sid-field">
+            <label>Blood Group</label>
+            <input id="sidBlood" value="O+">
+          </div>
 
-          canvas.width =
-            img.naturalWidth;
+          <div class="sid-field">
+            <label>Contact</label>
+            <input id="sidContact" value="9876543210">
+          </div>
 
-          canvas.height =
-            img.naturalHeight;
+          <div class="sid-field full">
+            <label>Student Address</label>
+            <textarea id="sidAddress">Lucknow, Uttar Pradesh</textarea>
+          </div>
 
-          canvas
-            .getContext("2d")
-            .drawImage(img,0,0);
+        </div>
 
-          const blob =
-            await canvasToBlob(
-              canvas,
-              "image/jpeg",
-              Number(range.value)/100
-            );
+      </div>
 
-          const saved =
-            Math.max(
-              0,
-              ((file.size-blob.size)/file.size)*100
-            );
 
-          document
-            .getElementById("compressResult")
-            .innerHTML = `
+      <!-- UPLOADS -->
 
-              <div class="result-box">
+      <div class="sid-section">
 
-                <h4>
-                  Compression Complete
-                </h4>
+        <h3>📷 Photos & Logo</h3>
 
-                <div class="result-grid">
+        <div class="sid-grid">
 
-                  <div class="result-item">
-                    <span>Original</span>
-                    <strong>${(file.size/1024).toFixed(1)} KB</strong>
+          <label class="sid-upload">
+            🏫 Upload School Logo
+            <input id="sidLogoInput" type="file" accept="image/*">
+          </label>
+
+          <label class="sid-upload">
+            👨‍🎓 Upload Student Photo
+            <input id="sidPhotoInput" type="file" accept="image/*">
+          </label>
+
+        </div>
+
+      </div>
+
+
+      <!-- CUSTOM -->
+
+      <div id="sidCustomBox" class="sid-section sid-custom">
+
+        <h3>🎨 Custom Design</h3>
+
+        <div class="sid-color-row">
+
+          <div class="sid-field">
+            <label>Header Color</label>
+            <input id="sidHeaderColor" type="color" value="#2563eb">
+          </div>
+
+          <div class="sid-field">
+            <label>Footer Color</label>
+            <input id="sidFooterColor" type="color" value="#1d4ed8">
+          </div>
+
+          <div class="sid-field">
+            <label>Card Background</label>
+            <input id="sidBgColor" type="color" value="#ffffff">
+          </div>
+
+          <div class="sid-field">
+            <label>Accent Color</label>
+            <input id="sidAccentColor" type="color" value="#2563eb">
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- PREVIEW -->
+
+      <div class="sid-section">
+
+        <h3>👀 ID Card Preview</h3>
+
+        <div class="sid-preview">
+
+          <div class="sid-preview-title">
+            Front + Back
+          </div>
+
+          <div class="sid-cards">
+
+            <!-- FRONT -->
+
+            <div id="sidFront" class="sid-card">
+
+              <div id="sidFrontHeader" class="sid-front-header">
+
+                <img id="sidLogoPreview"
+                     class="sid-logo"
+                     src=""
+                     alt="Logo">
+
+                <div>
+                  <div id="sidSchoolPreview" class="sid-school">
+                    ABC PUBLIC SCHOOL
                   </div>
 
-                  <div class="result-item">
-                    <span>New Size</span>
-                    <strong>${(blob.size/1024).toFixed(1)} KB</strong>
+                  <div id="sidSessionPreview" class="sid-sub">
+                    Session 2026 - 2027
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="sid-front-body">
+
+                <img id="sidPhotoPreview"
+                     class="sid-photo"
+                     src=""
+                     alt="Student">
+
+                <div class="sid-details">
+
+                  <div id="sidNamePreview" class="sid-name">
+                    Rahul Sharma
                   </div>
 
-                  <div class="result-item">
-                    <span>Saved</span>
-                    <strong>${saved.toFixed(1)}%</strong>
+                  <div class="sid-row">
+                    <b>Class</b>
+                    <span id="sidClassPreview">10 - A</span>
+                  </div>
+
+                  <div class="sid-row">
+                    <b>Roll No.</b>
+                    <span id="sidRollPreview">101</span>
+                  </div>
+
+                  <div class="sid-row">
+                    <b>DOB</b>
+                    <span id="sidDOBPreview">--</span>
+                  </div>
+
+                  <div class="sid-row">
+                    <b>Blood</b>
+                    <span id="sidBloodPreview">O+</span>
+                  </div>
+
+                  <div class="sid-row">
+                    <b>Contact</b>
+                    <span id="sidContactPreview">9876543210</span>
                   </div>
 
                 </div>
 
-                <br>
+              </div>
 
-                <button
-                  class="download-button"
-                  id="downloadCompressed"
-                >
-                  ⬇ Download
-                </button>
+              <div id="sidFrontFooter"
+                   class="sid-footer">
+                STUDENT ID CARD
+              </div>
+
+            </div>
+
+
+            <!-- BACK -->
+
+            <div id="sidBack" class="sid-card">
+
+              <div class="sid-back">
+
+                <h2 id="sidBackTitle">
+                  ABC PUBLIC SCHOOL
+                </h2>
+
+                <p>
+                  <b>Address:</b>
+                  <span id="sidAddressPreview">
+                    Lucknow, Uttar Pradesh
+                  </span>
+                </p>
+
+                <p>
+                  <b>School Contact:</b>
+                  <span id="sidSchoolPhonePreview">
+                    9876543210
+                  </span>
+                </p>
+
+                <p>
+                  <b>Student Address:</b>
+                  <span id="sidStudentAddressPreview">
+                    Lucknow, Uttar Pradesh
+                  </span>
+                </p>
+
+                <p>
+                  This identity card is the property of the school.
+                  If found, please return it to the school office.
+                </p>
+
+                <div class="sid-sign">
+
+                  <div>
+                    Student
+                  </div>
+
+                  <div>
+                    Principal
+                  </div>
+
+                </div>
 
               </div>
-            `;
 
-          document
-            .getElementById("downloadCompressed")
-            .onclick = () =>
-              downloadBlob(
-                blob,
-                "manjeet-compressed.jpg"
-              );
+            </div>
 
-        } catch(e) {
-
-          console.error(e);
-          alert("Unable to compress image.");
-
-        }
-      });
-  }
-
-
-  /* =====================================================
-     IMAGE RESIZER
-     ===================================================== */
-
-  function loadResizer() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div id="resizeFile"></div>
-
-        <div class="form-row">
-
-          <div class="form-group">
-            <label>Width</label>
-            <input id="resizeWidth" type="number">
-          </div>
-
-          <div class="form-group">
-            <label>Height</label>
-            <input id="resizeHeight" type="number">
           </div>
 
         </div>
 
-        <label class="check-row">
-          <input id="keepRatio" type="checkbox" checked>
-          Keep aspect ratio
-        </label>
+      </div>
 
-        <button
-          id="resizeBtn"
-          class="primary-button"
-        >
-          Resize Image
-        </button>
 
-        <div id="resizeResult"></div>
+      <!-- BUTTONS -->
+
+      <div class="sid-section">
+
+        <div class="sid-buttons">
+
+          <button id="sidDownloadFront"
+                  class="sid-btn sid-primary">
+            📥 Front PNG
+          </button>
+
+          <button id="sidDownloadBack"
+                  class="sid-btn sid-secondary">
+            📥 Back PNG
+          </button>
+
+          <button id="sidA4Front"
+                  class="sid-btn sid-light">
+            🖨️ A4 Front Sheet
+          </button>
+
+          <button id="sidA4Back"
+                  class="sid-btn sid-light">
+            🖨️ A4 Back Sheet
+          </button>
+
+        </div>
 
       </div>
+
+    </div>
+  `;
+
+
+  /* ---------------------------------------------------------
+     STATE
+     --------------------------------------------------------- */
+
+  let currentTemplate = "blue";
+  let logoImage = null;
+  let studentImage = null;
+
+
+  const templates = {
+
+    blue: {
+      header:"#2563eb",
+      footer:"#1d4ed8",
+      bg:"#ffffff",
+      accent:"#2563eb"
+    },
+
+    purple: {
+      header:"#7c3aed",
+      footer:"#5b21b6",
+      bg:"#ffffff",
+      accent:"#7c3aed"
+    },
+
+    green: {
+      header:"#059669",
+      footer:"#047857",
+      bg:"#ffffff",
+      accent:"#059669"
+    },
+
+    red: {
+      header:"#dc2626",
+      footer:"#991b1b",
+      bg:"#ffffff",
+      accent:"#dc2626"
+    },
+
+    navy: {
+      header:"#0f172a",
+      footer:"#020617",
+      bg:"#ffffff",
+      accent:"#334155"
+    }
+
+  };
+
+
+  /* ---------------------------------------------------------
+     HELPERS
+     --------------------------------------------------------- */
+
+  function get(id){
+    return document.getElementById(id);
+  }
+
+
+  function val(id){
+    return get(id).value || "";
+  }
+
+
+  function formatDate(date){
+
+    if(!date) return "--";
+
+    const d = new Date(date);
+
+    if(isNaN(d.getTime())) return date;
+
+    return String(d.getDate()).padStart(2,"0") +
+      "/" +
+      String(d.getMonth()+1).padStart(2,"0") +
+      "/" +
+      d.getFullYear();
+
+  }
+
+
+  function placeholderSVG(text){
+
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg"
+           width="300"
+           height="350">
+
+        <rect width="100%"
+              height="100%"
+              fill="#e5e7eb"/>
+
+        <circle cx="150"
+                cy="125"
+                r="55"
+                fill="#cbd5e1"/>
+
+        <rect x="70"
+              y="205"
+              width="160"
+              height="95"
+              rx="50"
+              fill="#cbd5e1"/>
+
+        <text x="150"
+              y="330"
+              text-anchor="middle"
+              font-family="Arial"
+              font-size="18"
+              fill="#64748b">
+          ${text}
+        </text>
+
+      </svg>
     `;
 
-    const drop =
-      createFileDrop(
-        "image/jpeg,image/png,image/webp"
+    return "data:image/svg+xml;charset=UTF-8," +
+      encodeURIComponent(svg);
+  }
+
+
+  get("sidLogoPreview").src = placeholderSVG("SCHOOL LOGO");
+  get("sidPhotoPreview").src = placeholderSVG("PHOTO");
+
+
+  /* ---------------------------------------------------------
+     TEMPLATE SELECT
+     --------------------------------------------------------- */
+
+  document.querySelectorAll(".sid-template").forEach(function(card){
+
+    card.addEventListener("click", function(){
+
+      document.querySelectorAll(".sid-template")
+        .forEach(x => x.classList.remove("active"));
+
+      card.classList.add("active");
+
+      currentTemplate = card.dataset.template;
+
+      if(currentTemplate === "custom"){
+
+        get("sidCustomBox").classList.add("show");
+
+      }else{
+
+        get("sidCustomBox").classList.remove("show");
+
+        applyTemplate(templates[currentTemplate]);
+
+      }
+
+      updatePreview();
+
+    });
+
+  });
+
+
+  function applyTemplate(t){
+
+    get("sidFrontHeader").style.background = t.header;
+    get("sidFrontFooter").style.background = t.footer;
+
+    get("sidFront").style.background = t.bg;
+    get("sidBack").style.background = t.bg;
+
+    get("sidNamePreview").style.color = t.accent;
+    get("sidBackTitle").style.color = t.accent;
+
+  }
+
+
+  function applyCustom(){
+
+    applyTemplate({
+
+      header:val("sidHeaderColor"),
+      footer:val("sidFooterColor"),
+      bg:val("sidBgColor"),
+      accent:val("sidAccentColor")
+
+    });
+
+  }
+
+
+  /* ---------------------------------------------------------
+     UPDATE PREVIEW
+     --------------------------------------------------------- */
+
+  function updatePreview(){
+
+    if(currentTemplate === "custom"){
+      applyCustom();
+    }
+
+    get("sidSchoolPreview").textContent =
+      val("sidSchool") || "SCHOOL NAME";
+
+    get("sidSessionPreview").textContent =
+      "Session " + (val("sidSession") || "2026 - 2027");
+
+    get("sidNamePreview").textContent =
+      val("sidName") || "Student Name";
+
+    get("sidClassPreview").textContent =
+      (val("sidClass") || "--") +
+      " - " +
+      (val("sidSection") || "--");
+
+    get("sidRollPreview").textContent =
+      val("sidRoll") || "--";
+
+    get("sidDOBPreview").textContent =
+      formatDate(val("sidDOB"));
+
+    get("sidBloodPreview").textContent =
+      val("sidBlood") || "--";
+
+    get("sidContactPreview").textContent =
+      val("sidContact") || "--";
+
+    get("sidBackTitle").textContent =
+      val("sidSchool") || "SCHOOL NAME";
+
+    get("sidAddressPreview").textContent =
+      val("sidSchoolAddress") || "--";
+
+    get("sidSchoolPhonePreview").textContent =
+      val("sidSchoolPhone") || "--";
+
+    get("sidStudentAddressPreview").textContent =
+      val("sidAddress") || "--";
+
+  }
+
+
+  /* ---------------------------------------------------------
+     INPUT EVENTS
+     --------------------------------------------------------- */
+
+  [
+    "sidSchool",
+    "sidSession",
+    "sidSchoolPhone",
+    "sidSchoolAddress",
+    "sidName",
+    "sidClass",
+    "sidSection",
+    "sidRoll",
+    "sidDOB",
+    "sidBlood",
+    "sidContact",
+    "sidAddress"
+  ].forEach(function(id){
+
+    get(id).addEventListener("input", updatePreview);
+
+  });
+
+
+  [
+    "sidHeaderColor",
+    "sidFooterColor",
+    "sidBgColor",
+    "sidAccentColor"
+  ].forEach(function(id){
+
+    get(id).addEventListener("input", function(){
+
+      currentTemplate = "custom";
+
+      document.querySelectorAll(".sid-template")
+        .forEach(x => x.classList.remove("active"));
+
+      document.querySelector(
+        '.sid-template[data-template="custom"]'
+      ).classList.add("active");
+
+      get("sidCustomBox").classList.add("show");
+
+      updatePreview();
+
+    });
+
+  });
+
+
+  /* ---------------------------------------------------------
+     IMAGE UPLOAD
+     --------------------------------------------------------- */
+
+  get("sidLogoInput").addEventListener("change", function(e){
+
+    const file = e.target.files[0];
+
+    if(!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(event){
+
+      logoImage = new Image();
+
+      logoImage.onload = function(){
+
+        get("sidLogoPreview").src =
+          event.target.result;
+
+      };
+
+      logoImage.src =
+        event.target.result;
+
+    };
+
+    reader.readAsDataURL(file);
+
+  });
+
+
+  get("sidPhotoInput").addEventListener("change", function(e){
+
+    const file = e.target.files[0];
+
+    if(!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(event){
+
+      studentImage = new Image();
+
+      studentImage.onload = function(){
+
+        get("sidPhotoPreview").src =
+          event.target.result;
+
+      };
+
+      studentImage.src =
+        event.target.result;
+
+    };
+
+    reader.readAsDataURL(file);
+
+  });
+
+
+  /* ---------------------------------------------------------
+     CANVAS CARD RENDERER
+     --------------------------------------------------------- */
+
+  function createCardCanvas(side){
+
+    const canvas =
+      document.createElement("canvas");
+
+    canvas.width = 1011;
+    canvas.height = 638;
+
+    const ctx =
+      canvas.getContext("2d");
+
+    let theme;
+
+    if(currentTemplate === "custom"){
+
+      theme = {
+        header:val("sidHeaderColor"),
+        footer:val("sidFooterColor"),
+        bg:val("sidBgColor"),
+        accent:val("sidAccentColor")
+      };
+
+    }else{
+
+      theme = templates[currentTemplate];
+
+    }
+
+
+    /* BACKGROUND */
+
+    ctx.fillStyle = theme.bg;
+    ctx.fillRect(0,0,1011,638);
+
+
+    /* FRONT */
+
+    if(side === "front"){
+
+      ctx.fillStyle = theme.header;
+      ctx.fillRect(0,0,1011,185);
+
+
+      /* LOGO */
+
+      if(logoImage){
+
+        ctx.save();
+
+        ctx.beginPath();
+        ctx.arc(95,92,58,0,Math.PI*2);
+        ctx.clip();
+
+        drawContain(
+          ctx,
+          logoImage,
+          37,
+          34,
+          116,
+          116
+        );
+
+        ctx.restore();
+
+      }else{
+
+        ctx.fillStyle="#fff";
+        ctx.beginPath();
+        ctx.arc(95,92,58,0,Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle=theme.header;
+        ctx.font="bold 22px Arial";
+        ctx.textAlign="center";
+        ctx.fillText("LOGO",95,100);
+
+      }
+
+
+      /* SCHOOL */
+
+      ctx.fillStyle="#fff";
+      ctx.textAlign="left";
+      ctx.font="bold 38px Arial";
+
+      ctx.fillText(
+        val("sidSchool") || "SCHOOL NAME",
+        180,
+        78
       );
 
-    document
-      .getElementById("resizeFile")
-      .appendChild(drop.wrapper);
+      ctx.font="22px Arial";
 
-    let img = null;
+      ctx.fillText(
+        "Session " +
+        (val("sidSession") || "2026 - 2027"),
+        180,
+        116
+      );
 
-    drop.input.addEventListener(
-      "change",
-      async()=>{
-        if (!drop.input.files[0]) return;
 
-        img =
-          await loadImage(
-            drop.input.files[0]
+      /* PHOTO */
+
+      if(studentImage){
+
+        drawCover(
+          ctx,
+          studentImage,
+          55,
+          225,
+          220,
+          285
+        );
+
+      }else{
+
+        ctx.fillStyle="#e5e7eb";
+        ctx.fillRect(
+          55,225,220,285
+        );
+
+        ctx.fillStyle="#64748b";
+        ctx.textAlign="center";
+        ctx.font="bold 28px Arial";
+
+        ctx.fillText(
+          "STUDENT PHOTO",
+          165,
+          375
+        );
+
+      }
+
+
+      /* STUDENT NAME */
+
+      ctx.textAlign="left";
+      ctx.fillStyle=theme.accent;
+      ctx.font="bold 42px Arial";
+
+      ctx.fillText(
+        val("sidName") || "STUDENT NAME",
+        315,
+        270
+      );
+
+
+      ctx.fillStyle="#222";
+      ctx.font="24px Arial";
+
+      const rows = [
+
+        ["Class", val("sidClass") + " - " + val("sidSection")],
+        ["Roll No.", val("sidRoll")],
+        ["DOB", formatDate(val("sidDOB"))],
+        ["Blood", val("sidBlood")],
+        ["Contact", val("sidContact")]
+
+      ];
+
+      let y = 330;
+
+      rows.forEach(function(row){
+
+        ctx.font="bold 23px Arial";
+        ctx.fillText(row[0],315,y);
+
+        ctx.font="23px Arial";
+        ctx.fillText(
+          ": " + (row[1] || "--"),
+          455,
+          y
+        );
+
+        y += 45;
+
+      });
+
+
+      /* FOOTER */
+
+      ctx.fillStyle=theme.footer;
+      ctx.fillRect(
+        0,
+        590,
+        1011,
+        48
+      );
+
+      ctx.fillStyle="#fff";
+      ctx.textAlign="center";
+      ctx.font="bold 21px Arial";
+
+      ctx.fillText(
+        "STUDENT ID CARD",
+        505,
+        621
+      );
+
+
+    }else{
+
+      /* BACK */
+
+      ctx.fillStyle=theme.header;
+      ctx.fillRect(
+        0,
+        0,
+        1011,
+        120
+      );
+
+      ctx.fillStyle="#fff";
+      ctx.textAlign="center";
+      ctx.font="bold 38px Arial";
+
+      ctx.fillText(
+        val("sidSchool") || "SCHOOL NAME",
+        505,
+        70
+      );
+
+      ctx.fillStyle=theme.accent;
+      ctx.textAlign="left";
+      ctx.font="bold 28px Arial";
+
+      ctx.fillText(
+        "School Information",
+        70,
+        180
+      );
+
+      ctx.fillStyle="#222";
+      ctx.font="23px Arial";
+
+      let y = 230;
+
+      const lines = [
+
+        "Address: " +
+          (val("sidSchoolAddress") || "--"),
+
+        "School Contact: " +
+          (val("sidSchoolPhone") || "--"),
+
+        "Student Address: " +
+          (val("sidAddress") || "--")
+
+      ];
+
+      lines.forEach(function(text){
+
+        const wrapped =
+          wrapText(ctx,text,70,1011-70,24);
+
+        wrapped.forEach(function(line){
+
+          ctx.fillText(
+            line,
+            70,
+            y
           );
 
-        document.getElementById(
-          "resizeWidth"
-        ).value = img.naturalWidth;
+          y += 34;
 
-        document.getElementById(
-          "resizeHeight"
-        ).value = img.naturalHeight;
-      }
+        });
+
+        y += 10;
+
+      });
+
+
+      ctx.font="21px Arial";
+
+      const note =
+        "This identity card is the property of the school. " +
+        "If found, please return it to the school office.";
+
+      wrapText(
+        ctx,
+        note,
+        70,
+        900,
+        21
+      ).forEach(function(line){
+
+        ctx.fillText(
+          line,
+          70,
+          y
+        );
+
+        y += 30;
+
+      });
+
+
+      ctx.strokeStyle="#333";
+
+      ctx.beginPath();
+      ctx.moveTo(120,550);
+      ctx.lineTo(330,550);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(680,550);
+      ctx.lineTo(890,550);
+      ctx.stroke();
+
+      ctx.textAlign="center";
+      ctx.font="18px Arial";
+
+      ctx.fillText(
+        "Student",
+        225,
+        580
+      );
+
+      ctx.fillText(
+        "Principal",
+        785,
+        580
+      );
+
+    }
+
+    return canvas;
+
+  }
+
+
+  function drawContain(ctx,img,x,y,w,h){
+
+    const ratio =
+      Math.min(
+        w/img.width,
+        h/img.height
+      );
+
+    const nw = img.width * ratio;
+    const nh = img.height * ratio;
+
+    ctx.drawImage(
+      img,
+      x+(w-nw)/2,
+      y+(h-nh)/2,
+      nw,
+      nh
     );
 
-    document.getElementById(
-      "resizeWidth"
-    ).addEventListener("input",()=>{
-
-      if (
-        img &&
-        document.getElementById("keepRatio").checked
-      ) {
-
-        document.getElementById(
-          "resizeHeight"
-        ).value =
-          Math.round(
-            Number(
-              document.getElementById("resizeWidth").value
-            ) *
-            img.naturalHeight /
-            img.naturalWidth
-          );
-      }
-    });
-
-    document.getElementById(
-      "resizeBtn"
-    ).onclick = async()=>{
-
-      if (!img) {
-        alert("Please select an image first.");
-        return;
-      }
-
-      const w =
-        Math.max(
-          1,
-          Number(
-            document.getElementById("resizeWidth").value
-          )
-        );
-
-      const h =
-        Math.max(
-          1,
-          Number(
-            document.getElementById("resizeHeight").value
-          )
-        );
-
-      const canvas =
-        document.createElement("canvas");
-
-      canvas.width = w;
-      canvas.height = h;
-
-      canvas
-        .getContext("2d")
-        .drawImage(img,0,0,w,h);
-
-      const blob =
-        await canvasToBlob(
-          canvas,
-          "image/jpeg",
-          .92
-        );
-
-      const url =
-        URL.createObjectURL(blob);
-
-      document.getElementById(
-        "resizeResult"
-      ).innerHTML = `
-
-        <div class="result-box">
-
-          <div class="preview-area">
-
-            <div class="preview-card">
-
-              <span>${w} × ${h}</span>
-
-              <img
-                src="${url}"
-                alt="Resized image"
-              >
-
-            </div>
-
-          </div>
-
-          <br>
-
-          <button
-            class="download-button"
-            id="downloadResize"
-          >
-            ⬇ Download
-          </button>
-
-        </div>
-      `;
-
-      document.getElementById(
-        "downloadResize"
-      ).onclick = () =>
-        downloadBlob(
-          blob,
-          "manjeet-resized.jpg"
-        );
-    };
   }
 
 
-  /* =====================================================
-     IMAGE CONVERTER
-     ===================================================== */
+  function drawCover(ctx,img,x,y,w,h){
 
-  function loadConverter() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div id="convertFile"></div>
-
-        <div class="form-group">
-
-          <label>Convert To</label>
-
-          <select id="convertType">
-
-            <option value="image/jpeg">JPG</option>
-            <option value="image/png">PNG</option>
-            <option value="image/webp">WebP</option>
-
-          </select>
-
-        </div>
-
-        <button
-          id="convertBtn"
-          class="primary-button"
-        >
-          Convert Image
-        </button>
-
-        <div id="convertResult"></div>
-
-      </div>
-    `;
-
-    const drop =
-      createFileDrop(
-        "image/jpeg,image/png,image/webp"
+    const ratio =
+      Math.max(
+        w/img.width,
+        h/img.height
       );
 
-    document
-      .getElementById("convertFile")
-      .appendChild(drop.wrapper);
+    const nw = img.width * ratio;
+    const nh = img.height * ratio;
 
-    document.getElementById(
-      "convertBtn"
-    ).onclick = async()=>{
+    const dx =
+      x+(w-nw)/2;
 
-      const file =
-        drop.input.files[0];
+    const dy =
+      y+(h-nh)/2;
 
-      if (!file) {
-        alert("Please select an image first.");
-        return;
-      }
+    ctx.save();
 
-      const img =
-        await loadImage(file);
+    ctx.beginPath();
 
-      const canvas =
-        document.createElement("canvas");
+    ctx.roundRect(
+      x,
+      y,
+      w,
+      h,
+      15
+    );
 
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
+    ctx.clip();
 
-      canvas
-        .getContext("2d")
-        .drawImage(img,0,0);
+    ctx.drawImage(
+      img,
+      dx,
+      dy,
+      nw,
+      nh
+    );
 
-      const type =
-        document.getElementById(
-          "convertType"
-        ).value;
+    ctx.restore();
 
-      const blob =
-        await canvasToBlob(
-          canvas,
-          type,
-          .92
-        );
-
-      const ext =
-        type === "image/png"
-          ? "png"
-          : type === "image/webp"
-            ? "webp"
-            : "jpg";
-
-      document.getElementById(
-        "convertResult"
-      ).innerHTML = `
-
-        <div class="result-box">
-
-          <h4>
-            Conversion Complete
-          </h4>
-
-          <button
-            class="download-button"
-            id="downloadConvert"
-          >
-            ⬇ Download ${ext.toUpperCase()}
-          </button>
-
-        </div>
-      `;
-
-      document.getElementById(
-        "downloadConvert"
-      ).onclick = () =>
-        downloadBlob(
-          blob,
-          "manjeet-converted."+ext
-        );
-    };
   }
 
 
-  /* =====================================================
-     PHOTO SIZE REDUCER
-     ===================================================== */
+  function wrapText(ctx,text,x,maxWidth,lineHeight){
 
-  function loadReducer() {
+    const words =
+      String(text).split(" ");
 
-    toolContent.innerHTML = `
+    const lines = [];
+    let line = "";
 
-      <div class="tool-form">
+    words.forEach(function(word){
 
-        <div id="reduceFile"></div>
+      const test =
+        line ? line + " " + word : word;
 
-        <div class="form-group">
+      if(
+        ctx.measureText(test).width >
+        maxWidth - x
+      ){
 
-          <label>
-            Target Size (KB)
-          </label>
-
-          <input
-            id="targetKB"
-            type="number"
-            value="100"
-            min="5"
-          >
-
-        </div>
-
-        <button
-          id="reduceBtn"
-          class="primary-button"
-        >
-          Reduce Photo Size
-        </button>
-
-        <div id="reduceResult"></div>
-
-      </div>
-    `;
-
-    const drop =
-      createFileDrop(
-        "image/jpeg,image/png,image/webp"
-      );
-
-    document
-      .getElementById("reduceFile")
-      .appendChild(drop.wrapper);
-
-    document.getElementById(
-      "reduceBtn"
-    ).onclick = async()=>{
-
-      const file =
-        drop.input.files[0];
-
-      if (!file) {
-        alert("Please select an image.");
-        return;
-      }
-
-      const target =
-        Number(
-          document.getElementById("targetKB").value
-        ) * 1024;
-
-      const img =
-        await loadImage(file);
-
-      const canvas =
-        document.createElement("canvas");
-
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-
-      canvas
-        .getContext("2d")
-        .drawImage(img,0,0);
-
-      let low = .05;
-      let high = .95;
-      let best = null;
-
-      for(let i=0;i<10;i++){
-
-        const q =
-          (low+high)/2;
-
-        const blob =
-          await canvasToBlob(
-            canvas,
-            "image/jpeg",
-            q
-          );
-
-        if(blob.size <= target){
-
-          best = blob;
-          low = q;
-
-        }else{
-
-          high = q;
-        }
-      }
-
-      if(!best){
-
-        best =
-          await canvasToBlob(
-            canvas,
-            "image/jpeg",
-            .05
-          );
-      }
-
-      document.getElementById(
-        "reduceResult"
-      ).innerHTML = `
-
-        <div class="result-box">
-
-          <h4>
-            Photo Size Reduced
-          </h4>
-
-          <div class="result-grid">
-
-            <div class="result-item">
-              <span>Original</span>
-              <strong>${(file.size/1024).toFixed(1)} KB</strong>
-            </div>
-
-            <div class="result-item">
-              <span>New Size</span>
-              <strong>${(best.size/1024).toFixed(1)} KB</strong>
-            </div>
-
-          </div>
-
-          <br>
-
-          <button
-            id="downloadReduced"
-            class="download-button"
-          >
-            ⬇ Download
-          </button>
-
-        </div>
-      `;
-
-      document.getElementById(
-        "downloadReduced"
-      ).onclick = () =>
-        downloadBlob(
-          best,
-          "manjeet-reduced.jpg"
-        );
-    };
-  }
-
-
-  /* =====================================================
-     SOCIAL MEDIA RESIZER
-     ===================================================== */
-
-  function loadSocial() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div id="socialFile"></div>
-
-        <div class="form-group">
-
-          <label>
-            Select Size
-          </label>
-
-          <select id="socialSize">
-
-            <option value="1080,1080">
-              Instagram Square — 1080×1080
-            </option>
-
-            <option value="1080,1350">
-              Instagram Portrait — 1080×1350
-            </option>
-
-            <option value="1080,1920">
-              Story — 1080×1920
-            </option>
-
-            <option value="1280,720">
-              YouTube Thumbnail — 1280×720
-            </option>
-
-            <option value="1200,630">
-              Facebook Post — 1200×630
-            </option>
-
-          </select>
-
-        </div>
-
-        <button
-          id="socialBtn"
-          class="primary-button"
-        >
-          Resize
-        </button>
-
-        <div id="socialResult"></div>
-
-      </div>
-    `;
-
-    const drop =
-      createFileDrop(
-        "image/jpeg,image/png,image/webp"
-      );
-
-    document
-      .getElementById("socialFile")
-      .appendChild(drop.wrapper);
-
-    document.getElementById(
-      "socialBtn"
-    ).onclick = async()=>{
-
-      const file =
-        drop.input.files[0];
-
-      if (!file) {
-        alert("Please select an image.");
-        return;
-      }
-
-      const img =
-        await loadImage(file);
-
-      const [w,h] =
-        document.getElementById(
-          "socialSize"
-        ).value
-        .split(",")
-        .map(Number);
-
-      const canvas =
-        document.createElement("canvas");
-
-      canvas.width = w;
-      canvas.height = h;
-
-      const ctx =
-        canvas.getContext("2d");
-
-      const sourceRatio =
-        img.naturalWidth /
-        img.naturalHeight;
-
-      const targetRatio =
-        w/h;
-
-      let dw,dh,x,y;
-
-      if(sourceRatio > targetRatio){
-
-        dh = h;
-        dw = h*sourceRatio;
-        x = (w-dw)/2;
-        y = 0;
+        lines.push(line);
+        line = word;
 
       }else{
 
-        dw = w;
-        dh = w/sourceRatio;
-        x = 0;
-        y = (h-dh)/2;
+        line = test;
+
       }
 
-      ctx.drawImage(
-        img,
-        x,y,dw,dh
-      );
-
-      const blob =
-        await canvasToBlob(
-          canvas,
-          "image/jpeg",
-          .92
-        );
-
-      const url =
-        URL.createObjectURL(blob);
-
-      document.getElementById(
-        "socialResult"
-      ).innerHTML = `
-
-        <div class="result-box">
-
-          <div class="preview-area">
-
-            <div class="preview-card">
-
-              <span>${w} × ${h}</span>
-
-              <img
-                src="${url}"
-                alt="Social image"
-              >
-
-            </div>
-
-          </div>
-
-          <br>
-
-          <button
-            id="downloadSocial"
-            class="download-button"
-          >
-            ⬇ Download
-          </button>
-
-        </div>
-      `;
-
-      document.getElementById(
-        "downloadSocial"
-      ).onclick = () =>
-        downloadBlob(
-          blob,
-          "manjeet-social-image.jpg"
-        );
-    };
-  }
-
-
-  /* =====================================================
-     PASSPORT PHOTO MAKER
-     ===================================================== */
-
-  function loadPassport() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div id="passportFile"></div>
-
-        <div class="form-row">
-
-          <div class="form-group">
-
-            <label>
-              Width (px)
-            </label>
-
-            <input
-              id="passportWidth"
-              type="number"
-              value="413"
-              min="50"
-            >
-
-          </div>
-
-          <div class="form-group">
-
-            <label>
-              Height (px)
-            </label>
-
-            <input
-              id="passportHeight"
-              type="number"
-              value="531"
-              min="50"
-            >
-
-          </div>
-
-        </div>
-
-        <div class="form-group">
-
-          <label>
-            Background
-          </label>
-
-          <select id="passportBG">
-
-            <option value="white">
-              White
-            </option>
-
-            <option value="#f5f5f5">
-              Light Grey
-            </option>
-
-            <option value="#dbeafe">
-              Light Blue
-            </option>
-
-          </select>
-
-        </div>
-
-        <button
-          id="passportBtn"
-          class="primary-button"
-        >
-          Create Passport Photo
-        </button>
-
-        <div id="passportResult"></div>
-
-      </div>
-    `;
-
-    const drop =
-      createFileDrop(
-        "image/jpeg,image/png,image/webp"
-      );
-
-    document
-      .getElementById("passportFile")
-      .appendChild(drop.wrapper);
-
-    document.getElementById(
-      "passportBtn"
-    ).onclick = async()=>{
-
-      const file =
-        drop.input.files[0];
-
-      if (!file) {
-        alert("Please select your photo.");
-        return;
-      }
-
-      const img =
-        await loadImage(file);
-
-      const w =
-        Number(
-          document.getElementById(
-            "passportWidth"
-          ).value
-        );
-
-      const h =
-        Number(
-          document.getElementById(
-            "passportHeight"
-          ).value
-        );
-
-      const bg =
-        document.getElementById(
-          "passportBG"
-        ).value;
-
-      const canvas =
-        document.createElement("canvas");
-
-      canvas.width = w;
-      canvas.height = h;
-
-      const ctx =
-        canvas.getContext("2d");
-
-      ctx.fillStyle = bg;
-      ctx.fillRect(0,0,w,h);
-
-      const sourceRatio =
-        img.naturalWidth /
-        img.naturalHeight;
-
-      const targetRatio =
-        w/h;
-
-      let dw,dh,x,y;
-
-      if(sourceRatio > targetRatio){
-
-        dh = h;
-        dw = h*sourceRatio;
-        x = (w-dw)/2;
-        y = 0;
-
-      }else{
-
-        dw = w;
-        dh = w/sourceRatio;
-        x = 0;
-        y = (h-dh)/2;
-      }
-
-      ctx.drawImage(
-        img,
-        x,y,dw,dh
-      );
-
-      const blob =
-        await canvasToBlob(
-          canvas,
-          "image/jpeg",
-          .95
-        );
-
-      const url =
-        URL.createObjectURL(blob);
-
-      document.getElementById(
-        "passportResult"
-      ).innerHTML = `
-
-        <div class="result-box">
-
-          <h4>
-            Passport Photo Ready
-          </h4>
-
-          <div class="preview-area">
-
-            <div class="preview-card">
-
-              <img
-                src="${url}"
-                alt="Passport photo"
-              >
-
-            </div>
-
-          </div>
-
-          <br>
-
-          <button
-            id="downloadPassport"
-            class="download-button"
-          >
-            ⬇ Download Passport Photo
-          </button>
-
-        </div>
-      `;
-
-      document.getElementById(
-        "downloadPassport"
-      ).onclick = () =>
-        downloadBlob(
-          blob,
-          "manjeet-passport-photo.jpg"
-        );
-    };
-  }
-
-
-  /* =====================================================
-     A4 PHOTO SHEET MAKER
-     ===================================================== */
-
-  function loadPhotoSheet() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div id="sheetFile"></div>
-
-        <div class="form-row">
-
-          <div class="form-group">
-
-            <label>Photo Width (mm)</label>
-
-            <input
-              id="sheetW"
-              type="number"
-              value="35"
-            >
-
-          </div>
-
-          <div class="form-group">
-
-            <label>Photo Height (mm)</label>
-
-            <input
-              id="sheetH"
-              type="number"
-              value="45"
-            >
-
-          </div>
-
-        </div>
-
-        <button
-          id="sheetBtn"
-          class="primary-button"
-        >
-          Create A4 Photo Sheet
-        </button>
-
-      </div>
-    `;
-
-    const drop =
-      createFileDrop(
-        "image/jpeg,image/png,image/webp"
-      );
-
-    document
-      .getElementById("sheetFile")
-      .appendChild(drop.wrapper);
-
-    document.getElementById(
-      "sheetBtn"
-    ).onclick = async()=>{
-
-      const file =
-        drop.input.files[0];
-
-      if (!file) {
-        alert("Please select a photo.");
-        return;
-      }
-
-      const img =
-        await loadImage(file);
-
-      const widthMM =
-        Number(
-          document.getElementById("sheetW").value
-        );
-
-      const heightMM =
-        Number(
-          document.getElementById("sheetH").value
-        );
-
-      const printWindow =
-        window.open("","_blank");
-
-      if(!printWindow){
-
-        alert(
-          "Please allow pop-ups for this website."
-        );
-
-        return;
-      }
-
-      const dataURL =
-        await imageToDataURL(img);
-
-      printWindow.document.write(`
-
-        <!DOCTYPE html>
-
-        <html>
-
-        <head>
-
-          <title>
-            Manjeet Digital Hub - Photo Sheet
-          </title>
-
-          <style>
-
-            @page {
-              size: A4;
-              margin: 10mm;
-            }
-
-            body {
-              margin:0;
-              font-family:Arial,sans-serif;
-            }
-
-            .sheet {
-              width:190mm;
-              min-height:277mm;
-              display:flex;
-              flex-wrap:wrap;
-              align-content:flex-start;
-              gap:3mm;
-            }
-
-            .photo {
-              width:${widthMM}mm;
-              height:${heightMM}mm;
-              object-fit:cover;
-              border:0.2mm solid #ddd;
-            }
-
-          </style>
-
-        </head>
-
-        <body>
-
-          <div class="sheet">
-      `);
-
-      const cols =
-        Math.floor(
-          190 /
-          (widthMM+3)
-        );
-
-      const rows =
-        Math.floor(
-          277 /
-          (heightMM+3)
-        );
-
-      const count =
-        Math.max(
-          1,
-          cols*rows
-        );
-
-      for(let i=0;i<count;i++){
-
-        printWindow.document.write(`
-
-          <img
-            class="photo"
-            src="${dataURL}"
-          >
-
-        `);
-      }
-
-      printWindow.document.write(`
-
-          </div>
-
-        </body>
-
-        </html>
-      `);
-
-      printWindow.document.close();
-
-      setTimeout(()=>{
-        printWindow.focus();
-        printWindow.print();
-      },500);
-    };
-  }
-
-
-  function imageToDataURL(img){
-
-    return new Promise(resolve=>{
-
-      const canvas =
-        document.createElement("canvas");
-
-      canvas.width =
-        img.naturalWidth;
-
-      canvas.height =
-        img.naturalHeight;
-
-      canvas
-        .getContext("2d")
-        .drawImage(img,0,0);
-
-      resolve(
-        canvas.toDataURL(
-          "image/jpeg",
-          .95
-        )
-      );
-    });
-  }
-
-
-  /* =====================================================
-     IMAGES TO PDF / JPG TO PDF
-     ===================================================== */
-
-  function loadImagesPDF() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div id="pdfFiles"></div>
-
-        <div class="result-box">
-
-          <h4>
-            Images → PDF
-          </h4>
-
-          <p>
-            Select one or multiple images.
-            Your browser print window will create
-            a PDF without uploading your files.
-          </p>
-
-        </div>
-
-        <button
-          id="makePDF"
-          class="primary-button"
-        >
-          Create PDF
-        </button>
-
-      </div>
-    `;
-
-    const drop =
-      createFileDrop(
-        "image/jpeg,image/png,image/webp",
-        true
-      );
-
-    document
-      .getElementById("pdfFiles")
-      .appendChild(drop.wrapper);
-
-    document.getElementById(
-      "makePDF"
-    ).onclick = async()=>{
-
-      const files =
-        Array.from(
-          drop.input.files
-        );
-
-      if(!files.length){
-
-        alert(
-          "Please select at least one image."
-        );
-
-        return;
-      }
-
-      const win =
-        window.open("","_blank");
-
-      if(!win){
-
-        alert(
-          "Please allow pop-ups."
-        );
-
-        return;
-      }
-
-      win.document.write(`
-
-        <!DOCTYPE html>
-
-        <html>
-
-        <head>
-
-          <title>
-            Manjeet Digital Hub - Images to PDF
-          </title>
-
-          <style>
-
-            @page {
-              size:A4;
-              margin:0;
-            }
-
-            body {
-              margin:0;
-            }
-
-            .page {
-              width:210mm;
-              height:297mm;
-              display:flex;
-              align-items:center;
-              justify-content:center;
-              page-break-after:always;
-            }
-
-            img {
-              max-width:190mm;
-              max-height:277mm;
-              object-fit:contain;
-            }
-
-          </style>
-
-        </head>
-
-        <body>
-      `);
-
-      for(const file of files){
-
-        const img =
-          await loadImage(file);
-
-        const src =
-          await imageToDataURL(img);
-
-        win.document.write(`
-
-          <div class="page">
-
-            <img src="${src}">
-
-          </div>
-
-        `);
-      }
-
-      win.document.write(`
-        </body>
-        </html>
-      `);
-
-      win.document.close();
-
-      setTimeout(()=>{
-        win.focus();
-        win.print();
-      },500);
-    };
-  }
-
-
-  /* =====================================================
-     EMI
-     ===================================================== */
-
-  function loadEMI() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-group">
-          <label>Loan Amount (₹)</label>
-          <input id="emiPrincipal" type="number" value="1000000">
-        </div>
-
-        <div class="form-group">
-          <label>Interest Rate (% p.a.)</label>
-          <input id="emiRate" type="number" value="8.5" step="0.01">
-        </div>
-
-        <div class="form-group">
-          <label>Tenure (Years)</label>
-          <input id="emiYears" type="number" value="20">
-        </div>
-
-        <button
-          id="emiBtn"
-          class="primary-button"
-        >
-          Calculate EMI
-        </button>
-
-        <div id="emiResult"></div>
-
-      </div>
-    `;
-
-    document.getElementById(
-      "emiBtn"
-    ).onclick = ()=>{
-
-      const P =
-        Number(
-          document.getElementById("emiPrincipal").value
-        );
-
-      const annual =
-        Number(
-          document.getElementById("emiRate").value
-        );
-
-      const years =
-        Number(
-          document.getElementById("emiYears").value
-        );
-
-      if(P<=0 || years<=0 || annual<0){
-
-        alert("Please enter valid values.");
-        return;
-      }
-
-      const n =
-        years*12;
-
-      const r =
-        annual/12/100;
-
-      const emi =
-        r===0
-          ? P/n
-          : P*r*Math.pow(1+r,n)/
-            (Math.pow(1+r,n)-1);
-
-      const total =
-        emi*n;
-
-      const interest =
-        total-P;
-
-      document.getElementById(
-        "emiResult"
-      ).innerHTML = `
-
-        <div class="calculator-result">
-
-          <div class="result-label">
-            Monthly EMI
-          </div>
-
-          <div class="main-value">
-            ${money(emi)}
-          </div>
-
-        </div>
-
-        <div class="result-grid">
-
-          <div class="result-item">
-            <span>Principal</span>
-            <strong>${money(P)}</strong>
-          </div>
-
-          <div class="result-item">
-            <span>Total Interest</span>
-            <strong>${money(interest)}</strong>
-          </div>
-
-          <div class="result-item">
-            <span>Total Payment</span>
-            <strong>${money(total)}</strong>
-          </div>
-
-        </div>
-      `;
-    };
-  }
-
-
-  /* =====================================================
-     GST
-     ===================================================== */
-
-  function loadGST() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-group">
-          <label>Amount (₹)</label>
-          <input id="gstAmount" type="number" value="10000">
-        </div>
-
-        <div class="form-group">
-          <label>GST Rate</label>
-
-          <select id="gstRate">
-
-            <option value="0">0%</option>
-            <option value="5">5%</option>
-            <option value="12">12%</option>
-            <option value="18" selected>18%</option>
-            <option value="28">28%</option>
-
-          </select>
-        </div>
-
-        <button
-          id="gstBtn"
-          class="primary-button"
-        >
-          Calculate GST
-        </button>
-
-        <div id="gstResult"></div>
-
-      </div>
-    `;
-
-    document.getElementById(
-      "gstBtn"
-    ).onclick = ()=>{
-
-      const amount =
-        Number(
-          document.getElementById("gstAmount").value
-        );
-
-      const rate =
-        Number(
-          document.getElementById("gstRate").value
-        );
-
-      const gst =
-        amount*rate/100;
-
-      document.getElementById(
-        "gstResult"
-      ).innerHTML = `
-
-        <div class="result-box">
-
-          <div class="result-grid">
-
-            <div class="result-item">
-              <span>Amount</span>
-              <strong>${money(amount)}</strong>
-            </div>
-
-            <div class="result-item">
-              <span>GST</span>
-              <strong>${money(gst)}</strong>
-            </div>
-
-            <div class="result-item">
-              <span>Total</span>
-              <strong>${money(amount+gst)}</strong>
-            </div>
-
-          </div>
-
-        </div>
-      `;
-    };
-  }
-
-
-  /* =====================================================
-     PERCENTAGE
-     ===================================================== */
-
-  function loadPercentage() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-group">
-          <label>Percentage (%)</label>
-          <input id="percentValue" type="number" value="10">
-        </div>
-
-        <div class="form-group">
-          <label>Number</label>
-          <input id="percentNumber" type="number" value="1000">
-        </div>
-
-        <button
-          id="percentBtn"
-          class="primary-button"
-        >
-          Calculate
-        </button>
-
-        <div id="percentResult"></div>
-
-      </div>
-    `;
-
-    document.getElementById(
-      "percentBtn"
-    ).onclick = ()=>{
-
-      const p =
-        Number(
-          document.getElementById("percentValue").value
-        );
-
-      const n =
-        Number(
-          document.getElementById("percentNumber").value
-        );
-
-      const result =
-        p*n/100;
-
-      document.getElementById(
-        "percentResult"
-      ).innerHTML = `
-
-        <div class="calculator-result">
-
-          <div class="result-label">
-            Result
-          </div>
-
-          <div class="main-value">
-            ${formatNumber(result)}
-          </div>
-
-          <p>
-            ${p}% of ${formatNumber(n)}
-          </p>
-
-        </div>
-      `;
-    };
-  }
-
-
-  /* =====================================================
-     SIP
-     ===================================================== */
-
-  function loadSIP() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-group">
-          <label>Monthly Investment (₹)</label>
-          <input id="sipMonthly" type="number" value="5000">
-        </div>
-
-        <div class="form-group">
-          <label>Expected Return (% p.a.)</label>
-          <input id="sipRate" type="number" value="12" step="0.1">
-        </div>
-
-        <div class="form-group">
-          <label>Investment Period (Years)</label>
-          <input id="sipYears" type="number" value="10">
-        </div>
-
-        <button
-          id="sipBtn"
-          class="primary-button"
-        >
-          Calculate SIP
-        </button>
-
-        <div id="sipResult"></div>
-
-      </div>
-    `;
-
-    document.getElementById(
-      "sipBtn"
-    ).onclick = ()=>{
-
-      const monthly =
-        Number(
-          document.getElementById("sipMonthly").value
-        );
-
-      const annual =
-        Number(
-          document.getElementById("sipRate").value
-        );
-
-      const years =
-        Number(
-          document.getElementById("sipYears").value
-        );
-
-      const months =
-        years*12;
-
-      const r =
-        annual/12/100;
-
-      const maturity =
-        r===0
-          ? monthly*months
-          : monthly*
-            (
-              (Math.pow(1+r,months)-1)/r
-            )*
-            (1+r);
-
-      const invested =
-        monthly*months;
-
-      document.getElementById(
-        "sipResult"
-      ).innerHTML = `
-
-        <div class="calculator-result">
-
-          <div class="result-label">
-            Estimated Value
-          </div>
-
-          <div class="main-value">
-            ${money(maturity)}
-          </div>
-
-        </div>
-
-        <div class="result-grid">
-
-          <div class="result-item">
-            <span>Invested</span>
-            <strong>${money(invested)}</strong>
-          </div>
-
-          <div class="result-item">
-            <span>Estimated Gain</span>
-            <strong>${money(maturity-invested)}</strong>
-          </div>
-
-        </div>
-      `;
-    };
-  }
-
-
-  /* =====================================================
-     FD
-     ===================================================== */
-
-  function loadFD() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-group">
-          <label>Deposit Amount (₹)</label>
-          <input id="fdAmount" type="number" value="100000">
-        </div>
-
-        <div class="form-group">
-          <label>Interest Rate (% p.a.)</label>
-          <input id="fdRate" type="number" value="7" step="0.01">
-        </div>
-
-        <div class="form-group">
-          <label>Tenure (Years)</label>
-          <input id="fdYears" type="number" value="5">
-        </div>
-
-        <div class="form-group">
-          <label>Compounding</label>
-
-          <select id="fdCompound">
-            <option value="4">Quarterly</option>
-            <option value="12">Monthly</option>
-            <option value="2">Half Yearly</option>
-            <option value="1">Yearly</option>
-          </select>
-
-        </div>
-
-        <button
-          id="fdBtn"
-          class="primary-button"
-        >
-          Calculate FD
-        </button>
-
-        <div id="fdResult"></div>
-
-      </div>
-    `;
-
-    document.getElementById(
-      "fdBtn"
-    ).onclick = ()=>{
-
-      const P =
-        Number(
-          document.getElementById("fdAmount").value
-        );
-
-      const r =
-        Number(
-          document.getElementById("fdRate").value
-        )/100;
-
-      const t =
-        Number(
-          document.getElementById("fdYears").value
-        );
-
-      const n =
-        Number(
-          document.getElementById("fdCompound").value
-        );
-
-      const maturity =
-        P*Math.pow(
-          1+r/n,
-          n*t
-        );
-
-      document.getElementById(
-        "fdResult"
-      ).innerHTML = `
-
-        <div class="calculator-result">
-
-          <div class="result-label">
-            Maturity Amount
-          </div>
-
-          <div class="main-value">
-            ${money(maturity)}
-          </div>
-
-          <p>
-            Interest Earned:
-            ${money(maturity-P)}
-          </p>
-
-        </div>
-      `;
-    };
-  }
-
-
-  /* =====================================================
-     RD
-     ===================================================== */
-
-  function loadRD() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-group">
-          <label>Monthly Deposit (₹)</label>
-          <input id="rdMonthly" type="number" value="5000">
-        </div>
-
-        <div class="form-group">
-          <label>Interest Rate (% p.a.)</label>
-          <input id="rdRate" type="number" value="7" step="0.01">
-        </div>
-
-        <div class="form-group">
-          <label>Tenure (Years)</label>
-          <input id="rdYears" type="number" value="5">
-        </div>
-
-        <button
-          id="rdBtn"
-          class="primary-button"
-        >
-          Calculate RD
-        </button>
-
-        <div id="rdResult"></div>
-
-      </div>
-    `;
-
-    document.getElementById(
-      "rdBtn"
-    ).onclick = ()=>{
-
-      const P =
-        Number(
-          document.getElementById("rdMonthly").value
-        );
-
-      const annual =
-        Number(
-          document.getElementById("rdRate").value
-        );
-
-      const years =
-        Number(
-          document.getElementById("rdYears").value
-        );
-
-      const months =
-        years*12;
-
-      const r =
-        annual/400;
-
-      const maturity =
-        P*(
-          (
-            Math.pow(
-              1+r,
-              months
-            )-1
-          )/r
-        );
-
-      const invested =
-        P*months;
-
-      document.getElementById(
-        "rdResult"
-      ).innerHTML = `
-
-        <div class="calculator-result">
-
-          <div class="result-label">
-            Maturity Amount
-          </div>
-
-          <div class="main-value">
-            ${money(maturity)}
-          </div>
-
-          <p>
-            Interest:
-            ${money(maturity-invested)}
-          </p>
-
-        </div>
-      `;
-    };
-  }
-
-
-  /* =====================================================
-     SIMPLE INTEREST
-     ===================================================== */
-
-  function loadSimpleInterest() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-group">
-          <label>Principal (₹)</label>
-          <input id="siP" type="number" value="100000">
-        </div>
-
-        <div class="form-group">
-          <label>Rate (% p.a.)</label>
-          <input id="siR" type="number" value="8">
-        </div>
-
-        <div class="form-group">
-          <label>Time (Years)</label>
-          <input id="siT" type="number" value="5">
-        </div>
-
-        <button
-          id="siBtn"
-          class="primary-button"
-        >
-          Calculate
-        </button>
-
-        <div id="siResult"></div>
-
-      </div>
-    `;
-
-    document.getElementById(
-      "siBtn"
-    ).onclick = ()=>{
-
-      const P =
-        Number(
-          document.getElementById("siP").value
-        );
-
-      const R =
-        Number(
-          document.getElementById("siR").value
-        );
-
-      const T =
-        Number(
-          document.getElementById("siT").value
-        );
-
-      const interest =
-        P*R*T/100;
-
-      document.getElementById(
-        "siResult"
-      ).innerHTML = `
-
-        <div class="result-box">
-
-          <div class="result-grid">
-
-            <div class="result-item">
-              <span>Interest</span>
-              <strong>${money(interest)}</strong>
-            </div>
-
-            <div class="result-item">
-              <span>Total Amount</span>
-              <strong>${money(P+interest)}</strong>
-            </div>
-
-          </div>
-
-        </div>
-      `;
-    };
-  }
-
-
-  /* =====================================================
-     COMPOUND INTEREST
-     ===================================================== */
-
-  function loadCompoundInterest() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-group">
-          <label>Principal (₹)</label>
-          <input id="ciP" type="number" value="100000">
-        </div>
-
-        <div class="form-group">
-          <label>Rate (% p.a.)</label>
-          <input id="ciR" type="number" value="8">
-        </div>
-
-        <div class="form-group">
-          <label>Time (Years)</label>
-          <input id="ciT" type="number" value="5">
-        </div>
-
-        <div class="form-group">
-          <label>Compounds / Year</label>
-          <input id="ciN" type="number" value="4">
-        </div>
-
-        <button
-          id="ciBtn"
-          class="primary-button"
-        >
-          Calculate
-        </button>
-
-        <div id="ciResult"></div>
-
-      </div>
-    `;
-
-    document.getElementById(
-      "ciBtn"
-    ).onclick = ()=>{
-
-      const P =
-        Number(
-          document.getElementById("ciP").value
-        );
-
-      const R =
-        Number(
-          document.getElementById("ciR").value
-        )/100;
-
-      const T =
-        Number(
-          document.getElementById("ciT").value
-        );
-
-      const N =
-        Number(
-          document.getElementById("ciN").value
-        );
-
-      const amount =
-        P*Math.pow(
-          1+R/N,
-          N*T
-        );
-
-      document.getElementById(
-        "ciResult"
-      ).innerHTML = `
-
-        <div class="calculator-result">
-
-          <div class="result-label">
-            Final Amount
-          </div>
-
-          <div class="main-value">
-            ${money(amount)}
-          </div>
-
-          <p>
-            Compound Interest:
-            ${money(amount-P)}
-          </p>
-
-        </div>
-      `;
-    };
-  }
-
-
-  /* =====================================================
-     DISCOUNT
-     ===================================================== */
-
-  function loadDiscount() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-group">
-          <label>Original Price (₹)</label>
-          <input id="discountPrice" type="number" value="1000">
-        </div>
-
-        <div class="form-group">
-          <label>Discount (%)</label>
-          <input id="discountRate" type="number" value="10">
-        </div>
-
-        <button
-          id="discountBtn"
-          class="primary-button"
-        >
-          Calculate Discount
-        </button>
-
-        <div id="discountResult"></div>
-
-      </div>
-    `;
-
-    document.getElementById(
-      "discountBtn"
-    ).onclick = ()=>{
-
-      const price =
-        Number(
-          document.getElementById("discountPrice").value
-        );
-
-      const rate =
-        Number(
-          document.getElementById("discountRate").value
-        );
-
-      const discount =
-        price*rate/100;
-
-      document.getElementById(
-        "discountResult"
-      ).innerHTML = `
-
-        <div class="result-box">
-
-          <div class="result-grid">
-
-            <div class="result-item">
-              <span>Discount</span>
-              <strong>${money(discount)}</strong>
-            </div>
-
-            <div class="result-item">
-              <span>Final Price</span>
-              <strong>${money(price-discount)}</strong>
-            </div>
-
-          </div>
-
-        </div>
-      `;
-    };
-  }
-
-
-  /* =====================================================
-     PROFIT & LOSS
-     ===================================================== */
-
-  function loadProfitLoss() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-group">
-          <label>Cost Price (₹)</label>
-          <input id="plCost" type="number" value="1000">
-        </div>
-
-        <div class="form-group">
-          <label>Selling Price (₹)</label>
-          <input id="plSell" type="number" value="1200">
-        </div>
-
-        <button
-          id="plBtn"
-          class="primary-button"
-        >
-          Calculate
-        </button>
-
-        <div id="plResult"></div>
-
-      </div>
-    `;
-
-    document.getElementById(
-      "plBtn"
-    ).onclick = ()=>{
-
-      const cost =
-        Number(
-          document.getElementById("plCost").value
-        );
-
-      const sell =
-        Number(
-          document.getElementById("plSell").value
-        );
-
-      const difference =
-        sell-cost;
-
-      const percent =
-        cost
-          ? Math.abs(difference)/cost*100
-          : 0;
-
-      const type =
-        difference >= 0
-          ? "Profit"
-          : "Loss";
-
-      document.getElementById(
-        "plResult"
-      ).innerHTML = `
-
-        <div class="calculator-result">
-
-          <div class="result-label">
-            ${type}
-          </div>
-
-          <div class="main-value">
-            ${money(Math.abs(difference))}
-          </div>
-
-          <p>
-            ${percent.toFixed(2)}%
-          </p>
-
-        </div>
-      `;
-    };
-  }
-
-
-  /* =====================================================
-     AGE
-     ===================================================== */
-
-  function loadAge() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-group">
-
-          <label>
-            Date of Birth
-          </label>
-
-          <input
-            id="ageDOB"
-            type="date"
-          >
-
-        </div>
-
-        <button
-          id="ageBtn"
-          class="primary-button"
-        >
-          Calculate Age
-        </button>
-
-        <div id="ageResult"></div>
-
-      </div>
-    `;
-
-    const dob =
-      document.getElementById("ageDOB");
-
-    dob.max =
-      new Date()
-        .toISOString()
-        .split("T")[0];
-
-    document.getElementById(
-      "ageBtn"
-    ).onclick = ()=>{
-
-      if(!dob.value){
-
-        alert("Please select date of birth.");
-        return;
-      }
-
-      const birth =
-        new Date(
-          dob.value+"T00:00:00"
-        );
-
-      const now =
-        new Date();
-
-      if(birth>now){
-
-        alert(
-          "Date of birth cannot be in the future."
-        );
-
-        return;
-      }
-
-      let years =
-        now.getFullYear() -
-        birth.getFullYear();
-
-      let months =
-        now.getMonth() -
-        birth.getMonth();
-
-      let days =
-        now.getDate() -
-        birth.getDate();
-
-      if(days<0){
-
-        months--;
-
-        const prev =
-          new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            0
-          );
-
-        days +=
-          prev.getDate();
-      }
-
-      if(months<0){
-
-        years--;
-        months+=12;
-      }
-
-      document.getElementById(
-        "ageResult"
-      ).innerHTML = `
-
-        <div class="calculator-result">
-
-          <div class="result-label">
-            Exact Age
-          </div>
-
-          <div class="main-value">
-            ${years} Years
-          </div>
-
-          <p>
-            ${months} Months
-            ${days} Days
-          </p>
-
-        </div>
-      `;
-    };
-  }
-
-
-  /* =====================================================
-     CGPA → PERCENTAGE
-     ===================================================== */
-
-  function loadCGPA() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-group">
-
-          <label>
-            CGPA
-          </label>
-
-          <input
-            id="cgpaValue"
-            type="number"
-            step="0.01"
-            min="0"
-            max="10"
-            value="8"
-          >
-
-        </div>
-
-        <button
-          id="cgpaBtn"
-          class="primary-button"
-        >
-          Convert
-        </button>
-
-        <div id="cgpaResult"></div>
-
-      </div>
-    `;
-
-    document.getElementById(
-      "cgpaBtn"
-    ).onclick = ()=>{
-
-      const cgpa =
-        Number(
-          document.getElementById("cgpaValue").value
-        );
-
-      const percentage =
-        cgpa*9.5;
-
-      document.getElementById(
-        "cgpaResult"
-      ).innerHTML = `
-
-        <div class="calculator-result">
-
-          <div class="result-label">
-            Percentage
-          </div>
-
-          <div class="main-value">
-            ${percentage.toFixed(2)}%
-          </div>
-
-        </div>
-      `;
-    };
-  }
-
-
-  /* =====================================================
-     GPA CALCULATOR
-     ===================================================== */
-
-  function loadGPA() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-group">
-
-          <label>
-            Enter GPA values separated by comma
-          </label>
-
-          <input
-            id="gpaValues"
-            placeholder="8, 7.5, 9, 8.5"
-          >
-
-        </div>
-
-        <button
-          id="gpaBtn"
-          class="primary-button"
-        >
-          Calculate GPA
-        </button>
-
-        <div id="gpaResult"></div>
-
-      </div>
-    `;
-
-    document.getElementById(
-      "gpaBtn"
-    ).onclick = ()=>{
-
-      const values =
-        document.getElementById(
-          "gpaValues"
-        ).value
-        .split(",")
-        .map(Number)
-        .filter(Number.isFinite);
-
-      if(!values.length){
-
-        alert("Please enter GPA values.");
-        return;
-      }
-
-      const avg =
-        values.reduce(
-          (a,b)=>a+b,
-          0
-        )/values.length;
-
-      document.getElementById(
-        "gpaResult"
-      ).innerHTML = `
-
-        <div class="calculator-result">
-
-          <div class="result-label">
-            Average GPA
-          </div>
-
-          <div class="main-value">
-            ${avg.toFixed(2)}
-          </div>
-
-        </div>
-      `;
-    };
-  }
-
-
-  /* =====================================================
-     MARKS REQUIRED
-     ===================================================== */
-
-  function loadMarksRequired() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-group">
-          <label>Total Marks</label>
-          <input id="marksTotal" type="number" value="500">
-        </div>
-
-        <div class="form-group">
-          <label>Target Percentage (%)</label>
-          <input id="marksTarget" type="number" value="75">
-        </div>
-
-        <div class="form-group">
-          <label>Marks Already Obtained</label>
-          <input id="marksObtained" type="number" value="300">
-        </div>
-
-        <button
-          id="marksBtn"
-          class="primary-button"
-        >
-          Calculate
-        </button>
-
-        <div id="marksResult"></div>
-
-      </div>
-    `;
-
-    document.getElementById(
-      "marksBtn"
-    ).onclick = ()=>{
-
-      const total =
-        Number(
-          document.getElementById("marksTotal").value
-        );
-
-      const target =
-        Number(
-          document.getElementById("marksTarget").value
-        );
-
-      const obtained =
-        Number(
-          document.getElementById("marksObtained").value
-        );
-
-      const required =
-        total*target/100-obtained;
-
-      document.getElementById(
-        "marksResult"
-      ).innerHTML = `
-
-        <div class="calculator-result">
-
-          <div class="result-label">
-            Marks Required
-          </div>
-
-          <div class="main-value">
-            ${formatNumber(Math.max(0,required))}
-          </div>
-
-        </div>
-      `;
-    };
-  }
-
-
-  /* =====================================================
-     GRADE CALCULATOR
-     ===================================================== */
-
-  function loadGrade() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-group">
-          <label>Marks (%)</label>
-          <input
-            id="gradeMarks"
-            type="number"
-            value="75"
-            min="0"
-            max="100"
-          >
-        </div>
-
-        <button
-          id="gradeBtn"
-          class="primary-button"
-        >
-          Calculate Grade
-        </button>
-
-        <div id="gradeResult"></div>
-
-      </div>
-    `;
-
-    document.getElementById(
-      "gradeBtn"
-    ).onclick = ()=>{
-
-      const m =
-        Number(
-          document.getElementById("gradeMarks").value
-        );
-
-      let grade;
-
-      if(m>=90) grade="A+";
-      else if(m>=80) grade="A";
-      else if(m>=70) grade="B+";
-      else if(m>=60) grade="B";
-      else if(m>=50) grade="C";
-      else if(m>=40) grade="D";
-      else grade="F";
-
-      document.getElementById(
-        "gradeResult"
-      ).innerHTML = `
-
-        <div class="calculator-result">
-
-          <div class="result-label">
-            Grade
-          </div>
-
-          <div class="main-value">
-            ${grade}
-          </div>
-
-        </div>
-      `;
-    };
-  }
-
-
-  /* =====================================================
-     STUDY TIME
-     ===================================================== */
-
-  function loadStudyTime() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-group">
-          <label>Total Study Hours</label>
-          <input id="studyHours" type="number" value="6">
-        </div>
-
-        <div class="form-group">
-          <label>Number of Subjects</label>
-          <input id="studySubjects" type="number" value="3">
-        </div>
-
-        <button
-          id="studyBtn"
-          class="primary-button"
-        >
-          Calculate
-        </button>
-
-        <div id="studyResult"></div>
-
-      </div>
-    `;
-
-    document.getElementById(
-      "studyBtn"
-    ).onclick = ()=>{
-
-      const hours =
-        Number(
-          document.getElementById("studyHours").value
-        );
-
-      const subjects =
-        Number(
-          document.getElementById("studySubjects").value
-        );
-
-      const each =
-        subjects>0
-          ? hours/subjects
-          : 0;
-
-      document.getElementById(
-        "studyResult"
-      ).innerHTML = `
-
-        <div class="calculator-result">
-
-          <div class="result-label">
-            Suggested Time / Subject
-          </div>
-
-          <div class="main-value">
-            ${each.toFixed(2)} Hours
-          </div>
-
-        </div>
-      `;
-    };
-  }
-
-
-  /* =====================================================
-     MOCK TEST
-     ===================================================== */
-
-  function loadMockTest() {
-
-    const questions = [
-
-      {
-        q:"HTML का पूरा नाम क्या है?",
-        options:[
-          "Hyper Text Markup Language",
-          "High Text Machine Language",
-          "Hyperlink Text Management Language",
-          "Home Tool Markup Language"
-        ],
-        answer:0
-      },
-
-      {
-        q:"CSS किसके लिए इस्तेमाल होती है?",
-        options:[
-          "Database",
-          "Web page styling",
-          "Server hosting",
-          "Email"
-        ],
-        answer:1
-      },
-
-      {
-        q:"JavaScript मुख्य रूप से किसके लिए उपयोग होती है?",
-        options:[
-          "Web interactivity",
-          "Image printing",
-          "Operating system",
-          "Hardware repair"
-        ],
-        answer:0
-      },
-
-      {
-        q:"PDF का पूरा नाम क्या है?",
-        options:[
-          "Portable Document Format",
-          "Public Data File",
-          "Print Document File",
-          "Personal Document Format"
-        ],
-        answer:0
-      },
-
-      {
-        q:"भारत की currency क्या है?",
-        options:[
-          "Dollar",
-          "Pound",
-          "Rupee",
-          "Euro"
-        ],
-        answer:2
-      }
-
-    ];
-
-    let html = `
-
-      <div class="tool-form">
-
-        <h3>
-          Quick Digital Skills Mock Test
-        </h3>
-
-        <p>
-          सभी questions का answer select करें।
-        </p>
-    `;
-
-    questions.forEach((item,index)=>{
-
-      html += `
-
-        <div class="form-group">
-
-          <strong>
-            ${index+1}. ${item.q}
-          </strong>
-
-          <div style="margin-top:10px">
-
-      `;
-
-      item.options.forEach((option,i)=>{
-
-        html += `
-
-          <label class="check-row">
-
-            <input
-              type="radio"
-              name="q${index}"
-              value="${i}"
-            >
-
-            ${escapeHTML(option)}
-
-          </label>
-
-        `;
-      });
-
-      html += `
-          </div>
-        </div>
-      `;
     });
 
-    html += `
+    if(line) lines.push(line);
 
-        <button
-          id="mockSubmit"
-          class="primary-button"
-        >
-          Submit Test
-        </button>
+    return lines;
 
-        <div id="mockResult"></div>
-
-      </div>
-    `;
-
-    toolContent.innerHTML = html;
-
-    document.getElementById(
-      "mockSubmit"
-    ).onclick = ()=>{
-
-      let score = 0;
-
-      questions.forEach((q,index)=>{
-
-        const selected =
-          document.querySelector(
-            `input[name="q${index}"]:checked`
-          );
-
-        if(
-          selected &&
-          Number(selected.value)===q.answer
-        ){
-
-          score++;
-        }
-      });
-
-      const percent =
-        score/questions.length*100;
-
-      document.getElementById(
-        "mockResult"
-      ).innerHTML = `
-
-        <div class="calculator-result">
-
-          <div class="result-label">
-            Your Score
-          </div>
-
-          <div class="main-value">
-            ${score}/${questions.length}
-          </div>
-
-          <p>
-            ${percent.toFixed(0)}%
-          </p>
-
-        </div>
-      `;
-    };
   }
 
 
-  /* =====================================================
-     QR GENERATOR
-     ===================================================== */
+  /* ---------------------------------------------------------
+     DOWNLOAD
+     --------------------------------------------------------- */
 
-  function loadQR() {
+  function downloadCanvas(canvas,name){
 
-    toolContent.innerHTML = `
+    canvas.toBlob(function(blob){
 
-      <div class="tool-form">
+      if(!blob) return;
 
-        <div class="form-group">
+      downloadBlob(
+        blob,
+        name
+      );
 
-          <label>
-            Text or URL
-          </label>
+    },"image/png");
 
-          <textarea
-            id="qrText"
-            placeholder="https://example.com"
-          ></textarea>
+  }
 
-        </div>
 
-        <button
-          id="qrBtn"
-          class="primary-button"
-        >
-          Generate QR
-        </button>
+  get("sidDownloadFront")
+    .addEventListener("click",function(){
 
-        <div id="qrResult"></div>
+      downloadCanvas(
+        createCardCanvas("front"),
+        "school-id-front.png"
+      );
 
-      </div>
-    `;
+    });
 
-    document.getElementById(
-      "qrBtn"
-    ).onclick = ()=>{
 
-      const text =
-        document.getElementById(
-          "qrText"
-        ).value
-        .trim();
+  get("sidDownloadBack")
+    .addEventListener("click",function(){
 
-      if(!text){
+      downloadCanvas(
+        createCardCanvas("back"),
+        "school-id-back.png"
+      );
 
-        alert("Please enter text or URL.");
-        return;
+    });
+
+
+  /* ---------------------------------------------------------
+     A4 SHEET
+     8 CARDS = 2 x 4
+     --------------------------------------------------------- */
+
+  function createA4Sheet(side){
+
+    const canvas =
+      document.createElement("canvas");
+
+    canvas.width = 2480;
+    canvas.height = 3508;
+
+    const ctx =
+      canvas.getContext("2d");
+
+    ctx.fillStyle="#ffffff";
+    ctx.fillRect(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    const card =
+      createCardCanvas(side);
+
+    const cardW = 1011;
+    const cardH = 638;
+
+    const gapX = 130;
+    const gapY = 120;
+
+    const startX = 164;
+    const startY = 130;
+
+    for(let row=0;row<4;row++){
+
+      for(let col=0;col<2;col++){
+
+        const x =
+          startX +
+          col*(cardW+gapX);
+
+        const y =
+          startY +
+          row*(cardH+gapY);
+
+        ctx.drawImage(
+          card,
+          x,
+          y,
+          cardW,
+          cardH
+        );
+
       }
 
-      const url =
-        "https://api.qrserver.com/v1/create-qr-code/?" +
-        "size=500x500&data=" +
-        encodeURIComponent(text);
+    }
 
-      document.getElementById(
-        "qrResult"
-      ).innerHTML = `
+    return canvas;
 
-        <div class="result-box">
-
-          <img
-            src="${url}"
-            alt="QR Code"
-            style="max-width:300px;width:100%"
-          >
-
-          <br><br>
-
-          <a
-            href="${url}"
-            target="_blank"
-            rel="noopener"
-            class="download-button"
-          >
-            Open QR Image
-          </a>
-
-        </div>
-      `;
-    };
   }
 
 
-  /* =====================================================
-     WORD COUNTER
-     ===================================================== */
+  get("sidA4Front")
+    .addEventListener("click",function(){
 
-  function loadWordCounter() {
+      downloadCanvas(
+        createA4Sheet("front"),
+        "school-id-a4-front-sheet.png"
+      );
 
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <textarea
-          id="wordText"
-          placeholder="Type or paste text..."
-        ></textarea>
-
-        <div
-          id="wordResult"
-          class="result-box"
-        >
-          Words: 0<br>
-          Characters: 0
-        </div>
-
-      </div>
-    `;
-
-    document.getElementById(
-      "wordText"
-    ).addEventListener("input",e=>{
-
-      const text =
-        e.target.value;
-
-      const words =
-        text.trim()
-          ? text.trim().split(/\s+/).length
-          : 0;
-
-      document.getElementById(
-        "wordResult"
-      ).innerHTML = `
-
-        <strong>
-          Words:
-        </strong>
-        ${words}
-
-        <br>
-
-        <strong>
-          Characters:
-        </strong>
-        ${text.length}
-
-        <br>
-
-        <strong>
-          Characters without spaces:
-        </strong>
-        ${text.replace(/\s/g,"").length}
-
-      `;
     });
-  }
 
 
-  /* =====================================================
-     CASE CONVERTER
-     ===================================================== */
+  get("sidA4Back")
+    .addEventListener("click",function(){
 
-  function loadCaseConverter() {
+      downloadCanvas(
+        createA4Sheet("back"),
+        "school-id-a4-back-sheet.png"
+      );
 
-    toolContent.innerHTML = `
+    });
 
-      <div class="tool-form">
 
-        <textarea
-          id="caseText"
-          placeholder="Type or paste text..."
-        ></textarea>
+  /* INITIAL */
 
-        <div class="form-row">
+  applyTemplate(templates.blue);
+  updatePreview();
 
-          <button
-            id="upper"
-            class="primary-button"
-          >
-            UPPERCASE
-          </button>
-
-          <button
-            id="lower"
-            class="primary-button"
-          >
-            lowercase
-          </button>
-
-        </div>
-
-        <div class="form-row">
-
-          <button
-            id="title"
-            class="primary-button"
-          >
-            Title Case
-          </button>
-
-          <button
-            id="sentence"
-            class="primary-button"
-          >
-            Sentence Case
-          </button>
-
-        </div>
-
-      </div>
-    `;
-
-    const text =
-      document.getElementById("caseText");
-
-    document.getElementById(
-      "upper"
-    ).onclick =
-      () => text.value =
-        text.value.toUpperCase();
-
-    document.getElementById(
-      "lower"
-    ).onclick =
-      () => text.value =
-        text.value.toLowerCase();
-
-    document.getElementById(
-      "title"
-    ).onclick =
-      () => text.value =
-        text.value
-          .toLowerCase()
-          .replace(
-            /\b\w/g,
-            x => x.toUpperCase()
-          );
-
-    document.getElementById(
-      "sentence"
-    ).onclick =
-      () => text.value =
-        text.value
-          .toLowerCase()
-          .replace(
-            /(^\s*\w|[.!?]\s*\w)/g,
-            x => x.toUpperCase()
-          );
-  }
-
-
-  /* =====================================================
-     INVOICE
-     ===================================================== */
-
-  function loadInvoice() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-group">
-          <label>Business Name</label>
-          <input id="invBusiness" placeholder="Your Business">
-        </div>
-
-        <div class="form-group">
-          <label>Customer Name</label>
-          <input id="invCustomer" placeholder="Customer">
-        </div>
-
-        <div class="form-group">
-          <label>Item / Service</label>
-          <input id="invItem" placeholder="Service">
-        </div>
-
-        <div class="form-group">
-          <label>Amount (₹)</label>
-          <input id="invAmount" type="number" value="1000">
-        </div>
-
-        <button
-          id="invoiceBtn"
-          class="primary-button"
-        >
-          Generate Invoice
-        </button>
-
-        <div id="invoiceResult"></div>
-
-      </div>
-    `;
-
-    document.getElementById(
-      "invoiceBtn"
-    ).onclick = ()=>{
-
-      const business =
-        document.getElementById(
-          "invBusiness"
-        ).value || "Your Business";
-
-      const customer =
-        document.getElementById(
-          "invCustomer"
-        ).value || "Customer";
-
-      const item =
-        document.getElementById(
-          "invItem"
-        ).value || "Service";
-
-      const amount =
-        Number(
-          document.getElementById(
-            "invAmount"
-          ).value
-        ) || 0;
-
-      document.getElementById(
-        "invoiceResult"
-      ).innerHTML = `
-
-        <div class="invoice-preview">
-
-          <h2>INVOICE</h2>
-
-          <p>
-            <strong>
-              ${escapeHTML(business)}
-            </strong>
-          </p>
-
-          <p>
-            Bill To:
-            ${escapeHTML(customer)}
-          </p>
-
-          <hr>
-
-          <p>
-            ${escapeHTML(item)}
-          </p>
-
-          <h3>
-            Total: ${money(amount)}
-          </h3>
-
-          <button
-            id="printInvoice"
-            class="primary-button"
-          >
-            🖨️ Print / Save PDF
-          </button>
-
-        </div>
-      `;
-
-      document.getElementById(
-        "printInvoice"
-      ).onclick = ()=>{
-
-        const content =
-          document.querySelector(
-            ".invoice-preview"
-          ).innerHTML;
-
-        const win =
-          window.open("","_blank");
-
-        if(!win){
-
-          alert("Please allow pop-ups.");
-          return;
-        }
-
-        win.document.write(`
-
-          <html>
-
-          <head>
-
-            <title>Invoice</title>
-
-            <style>
-
-              body {
-                font-family:Arial;
-                padding:30px;
-              }
-
-              button {
-                display:none;
-              }
-
-            </style>
-
-          </head>
-
-          <body>
-
-            ${content}
-
-          </body>
-
-          </html>
-        `);
-
-        win.document.close();
-
-        setTimeout(()=>{
-          win.print();
-        },300);
-      };
-    };
-  }
-
-
-  /* =====================================================
-     SERVICE WORKER
-     ===================================================== */
-
-  if("serviceWorker" in navigator){
-
-    // Registered by index.html.
-    // Keeping this file free from duplicate registration.
-  }
-
-
-  /* =====================================================
-     READY
-     ===================================================== */
-
-  console.log(
-    "Manjeet Digital Hub v3.0 loaded successfully."
-  );
-
-});
+}
