@@ -2,29 +2,50 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+
+  <!-- Mobile Responsive -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- SEO -->
   <title>Manjeet Tools - Free Online Tools</title>
-  <meta name="description" content="Free online image tools, calculators, QR generator and productivity tools.">
+  <meta
+    name="description"
+    content="Manjeet Tools - Free online image tools, calculators, converters, QR generator, invoice generator and more."
+  >
+  <meta
+    name="keywords"
+    content="free online tools, image compressor, image resizer, image converter, QR generator, EMI calculator, GST calculator"
+  >
+  <meta name="author" content="Manjeet Tools">
+
+  <!-- PWA -->
+  <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#2563eb">
 
+  <!-- iPhone / iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Manjeet Tools">
+
+  <!-- Favicon -->
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+
   <!-- CSS -->
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
 
   <!-- ================= HEADER ================= -->
-  <header class="site-header">
+  <header class="header">
 
-    <div class="header-inner">
+    <div class="container nav-container">
 
-      <a href="#" class="logo">
-        <span class="logo-icon">🛠️</span>
-        <span>Manjeet Tools</span>
+      <a href="./" class="logo">
+        🛠️ <span>Manjeet Tools</span>
       </a>
 
-      <nav class="top-nav">
+      <nav class="nav">
         <a href="#tools">Tools</a>
         <a href="#about">About</a>
       </nav>
@@ -37,33 +58,34 @@
   <!-- ================= HERO ================= -->
   <section class="hero">
 
-    <div class="hero-content">
+    <div class="container">
 
-      <div class="hero-badge">
-        ⚡ Free • Fast • No Login
-      </div>
+      <div class="hero-content">
 
-      <h1>
-        Free Online Tools
-        <span>For Everyone</span>
-      </h1>
+        <div class="hero-icon">
+          🛠️
+        </div>
 
-      <p>
-        Image editing, calculators, QR generator, text tools
-        and many useful utilities — directly in your browser.
-      </p>
+        <h1>
+          Free Online Tools
+        </h1>
 
-      <!-- SEARCH -->
-      <div class="search-box">
+        <p>
+          Simple, fast and free tools for your everyday needs.
+        </p>
 
-        <span class="search-icon">🔍</span>
+        <div class="search-box">
 
-        <input
-          type="text"
-          id="toolSearch"
-          placeholder="Search tools..."
-          autocomplete="off"
-        >
+          <span>🔍</span>
+
+          <input
+            type="text"
+            id="toolSearch"
+            placeholder="Search tools..."
+            autocomplete="off"
+          >
+
+        </div>
 
       </div>
 
@@ -72,534 +94,504 @@
   </section>
 
 
-  <!-- ================= MAIN ================= -->
-  <main id="tools" class="container">
+  <!-- ================= TOOLS ================= -->
+  <main id="tools">
 
-
-    <!-- =========================================
-         IMAGE TOOLS
-    ========================================== -->
-
-    <section class="tool-section">
+    <div class="container">
 
       <div class="section-heading">
 
-        <div>
-          <span class="section-icon">🖼️</span>
+        <h2>
+          All Tools
+        </h2>
 
-          <h2>Image Tools</h2>
-
-          <p>
-            Compress, resize, crop and convert your images.
-          </p>
-        </div>
+        <p>
+          Choose a tool to get started
+        </p>
 
       </div>
 
 
-      <div class="tools-grid">
+      <div class="tools-grid" id="toolsGrid">
 
 
         <!-- IMAGE COMPRESSOR -->
-        <button
+        <div
           class="tool-card"
           data-tool="compressor"
           data-name="Image Compressor"
         >
 
-          <div class="tool-icon blue">
+          <div class="tool-icon">
             🗜️
           </div>
 
-          <div class="tool-info">
+          <h3>
+            Image Compressor
+          </h3>
 
-            <h3>Image Compressor</h3>
+          <p>
+            Reduce image file size while maintaining quality.
+          </p>
 
-            <p>
-              Reduce image size without losing much quality.
-            </p>
+          <button class="tool-button">
+            Open Tool
+          </button>
 
-          </div>
-
-          <span class="arrow">→</span>
-
-        </button>
+        </div>
 
 
         <!-- IMAGE RESIZER -->
-        <button
+        <div
           class="tool-card"
           data-tool="resize"
           data-name="Image Resizer"
         >
 
-          <div class="tool-icon purple">
+          <div class="tool-icon">
             📐
           </div>
 
-          <div class="tool-info">
+          <h3>
+            Image Resizer
+          </h3>
 
-            <h3>Image Resizer</h3>
+          <p>
+            Resize images to your desired dimensions.
+          </p>
 
-            <p>
-              Change image width and height easily.
-            </p>
+          <button class="tool-button">
+            Open Tool
+          </button>
 
-          </div>
-
-          <span class="arrow">→</span>
-
-        </button>
+        </div>
 
 
         <!-- IMAGE CROPPER -->
-        <button
+        <div
           class="tool-card"
           data-tool="crop"
           data-name="Image Cropper"
         >
 
-          <div class="tool-icon orange">
+          <div class="tool-icon">
             ✂️
           </div>
 
-          <div class="tool-info">
+          <h3>
+            Image Cropper
+          </h3>
 
-            <h3>Image Cropper</h3>
+          <p>
+            Crop your images easily in your browser.
+          </p>
 
-            <p>
-              Crop images directly in your browser.
-            </p>
+          <button class="tool-button">
+            Open Tool
+          </button>
 
-          </div>
-
-          <span class="arrow">→</span>
-
-        </button>
+        </div>
 
 
         <!-- IMAGE CONVERTER -->
-        <button
+        <div
           class="tool-card"
           data-tool="convert"
-          data-name="Image Converter JPG PNG WebP"
+          data-name="JPG PNG WebP Converter"
         >
 
-          <div class="tool-icon green">
+          <div class="tool-icon">
             🔄
           </div>
 
-          <div class="tool-info">
+          <h3>
+            Image Converter
+          </h3>
 
-            <h3>Image Converter</h3>
+          <p>
+            Convert JPG, PNG and WebP images.
+          </p>
 
-            <p>
-              Convert JPG, PNG and WebP images.
-            </p>
+          <button class="tool-button">
+            Open Tool
+          </button>
 
-          </div>
-
-          <span class="arrow">→</span>
-
-        </button>
+        </div>
 
 
         <!-- PHOTO SIZE REDUCER -->
-        <button
+        <div
           class="tool-card"
           data-tool="photo-size"
           data-name="Photo Size Reducer"
         >
 
-          <div class="tool-icon pink">
+          <div class="tool-icon">
             📦
           </div>
 
-          <div class="tool-info">
-
-            <h3>Photo Size Reducer</h3>
-
-            <p>
-              Make photos smaller for forms and websites.
-            </p>
-
-          </div>
-
-          <span class="arrow">→</span>
-
-        </button>
-
-
-        <!-- SOCIAL MEDIA RESIZER -->
-        <button
-          class="tool-card"
-          data-tool="social"
-          data-name="Social Media Image Resizer"
-        >
-
-          <div class="tool-icon red">
-            📱
-          </div>
-
-          <div class="tool-info">
-
-            <h3>Social Media Resizer</h3>
-
-            <p>
-              Resize images for Instagram, Facebook and YouTube.
-            </p>
-
-          </div>
-
-          <span class="arrow">→</span>
-
-        </button>
-
-
-      </div>
-
-    </section>
-
-
-
-    <!-- =========================================
-         PDF & DOCUMENT TOOLS
-    ========================================== -->
-
-    <section class="tool-section">
-
-      <div class="section-heading">
-
-        <div>
-
-          <span class="section-icon">📄</span>
-
-          <h2>PDF & Document Tools</h2>
+          <h3>
+            Photo Size Reducer
+          </h3>
 
           <p>
-            Useful tools for documents, text and QR codes.
+            Reduce photo size for forms and online applications.
           </p>
+
+          <button class="tool-button">
+            Open Tool
+          </button>
 
         </div>
 
-      </div>
 
+        <!-- SOCIAL MEDIA RESIZER -->
+        <div
+          class="tool-card"
+          data-tool="social"
+          data-name="Social Media Resizer"
+        >
 
-      <div class="tools-grid">
+          <div class="tool-icon">
+            📱
+          </div>
+
+          <h3>
+            Social Media Resizer
+          </h3>
+
+          <p>
+            Resize images for Instagram, Facebook and YouTube.
+          </p>
+
+          <button class="tool-button">
+            Open Tool
+          </button>
+
+        </div>
 
 
         <!-- IMAGE TO PDF -->
-        <button
+        <div
           class="tool-card"
           data-tool="image-pdf"
-          data-name="JPG Images to PDF"
+          data-name="Images to PDF"
         >
 
-          <div class="tool-icon red">
-            📑
+          <div class="tool-icon">
+            📄
           </div>
 
-          <div class="tool-info">
+          <h3>
+            Images to PDF
+          </h3>
 
-            <h3>Images to PDF</h3>
+          <p>
+            Convert your images into a printable PDF.
+          </p>
 
-            <p>
-              Convert your images into a PDF file.
-            </p>
+          <button class="tool-button">
+            Open Tool
+          </button>
 
-          </div>
-
-          <span class="arrow">→</span>
-
-        </button>
+        </div>
 
 
         <!-- QR GENERATOR -->
-        <button
+        <div
           class="tool-card"
           data-tool="qr"
           data-name="QR Code Generator"
         >
 
-          <div class="tool-icon black">
+          <div class="tool-icon">
             🔳
           </div>
 
-          <div class="tool-info">
+          <h3>
+            QR Generator
+          </h3>
 
-            <h3>QR Code Generator</h3>
+          <p>
+            Create QR codes for links and text.
+          </p>
 
-            <p>
-              Create QR codes for text, links and more.
-            </p>
+          <button class="tool-button">
+            Open Tool
+          </button>
 
-          </div>
-
-          <span class="arrow">→</span>
-
-        </button>
+        </div>
 
 
         <!-- WORD COUNTER -->
-        <button
+        <div
           class="tool-card"
           data-tool="word-counter"
-          data-name="Word Counter Character Counter"
+          data-name="Word Counter"
         >
 
-          <div class="tool-icon blue">
-            🔢
+          <div class="tool-icon">
+            📝
           </div>
 
-          <div class="tool-info">
+          <h3>
+            Word Counter
+          </h3>
 
-            <h3>Word Counter</h3>
+          <p>
+            Count words, characters and sentences.
+          </p>
 
-            <p>
-              Count words, characters and sentences.
-            </p>
+          <button class="tool-button">
+            Open Tool
+          </button>
 
-          </div>
-
-          <span class="arrow">→</span>
-
-        </button>
+        </div>
 
 
         <!-- CASE CONVERTER -->
-        <button
+        <div
           class="tool-card"
           data-tool="case"
-          data-name="Case Converter Uppercase Lowercase"
+          data-name="Case Converter"
         >
 
-          <div class="tool-icon purple">
+          <div class="tool-icon">
             🔤
           </div>
 
-          <div class="tool-info">
+          <h3>
+            Case Converter
+          </h3>
 
-            <h3>Case Converter</h3>
+          <p>
+            Convert text to uppercase, lowercase and more.
+          </p>
 
-            <p>
-              Convert text to uppercase, lowercase and more.
-            </p>
+          <button class="tool-button">
+            Open Tool
+          </button>
 
-          </div>
-
-          <span class="arrow">→</span>
-
-        </button>
+        </div>
 
 
         <!-- INVOICE GENERATOR -->
-        <button
+        <div
           class="tool-card"
           data-tool="invoice"
           data-name="Invoice Generator"
         >
 
-          <div class="tool-icon green">
+          <div class="tool-icon">
             🧾
           </div>
 
-          <div class="tool-info">
-
-            <h3>Invoice Generator</h3>
-
-            <p>
-              Create a simple professional invoice.
-            </p>
-
-          </div>
-
-          <span class="arrow">→</span>
-
-        </button>
-
-
-      </div>
-
-    </section>
-
-
-
-    <!-- =========================================
-         CALCULATORS
-    ========================================== -->
-
-    <section class="tool-section">
-
-      <div class="section-heading">
-
-        <div>
-
-          <span class="section-icon">🧮</span>
-
-          <h2>Calculators</h2>
+          <h3>
+            Invoice Generator
+          </h3>
 
           <p>
-            Simple and useful everyday calculators.
+            Create a simple professional invoice.
           </p>
+
+          <button class="tool-button">
+            Open Tool
+          </button>
 
         </div>
 
-      </div>
 
-
-      <div class="tools-grid">
-
-
-        <!-- EMI -->
-        <button
+        <!-- EMI CALCULATOR -->
+        <div
           class="tool-card"
           data-tool="emi"
-          data-name="EMI Calculator Loan Calculator"
+          data-name="EMI Calculator"
         >
 
-          <div class="tool-icon blue">
+          <div class="tool-icon">
             💰
           </div>
 
-          <div class="tool-info">
+          <h3>
+            EMI Calculator
+          </h3>
 
-            <h3>EMI Calculator</h3>
+          <p>
+            Calculate your monthly loan EMI instantly.
+          </p>
 
-            <p>
-              Calculate monthly loan EMI and total interest.
-            </p>
+          <button class="tool-button">
+            Open Tool
+          </button>
 
-          </div>
-
-          <span class="arrow">→</span>
-
-        </button>
+        </div>
 
 
-        <!-- GST -->
-        <button
+        <!-- GST CALCULATOR -->
+        <div
           class="tool-card"
           data-tool="gst"
           data-name="GST Calculator"
         >
 
-          <div class="tool-icon orange">
-            🧾
+          <div class="tool-icon">
+            🧮
           </div>
 
-          <div class="tool-info">
+          <h3>
+            GST Calculator
+          </h3>
 
-            <h3>GST Calculator</h3>
+          <p>
+            Calculate GST amount and final price.
+          </p>
 
-            <p>
-              Calculate GST amount and final price.
-            </p>
+          <button class="tool-button">
+            Open Tool
+          </button>
 
-          </div>
-
-          <span class="arrow">→</span>
-
-        </button>
+        </div>
 
 
-        <!-- PERCENTAGE -->
-        <button
+        <!-- PERCENTAGE CALCULATOR -->
+        <div
           class="tool-card"
           data-tool="percentage"
           data-name="Percentage Calculator"
         >
 
-          <div class="tool-icon purple">
+          <div class="tool-icon">
             %
           </div>
 
-          <div class="tool-info">
+          <h3>
+            Percentage Calculator
+          </h3>
 
-            <h3>Percentage Calculator</h3>
+          <p>
+            Calculate percentages quickly and easily.
+          </p>
 
-            <p>
-              Calculate percentage quickly.
-            </p>
+          <button class="tool-button">
+            Open Tool
+          </button>
 
-          </div>
-
-          <span class="arrow">→</span>
-
-        </button>
+        </div>
 
 
-        <!-- AGE -->
-        <button
+        <!-- AGE CALCULATOR -->
+        <div
           class="tool-card"
           data-tool="age"
-          data-name="Age Calculator Date of Birth"
+          data-name="Age Calculator"
         >
 
-          <div class="tool-icon pink">
+          <div class="tool-icon">
             🎂
           </div>
 
-          <div class="tool-info">
+          <h3>
+            Age Calculator
+          </h3>
 
-            <h3>Age Calculator</h3>
+          <p>
+            Calculate your exact age from date of birth.
+          </p>
 
-            <p>
-              Calculate exact age from date of birth.
-            </p>
+          <button class="tool-button">
+            Open Tool
+          </button>
 
-          </div>
-
-          <span class="arrow">→</span>
-
-        </button>
+        </div>
 
 
       </div>
 
-    </section>
 
+      <!-- NO SEARCH RESULT -->
+      <div
+        id="noResults"
+        style="display:none; text-align:center; padding:40px 20px;"
+      >
 
-    <!-- NO SEARCH RESULT -->
-    <div id="noResults" class="no-results">
+        <div style="font-size:45px;">
+          🔍
+        </div>
 
-      <div>🔍</div>
+        <h3>
+          No tools found
+        </h3>
 
-      <h3>No tools found</h3>
+        <p>
+          Try another search.
+        </p>
 
-      <p>
-        Try another search keyword.
-      </p>
+      </div>
 
     </div>
-
 
   </main>
 
 
+  <!-- ================= ABOUT ================= -->
+  <section id="about" class="about-section">
 
-  <!-- =========================================
-       TOOL WORKSPACE
-  ========================================== -->
+    <div class="container">
 
+      <div class="about-box">
+
+        <div class="about-icon">
+          🛠️
+        </div>
+
+        <h2>
+          About Manjeet Tools
+        </h2>
+
+        <p>
+          Manjeet Tools is a collection of simple and useful
+          free online tools designed for everyday use.
+        </p>
+
+        <p>
+          Most tools work directly in your browser, so your
+          files can be processed locally without uploading them
+          to a server.
+        </p>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- ================= MODAL ================= -->
   <div
+    class="modal"
     id="toolModal"
-    class="tool-modal"
     aria-hidden="true"
   >
 
-    <div class="modal-overlay"></div>
+    <div class="modal-overlay" id="modalOverlay"></div>
 
+    <div
+      class="modal-box"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+    >
 
-    <div class="tool-window">
+      <div class="modal-header">
 
+        <div class="modal-title-area">
 
-      <!-- MODAL HEADER -->
-
-      <div class="tool-window-header">
-
-        <div>
-
-          <span id="modalIcon">🛠️</span>
+          <span
+            id="modalIcon"
+            class="modal-icon"
+          >
+            🛠️
+          </span>
 
           <h2 id="modalTitle">
             Tool
@@ -607,85 +599,125 @@
 
         </div>
 
-
         <button
           id="closeTool"
-          class="close-btn"
+          class="close-button"
           aria-label="Close"
         >
-          ×
+          ✕
         </button>
 
       </div>
 
 
-      <!-- TOOL CONTENT -->
-
       <div
         id="toolContent"
         class="tool-content"
       >
-
-        <!-- JavaScript will load the selected tool here -->
-
+        <!-- Tool UI will be loaded by app.js -->
       </div>
-
 
     </div>
 
   </div>
 
 
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
 
-  <!-- =========================================
-       FOOTER
-  ========================================== -->
+    <div class="container">
 
-  <footer id="about" class="footer">
+      <div class="footer-content">
 
-    <div class="footer-inner">
+        <div>
 
-      <div class="footer-brand">
+          <h3>
+            🛠️ Manjeet Tools
+          </h3>
 
-        <div class="footer-logo">
-          🛠️ Manjeet Tools
+          <p>
+            Free tools. Simple. Fast.
+          </p>
+
         </div>
 
+
+        <div class="footer-links">
+
+          <a href="#tools">
+            Tools
+          </a>
+
+          <a href="#about">
+            About
+          </a>
+
+        </div>
+
+      </div>
+
+
+      <div class="footer-bottom">
+
         <p>
-          Free browser-based tools for everyday work.
+          © <span id="currentYear"></span> Manjeet Tools.
+          All rights reserved.
         </p>
 
       </div>
-
-
-      <div class="footer-links">
-
-        <a href="#tools">
-          Tools
-        </a>
-
-        <a href="#about">
-          About
-        </a>
-
-      </div>
-
-    </div>
-
-
-    <div class="copyright">
-
-      © <span id="year"></span>
-      Manjeet Tools. All Rights Reserved.
 
     </div>
 
   </footer>
 
 
+  <!-- ================= JAVASCRIPT ================= -->
 
-  <!-- JavaScript -->
-  <script src="app.js"></script>
+  <script src="./app.js"></script>
+
+
+  <!-- ================= PWA SERVICE WORKER ================= -->
+
+  <script>
+
+    // Current year
+    const yearElement = document.getElementById("currentYear");
+
+    if (yearElement) {
+      yearElement.textContent = new Date().getFullYear();
+    }
+
+
+    // Register Service Worker
+    if ("serviceWorker" in navigator) {
+
+      window.addEventListener("load", function () {
+
+        navigator.serviceWorker
+          .register("./service-worker.js")
+          .then(function (registration) {
+
+            console.log(
+              "Manjeet Tools PWA registered:",
+              registration.scope
+            );
+
+          })
+          .catch(function (error) {
+
+            console.log(
+              "PWA registration failed:",
+              error
+            );
+
+          });
+
+      });
+
+    }
+
+  </script>
+
 
 </body>
 </html>
