@@ -4323,4 +4323,618 @@ document.addEventListener("DOMContentLoaded", function () {
               monthlyRate *
               Math.pow(
                 1 + monthlyRate,
-               
+                months
+              ) /
+              (
+                Math.pow(
+                  1 + monthlyRate,
+                  months
+                ) - 1
+              );
+
+          }
+
+
+          const totalPayment =
+            emi * months;
+
+
+          const totalInterest =
+            totalPayment -
+            principal;
+
+
+          document
+            .getElementById(
+              "emiResult"
+            )
+            .innerHTML = `
+
+              <div class="calculator-result">
+
+                <div class="result-label">
+                  Monthly EMI
+                </div>
+
+                <div class="main-value">
+                  ₹${formatNumber(
+                    emi
+                  )}
+                </div>
+
+              </div>
+
+              <div class="result-grid">
+
+                <div class="result-item">
+
+                  <span>
+                    Principal
+                  </span>
+
+                  <strong>
+                    ₹${formatNumber(
+                      principal
+                    )}
+                  </strong>
+
+                </div>
+
+                <div class="result-item">
+
+                  <span>
+                    Total Interest
+                  </span>
+
+                  <strong>
+                    ₹${formatNumber(
+                      totalInterest
+                    )}
+                  </strong>
+
+                </div>
+
+                <div class="result-item">
+
+                  <span>
+                    Total Payment
+                  </span>
+
+                  <strong>
+                    ₹${formatNumber(
+                      totalPayment
+                    )}
+                  </strong>
+
+                </div>
+
+                <div class="result-item">
+
+                  <span>
+                    Tenure
+                  </span>
+
+                  <strong>
+                    ${years} Years
+                  </strong>
+
+                </div>
+
+              </div>
+
+            `;
+
+        }
+      );
+
+  }
+
+
+  /* =======================================================
+     13. GST CALCULATOR
+     ======================================================= */
+
+  function loadGST() {
+
+    toolContent.innerHTML = `
+
+      <div class="tool-form">
+
+        <div class="form-row">
+
+          <div class="form-group">
+
+            <label>
+              Amount (₹)
+            </label>
+
+            <input
+              id="gstAmount"
+              type="number"
+              min="0"
+              value="10000"
+            >
+
+          </div>
+
+          <div class="form-group">
+
+            <label>
+              GST Rate (%)
+            </label>
+
+            <select id="gstRate">
+
+              <option value="0">
+                0%
+              </option>
+
+              <option value="5">
+                5%
+              </option>
+
+              <option value="12">
+                12%
+              </option>
+
+              <option
+                value="18"
+                selected
+              >
+                18%
+              </option>
+
+              <option value="28">
+                28%
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+        <button
+          id="gstButton"
+          class="primary-button"
+        >
+          Calculate GST
+        </button>
+
+        <div id="gstResult"></div>
+
+      </div>
+
+    `;
+
+
+    document
+      .getElementById(
+        "gstButton"
+      )
+      .addEventListener(
+        "click",
+        function () {
+
+          const amount =
+            Number(
+              document.getElementById(
+                "gstAmount"
+              ).value
+            );
+
+
+          const rate =
+            Number(
+              document.getElementById(
+                "gstRate"
+              ).value
+            );
+
+
+          if (amount < 0) {
+
+            alert(
+              "Please enter a valid amount."
+            );
+
+            return;
+
+          }
+
+
+          const gst =
+            amount *
+            rate /
+            100;
+
+
+          const total =
+            amount +
+            gst;
+
+
+          document
+            .getElementById(
+              "gstResult"
+            )
+            .innerHTML = `
+
+              <div class="result-box">
+
+                <h4>
+                  GST Calculation
+                </h4>
+
+                <div class="result-grid">
+
+                  <div class="result-item">
+
+                    <span>
+                      Amount
+                    </span>
+
+                    <strong>
+                      ₹${formatNumber(
+                        amount
+                      )}
+                    </strong>
+
+                  </div>
+
+                  <div class="result-item">
+
+                    <span>
+                      GST (${rate}%)
+                    </span>
+
+                    <strong>
+                      ₹${formatNumber(
+                        gst
+                      )}
+                    </strong>
+
+                  </div>
+
+                  <div class="result-item">
+
+                    <span>
+                      Final Total
+                    </span>
+
+                    <strong>
+                      ₹${formatNumber(
+                        total
+                      )}
+                    </strong>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            `;
+
+        }
+      );
+
+  }
+
+
+  /* =======================================================
+     14. PERCENTAGE CALCULATOR
+     ======================================================= */
+
+  function loadPercentage() {
+
+    toolContent.innerHTML = `
+
+      <div class="tool-form">
+
+        <div class="form-row">
+
+          <div class="form-group">
+
+            <label>
+              Percentage (%)
+            </label>
+
+            <input
+              id="percentValue"
+              type="number"
+              value="10"
+            >
+
+          </div>
+
+          <div class="form-group">
+
+            <label>
+              Number
+            </label>
+
+            <input
+              id="percentNumber"
+              type="number"
+              value="1000"
+            >
+
+          </div>
+
+        </div>
+
+        <button
+          id="percentageButton"
+          class="primary-button"
+        >
+          Calculate
+        </button>
+
+        <div id="percentageResult"></div>
+
+      </div>
+
+    `;
+
+
+    document
+      .getElementById(
+        "percentageButton"
+      )
+      .addEventListener(
+        "click",
+        function () {
+
+          const percent =
+            Number(
+              document.getElementById(
+                "percentValue"
+              ).value
+            );
+
+
+          const number =
+            Number(
+              document.getElementById(
+                "percentNumber"
+              ).value
+            );
+
+
+          const result =
+            percent *
+            number /
+            100;
+
+
+          document
+            .getElementById(
+              "percentageResult"
+            )
+            .innerHTML = `
+
+              <div class="calculator-result">
+
+                <div class="result-label">
+                  Result
+                </div>
+
+                <div class="main-value">
+                  ${formatNumber(
+                    result
+                  )}
+                </div>
+
+                <p>
+                  ${percent}% of
+                  ${formatNumber(
+                    number
+                  )}
+                </p>
+
+              </div>
+
+            `;
+
+        }
+      );
+
+  }
+
+
+  /* =======================================================
+     15. AGE CALCULATOR
+     ======================================================= */
+
+  function loadAge() {
+
+    toolContent.innerHTML = `
+
+      <div class="tool-form">
+
+        <div class="form-group">
+
+          <label>
+            Date of Birth
+          </label>
+
+          <input
+            id="dob"
+            type="date"
+          >
+
+        </div>
+
+        <button
+          id="ageButton"
+          class="primary-button"
+        >
+          Calculate Age
+        </button>
+
+        <div id="ageResult"></div>
+
+      </div>
+
+    `;
+
+
+    const dobInput =
+      document.getElementById(
+        "dob"
+      );
+
+
+    const today =
+      new Date();
+
+
+    dobInput.max =
+      today
+        .toISOString()
+        .split("T")[0];
+
+
+    document
+      .getElementById(
+        "ageButton"
+      )
+      .addEventListener(
+        "click",
+        function () {
+
+          if (!dobInput.value) {
+
+            alert(
+              "Please select your date of birth."
+            );
+
+            return;
+
+          }
+
+
+          const dob =
+            new Date(
+              dobInput.value +
+              "T00:00:00"
+            );
+
+
+          const now =
+            new Date();
+
+
+          if (dob > now) {
+
+            alert(
+              "Date of birth cannot be in the future."
+            );
+
+            return;
+
+          }
+
+
+          let years =
+            now.getFullYear() -
+            dob.getFullYear();
+
+
+          let months =
+            now.getMonth() -
+            dob.getMonth();
+
+
+          let days =
+            now.getDate() -
+            dob.getDate();
+
+
+          if (days < 0) {
+
+            months--;
+
+
+            const previousMonth =
+              new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                0
+              );
+
+
+            days +=
+              previousMonth.getDate();
+
+          }
+
+
+          if (months < 0) {
+
+            years--;
+
+            months += 12;
+
+          }
+
+
+          document
+            .getElementById(
+              "ageResult"
+            )
+            .innerHTML = `
+
+              <div class="calculator-result">
+
+                <div class="result-label">
+                  Your Exact Age
+                </div>
+
+                <div class="main-value">
+                  ${years} Years
+                </div>
+
+                <p>
+                  ${months} Months
+                  and
+                  ${days} Days
+                </p>
+
+              </div>
+
+            `;
+
+        }
+      );
+
+  }
+
+
+  /* =======================================================
+     SERVICE WORKER
+     ======================================================= */
+
+  if (
+    "serviceWorker" in navigator
+  ) {
+
+    /*
+      index.html already registers the
+      service worker, so we don't register
+      it again here.
+    */
+
+  }
+
+
+  /* =======================================================
+     CONSOLE
+     ======================================================= */
+
+  console.log(
+    "Manjeet Digital Hub loaded successfully."
+  );
+
+});
