@@ -1,6 +1,6 @@
 /* =========================================================
    MANJEET DIGITAL HUB - COMPLETE APP.JS
-   Version: 3.0
+   Version: 3.1
    Smart Digital Tools. Simple Solutions.
    ========================================================= */
 
@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const toolData = {
 
     /* IMAGE */
+
     compressor: {
       title: "Image Compressor",
       icon: "🗜️"
@@ -328,6 +329,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function downloadBlob(blob, filename) {
 
+    if (!blob) {
+      alert("Unable to create file.");
+      return;
+    }
+
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
@@ -351,6 +357,11 @@ document.addEventListener("DOMContentLoaded", function () {
   function loadImage(file) {
 
     return new Promise(function (resolve, reject) {
+
+      if (!file) {
+        reject(new Error("No file selected"));
+        return;
+      }
 
       const url = URL.createObjectURL(file);
 
@@ -379,13 +390,21 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
-  function canvasToBlob(canvas, type = "image/jpeg", quality = 0.9) {
+  function canvasToBlob(
+    canvas,
+    type = "image/jpeg",
+    quality = 0.9
+  ) {
 
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
 
       canvas.toBlob(function (blob) {
 
-        resolve(blob);
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error("Unable to create image"));
+        }
 
       }, type, quality);
 
@@ -405,24 +424,46 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
-  function createFileInput(accept = "image/*", multiple = false) {
+  /* =======================================================
+     FIXED FILE INPUT
+     iPhone / Android friendly
+     ======================================================= */
+
+  function createFileInput(
+    accept = "image/*",
+    multiple = false
+  ) {
 
     return `
-      <div class="mdh-upload-box">
+      <label class="mdh-upload-box">
+
         <input
           type="file"
           class="mdh-file-input"
-          accept="${accept}"
+          accept="${escapeHTML(accept)}"
           ${multiple ? "multiple" : ""}
         >
+
         <div class="mdh-upload-icon">📁</div>
-        <strong>Choose File${multiple ? "s" : ""}</strong>
-        <small>Tap here to select from your device</small>
-      </div>
+
+        <strong>
+          Choose File${multiple ? "s" : ""}
+        </strong>
+
+        <small>
+          Tap here to select from your device
+        </small>
+
+      </label>
     `;
 
   }
 
+
+  /* =======================================================
+     TOOL CSS
+     COMPACT + MOBILE FRIENDLY
+     ======================================================= */
 
   function toolCSS() {
 
@@ -432,30 +473,31 @@ document.addEventListener("DOMContentLoaded", function () {
         .mdh-tool {
           display:flex;
           flex-direction:column;
-          gap:14px;
+          gap:10px;
         }
 
         .mdh-tool h3 {
           margin:0;
-          font-size:20px;
+          font-size:16px;
+          line-height:1.25;
         }
 
         .mdh-tool p {
           margin:0;
           color:#64748b;
-          font-size:14px;
-          line-height:1.5;
+          font-size:12px;
+          line-height:1.4;
         }
 
         .mdh-field {
           display:flex;
           flex-direction:column;
-          gap:6px;
+          gap:4px;
         }
 
         .mdh-field label {
-          font-size:13px;
-          font-weight:700;
+          font-size:11px;
+          font-weight:600;
         }
 
         .mdh-field input,
@@ -464,66 +506,139 @@ document.addEventListener("DOMContentLoaded", function () {
           width:100%;
           box-sizing:border-box;
           border:1px solid #dbe3ef;
-          border-radius:10px;
-          padding:11px 12px;
-          font-size:14px;
+          border-radius:8px;
+          padding:7px 9px;
+          font-size:12px;
           background:#fff;
           outline:none;
         }
 
+        .mdh-field input:focus,
+        .mdh-field select:focus,
+        .mdh-field textarea:focus {
+          border-color:#2563eb;
+          box-shadow:0 0 0 2px rgba(37,99,235,.08);
+        }
+
         .mdh-field textarea {
-          min-height:120px;
+          min-height:100px;
           resize:vertical;
         }
 
         .mdh-grid {
           display:grid;
           grid-template-columns:repeat(2,minmax(0,1fr));
-          gap:10px;
+          gap:8px;
         }
 
         .mdh-grid-3 {
           display:grid;
           grid-template-columns:repeat(3,minmax(0,1fr));
-          gap:10px;
+          gap:7px;
         }
 
+
+        /* IMPORTANT:
+           Label makes the whole upload box clickable.
+           Input is visually hidden but still usable
+           by iPhone / Android file picker.
+        */
+
         .mdh-upload-box {
+          position:relative;
+          display:block;
+          width:100%;
+          box-sizing:border-box;
+
           border:2px dashed #bfdbfe;
-          border-radius:14px;
-          padding:22px 10px;
+          border-radius:12px;
+
+          padding:15px 10px;
+
           text-align:center;
+
           background:#f8fbff;
+
           cursor:pointer;
+
+          user-select:none;
+          -webkit-user-select:none;
+
+          -webkit-tap-highlight-color:transparent;
+
+          touch-action:manipulation;
+        }
+
+        .mdh-upload-box:active {
+          transform:scale(.99);
+          background:#f1f7ff;
         }
 
         .mdh-upload-box input {
-          display:none;
+          position:absolute !important;
+
+          width:1px !important;
+          height:1px !important;
+
+          padding:0 !important;
+          margin:-1px !important;
+
+          overflow:hidden !important;
+
+          clip:rect(0,0,0,0) !important;
+          clip-path:inset(50%) !important;
+
+          white-space:nowrap !important;
+
+          border:0 !important;
+          opacity:0 !important;
         }
 
         .mdh-upload-icon {
-          font-size:30px;
-          margin-bottom:7px;
+          font-size:25px;
+          margin-bottom:5px;
+          pointer-events:none;
         }
 
-        .mdh-upload-box strong,
+        .mdh-upload-box strong {
+          display:block;
+          font-size:12px;
+          line-height:1.3;
+          pointer-events:none;
+        }
+
         .mdh-upload-box small {
           display:block;
+          margin-top:4px;
+          color:#64748b;
+          font-size:10px;
+          line-height:1.3;
+          pointer-events:none;
         }
 
-        .mdh-upload-box small {
-          margin-top:5px;
-          color:#64748b;
-        }
 
         .mdh-action {
           border:0;
-          border-radius:10px;
-          padding:11px 15px;
+          border-radius:8px;
+
+          padding:8px 10px;
+
           background:#2563eb;
           color:white;
-          font-weight:700;
+
+          font-size:12px;
+          font-weight:600;
+
           cursor:pointer;
+
+          min-height:36px;
+
+          -webkit-tap-highlight-color:transparent;
+          touch-action:manipulation;
+        }
+
+        .mdh-action:active {
+          transform:scale(.98);
         }
 
         .mdh-action.secondary {
@@ -531,84 +646,125 @@ document.addEventListener("DOMContentLoaded", function () {
           color:#1d4ed8;
         }
 
+
         .mdh-result {
           background:#f8fafc;
           border:1px solid #e2e8f0;
-          border-radius:12px;
-          padding:14px;
+          border-radius:10px;
+          padding:10px;
         }
 
         .mdh-result strong {
-          font-size:18px;
+          font-size:15px;
         }
 
+
         .mdh-stat {
-          padding:12px;
-          border-radius:10px;
+          padding:8px;
+          border-radius:8px;
           background:#eff6ff;
           text-align:center;
+          min-width:0;
         }
 
         .mdh-stat span {
           display:block;
           color:#64748b;
-          font-size:12px;
+          font-size:10px;
         }
 
         .mdh-stat strong {
           display:block;
-          margin-top:4px;
-          font-size:17px;
+          margin-top:3px;
+          font-size:13px;
+          word-break:break-word;
         }
+
 
         .mdh-preview {
           max-width:100%;
           max-height:350px;
-          border-radius:10px;
+          border-radius:8px;
           border:1px solid #e2e8f0;
           display:block;
           margin:auto;
         }
 
+
         .mdh-note {
-          font-size:12px;
+          font-size:10px;
           color:#64748b;
           background:#f8fafc;
-          padding:10px;
-          border-radius:9px;
+          padding:8px;
+          border-radius:8px;
+          line-height:1.4;
         }
+
 
         .mdh-coming {
           text-align:center;
-          padding:20px 10px;
+          padding:15px 8px;
         }
 
         .mdh-coming .big {
-          font-size:45px;
-          margin-bottom:8px;
+          font-size:35px;
+          margin-bottom:6px;
         }
 
         .mdh-coming h3 {
-          margin-bottom:7px;
+          margin-bottom:5px;
         }
 
         .mdh-coming p {
-          margin-bottom:15px;
+          margin-bottom:10px;
         }
+
 
         .mdh-error {
           color:#dc2626;
           background:#fef2f2;
-          border-radius:9px;
-          padding:10px;
-          font-size:13px;
+          border-radius:8px;
+          padding:8px;
+          font-size:11px;
         }
+
 
         @media(max-width:520px) {
 
-          .mdh-grid,
-          .mdh-grid-3 {
-            grid-template-columns:1fr;
+          .mdh-tool {
+            gap:9px;
+          }
+
+          .mdh-tool h3 {
+            font-size:15px;
+          }
+
+          .mdh-tool p {
+            font-size:11px;
+          }
+
+          .mdh-field {
+            gap:3px;
+          }
+
+          .mdh-field label {
+            font-size:11px;
+          }
+
+          .mdh-field input,
+          .mdh-field select,
+          .mdh-field textarea {
+            padding:7px 9px;
+            font-size:12px;
+          }
+
+          .mdh-action {
+            padding:8px 10px;
+            font-size:12px;
+          }
+
+          .mdh-upload-box {
+            padding:13px 8px;
           }
 
         }
@@ -717,7 +873,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     searchInput.addEventListener("input", function () {
 
-      const query = this.value.trim().toLowerCase();
+      const query =
+        this.value.trim().toLowerCase();
 
       let visible = 0;
 
@@ -765,6 +922,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function showComingSoon(title) {
 
+    if (!toolContent) return;
+
     toolContent.innerHTML = toolCSS() + `
 
       <div class="mdh-coming">
@@ -810,7 +969,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         <div class="mdh-field">
 
-          <label>Quality: <span id="qualityValue">80</span>%</label>
+          <label>
+            Quality:
+            <span id="qualityValue">80</span>%
+          </label>
 
           <input
             type="range"
@@ -828,14 +990,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    const input = toolContent.querySelector(".mdh-file-input");
-    const quality = document.getElementById("compressQuality");
-    const qualityValue = document.getElementById("qualityValue");
-    const result = document.getElementById("compressResult");
+    const input =
+      toolContent.querySelector(".mdh-file-input");
+
+    const quality =
+      document.getElementById("compressQuality");
+
+    const qualityValue =
+      document.getElementById("qualityValue");
+
+    const result =
+      document.getElementById("compressResult");
 
     quality.addEventListener("input", function () {
+
       qualityValue.textContent = this.value;
+
     });
+
 
     input.addEventListener("change", async function () {
 
@@ -845,22 +1017,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
       try {
 
-        const img = await loadImage(file);
+        const img =
+          await loadImage(file);
 
-        const canvas = document.createElement("canvas");
+        const canvas =
+          document.createElement("canvas");
 
-        canvas.width = img.naturalWidth;
-        canvas.height = img.naturalHeight;
+        canvas.width =
+          img.naturalWidth;
 
-        const ctx = canvas.getContext("2d");
+        canvas.height =
+          img.naturalHeight;
+
+        const ctx =
+          canvas.getContext("2d");
 
         ctx.drawImage(img, 0, 0);
 
-        const blob = await canvasToBlob(
-          canvas,
-          "image/jpeg",
-          Number(quality.value) / 100
-        );
+        const blob =
+          await canvasToBlob(
+            canvas,
+            "image/jpeg",
+            Number(quality.value) / 100
+          );
 
         const saved =
           Math.max(
@@ -893,21 +1072,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
           <br>
 
-          ${createButton("⬇ Download Compressed Image")}
+          ${createButton(
+            "⬇ Download Compressed Image"
+          )}
 
         `;
 
         result.querySelector("button").addEventListener(
           "click",
           function () {
-            downloadBlob(blob, "manjeet-compressed.jpg");
+
+            downloadBlob(
+              blob,
+              "manjeet-compressed.jpg"
+            );
+
           }
         );
 
       } catch (error) {
 
         result.innerHTML =
-          `<div class="mdh-error">Unable to process this image.</div>`;
+          `<div class="mdh-error">
+            Unable to process this image.
+          </div>`;
 
       }
 
@@ -928,7 +1116,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         <h3>↔️ Image Resizer</h3>
 
-        <p>Resize your image to any custom dimensions.</p>
+        <p>
+          Resize your image to any custom dimensions.
+        </p>
 
         ${createFileInput()}
 
@@ -936,18 +1126,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
           <div class="mdh-field">
             <label>Width</label>
-            <input type="number" id="resizeWidth" placeholder="Width">
+            <input
+              type="number"
+              id="resizeWidth"
+              placeholder="Width"
+            >
           </div>
 
           <div class="mdh-field">
             <label>Height</label>
-            <input type="number" id="resizeHeight" placeholder="Height">
+            <input
+              type="number"
+              id="resizeHeight"
+              placeholder="Height"
+            >
           </div>
 
         </div>
 
-        <label>
-          <input type="checkbox" id="keepRatio" checked>
+        <label style="font-size:12px">
+          <input
+            type="checkbox"
+            id="keepRatio"
+            checked
+          >
           Keep aspect ratio
         </label>
 
@@ -957,25 +1159,52 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    const input = toolContent.querySelector(".mdh-file-input");
-    const widthInput = document.getElementById("resizeWidth");
-    const heightInput = document.getElementById("resizeHeight");
-    const keepRatio = document.getElementById("keepRatio");
-    const result = document.getElementById("resizeResult");
+    const input =
+      toolContent.querySelector(".mdh-file-input");
+
+    const widthInput =
+      document.getElementById("resizeWidth");
+
+    const heightInput =
+      document.getElementById("resizeHeight");
+
+    const keepRatio =
+      document.getElementById("keepRatio");
+
+    const result =
+      document.getElementById("resizeResult");
 
     let image = null;
     let ratio = 1;
 
+
     input.addEventListener("change", async function () {
 
-      if (!this.files[0]) return;
+      try {
 
-      image = await loadImage(this.files[0]);
+        if (!this.files[0]) return;
 
-      widthInput.value = image.naturalWidth;
-      heightInput.value = image.naturalHeight;
+        image =
+          await loadImage(this.files[0]);
 
-      ratio = image.naturalWidth / image.naturalHeight;
+        widthInput.value =
+          image.naturalWidth;
+
+        heightInput.value =
+          image.naturalHeight;
+
+        ratio =
+          image.naturalWidth /
+          image.naturalHeight;
+
+      } catch (error) {
+
+        result.innerHTML =
+          `<div class="mdh-error">
+            Unable to load image.
+          </div>`;
+
+      }
 
     });
 
@@ -989,7 +1218,9 @@ document.addEventListener("DOMContentLoaded", function () {
       ) {
 
         heightInput.value =
-          Math.round(Number(this.value) / ratio);
+          Math.round(
+            Number(this.value) / ratio
+          );
 
       }
 
@@ -1005,14 +1236,17 @@ document.addEventListener("DOMContentLoaded", function () {
       ) {
 
         widthInput.value =
-          Math.round(Number(this.value) * ratio);
+          Math.round(
+            Number(this.value) * ratio
+          );
 
       }
 
     });
 
 
-    const button = document.createElement("button");
+    const button =
+      document.createElement("button");
 
     button.type = "button";
     button.className = "mdh-action";
@@ -1020,39 +1254,73 @@ document.addEventListener("DOMContentLoaded", function () {
 
     result.appendChild(button);
 
-    button.addEventListener("click", async function () {
 
-      if (!image) {
+    button.addEventListener(
+      "click",
+      async function () {
 
-        result.insertAdjacentHTML(
-          "beforeend",
-          `<div class="mdh-error">Please select an image first.</div>`
+        if (!image) {
+
+          result.insertAdjacentHTML(
+            "beforeend",
+            `<div class="mdh-error">
+              Please select an image first.
+            </div>`
+          );
+
+          return;
+
+        }
+
+        const width =
+          Number(widthInput.value);
+
+        const height =
+          Number(heightInput.value);
+
+        if (!width || !height) {
+
+          result.insertAdjacentHTML(
+            "beforeend",
+            `<div class="mdh-error">
+              Please enter valid width and height.
+            </div>`
+          );
+
+          return;
+
+        }
+
+        const canvas =
+          document.createElement("canvas");
+
+        canvas.width = width;
+        canvas.height = height;
+
+        canvas
+          .getContext("2d")
+          .drawImage(
+            image,
+            0,
+            0,
+            width,
+            height
+          );
+
+        const blob =
+          await canvasToBlob(
+            canvas,
+            "image/jpeg",
+            0.9
+          );
+
+        downloadBlob(
+          blob,
+          "manjeet-resized.jpg"
         );
 
-        return;
-
       }
-
-      const width = Number(widthInput.value);
-      const height = Number(heightInput.value);
-
-      if (!width || !height) return;
-
-      const canvas = document.createElement("canvas");
-
-      canvas.width = width;
-      canvas.height = height;
-
-      canvas
-        .getContext("2d")
-        .drawImage(image, 0, 0, width, height);
-
-      const blob =
-        await canvasToBlob(canvas, "image/jpeg", 0.9);
-
-      downloadBlob(blob, "manjeet-resized.jpg");
-
-    });
+    );
 
   }
 
@@ -1069,7 +1337,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         <h3>🔄 Image Converter</h3>
 
-        <p>Convert JPG, PNG and WebP images.</p>
+        <p>
+          Convert JPG, PNG and WebP images.
+        </p>
 
         ${createFileInput()}
 
@@ -1080,7 +1350,9 @@ document.addEventListener("DOMContentLoaded", function () {
           <select id="convertFormat">
 
             <option value="image/jpeg">JPG</option>
+
             <option value="image/png">PNG</option>
+
             <option value="image/webp">WebP</option>
 
           </select>
@@ -1093,62 +1365,109 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    const input = toolContent.querySelector(".mdh-file-input");
-    const format = document.getElementById("convertFormat");
-    const result = document.getElementById("convertResult");
+    const input =
+      toolContent.querySelector(".mdh-file-input");
 
-    input.addEventListener("change", async function () {
+    const format =
+      document.getElementById("convertFormat");
 
-      const file = this.files[0];
+    const result =
+      document.getElementById("convertResult");
 
-      if (!file) return;
 
-      const img = await loadImage(file);
+    input.addEventListener(
+      "change",
+      async function () {
 
-      const canvas = document.createElement("canvas");
+        const file =
+          this.files[0];
 
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
+        if (!file) return;
 
-      const ctx = canvas.getContext("2d");
+        try {
 
-      if (format.value === "image/jpeg") {
+          const img =
+            await loadImage(file);
 
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+          const canvas =
+            document.createElement("canvas");
 
-      }
+          canvas.width =
+            img.naturalWidth;
 
-      ctx.drawImage(img, 0, 0);
+          canvas.height =
+            img.naturalHeight;
 
-      const blob =
-        await canvasToBlob(
-          canvas,
-          format.value,
-          0.92
-        );
+          const ctx =
+            canvas.getContext("2d");
 
-      const ext =
-        format.value === "image/png"
-          ? "png"
-          : format.value === "image/webp"
-            ? "webp"
-            : "jpg";
 
-      result.innerHTML =
-        `${createButton("⬇ Download Converted Image")}`;
+          if (
+            format.value === "image/jpeg"
+          ) {
 
-      result.querySelector("button").onclick =
-        function () {
+            ctx.fillStyle = "#ffffff";
 
-          downloadBlob(
-            blob,
-            `manjeet-converted.${ext}`
+            ctx.fillRect(
+              0,
+              0,
+              canvas.width,
+              canvas.height
+            );
+
+          }
+
+
+          ctx.drawImage(
+            img,
+            0,
+            0
           );
 
-        };
 
-    });
+          const blob =
+            await canvasToBlob(
+              canvas,
+              format.value,
+              0.92
+            );
+
+
+          const ext =
+            format.value === "image/png"
+              ? "png"
+              : format.value === "image/webp"
+                ? "webp"
+                : "jpg";
+
+
+          result.innerHTML =
+            `${createButton(
+              "⬇ Download Converted Image"
+            )}`;
+
+
+          result.querySelector("button").onclick =
+            function () {
+
+              downloadBlob(
+                blob,
+                `manjeet-converted.${ext}`
+              );
+
+            };
+
+        } catch (error) {
+
+          result.innerHTML =
+            `<div class="mdh-error">
+              Unable to convert image.
+            </div>`;
+
+        }
+
+      }
+    );
 
   }
 
@@ -1165,7 +1484,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         <h3>📉 Photo Size Reducer</h3>
 
-        <p>Reduce photo to approximately your target KB.</p>
+        <p>
+          Reduce photo to approximately your target KB.
+        </p>
 
         ${createFileInput()}
 
@@ -1188,102 +1509,148 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    const input = toolContent.querySelector(".mdh-file-input");
-    const target = document.getElementById("targetKB");
-    const result = document.getElementById("reduceResult");
+    const input =
+      toolContent.querySelector(".mdh-file-input");
 
-    input.addEventListener("change", async function () {
+    const target =
+      document.getElementById("targetKB");
 
-      const file = this.files[0];
+    const result =
+      document.getElementById("reduceResult");
 
-      if (!file) return;
 
-      const img = await loadImage(file);
+    input.addEventListener(
+      "change",
+      async function () {
 
-      const canvas = document.createElement("canvas");
+        const file =
+          this.files[0];
 
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
+        if (!file) return;
 
-      canvas
-        .getContext("2d")
-        .drawImage(img, 0, 0);
+        try {
 
-      const targetBytes =
-        Number(target.value) * 1024;
+          const img =
+            await loadImage(file);
 
-      let low = 0.05;
-      let high = 1;
-      let bestBlob = null;
+          const canvas =
+            document.createElement("canvas");
 
-      for (let i = 0; i < 10; i++) {
+          canvas.width =
+            img.naturalWidth;
 
-        const quality = (low + high) / 2;
+          canvas.height =
+            img.naturalHeight;
 
-        const blob =
-          await canvasToBlob(
-            canvas,
-            "image/jpeg",
-            quality
-          );
+          canvas
+            .getContext("2d")
+            .drawImage(
+              img,
+              0,
+              0
+            );
 
-        if (blob.size <= targetBytes) {
 
-          bestBlob = blob;
-          low = quality;
+          const targetBytes =
+            Number(target.value) * 1024;
 
-        } else {
 
-          high = quality;
+          let low = 0.05;
+          let high = 1;
+          let bestBlob = null;
+
+
+          for (
+            let i = 0;
+            i < 10;
+            i++
+          ) {
+
+            const quality =
+              (low + high) / 2;
+
+            const blob =
+              await canvasToBlob(
+                canvas,
+                "image/jpeg",
+                quality
+              );
+
+
+            if (
+              blob.size <= targetBytes
+            ) {
+
+              bestBlob = blob;
+              low = quality;
+
+            } else {
+
+              high = quality;
+
+            }
+
+          }
+
+
+          if (!bestBlob) {
+
+            bestBlob =
+              await canvasToBlob(
+                canvas,
+                "image/jpeg",
+                0.05
+              );
+
+          }
+
+
+          result.innerHTML = `
+
+            <div class="mdh-grid">
+
+              <div class="mdh-stat">
+                <span>Original</span>
+                <strong>${formatKB(file.size)}</strong>
+              </div>
+
+              <div class="mdh-stat">
+                <span>Reduced</span>
+                <strong>${formatKB(bestBlob.size)}</strong>
+              </div>
+
+            </div>
+
+            <br>
+
+            ${createButton(
+              "⬇ Download Reduced Photo"
+            )}
+
+          `;
+
+
+          result.querySelector("button").onclick =
+            function () {
+
+              downloadBlob(
+                bestBlob,
+                "manjeet-reduced.jpg"
+              );
+
+            };
+
+        } catch (error) {
+
+          result.innerHTML =
+            `<div class="mdh-error">
+              Unable to reduce image.
+            </div>`;
 
         }
 
       }
-
-      if (!bestBlob) {
-
-        bestBlob =
-          await canvasToBlob(
-            canvas,
-            "image/jpeg",
-            0.05
-          );
-
-      }
-
-      result.innerHTML = `
-
-        <div class="mdh-grid">
-
-          <div class="mdh-stat">
-            <span>Original</span>
-            <strong>${formatKB(file.size)}</strong>
-          </div>
-
-          <div class="mdh-stat">
-            <span>Reduced</span>
-            <strong>${formatKB(bestBlob.size)}</strong>
-          </div>
-
-        </div>
-
-        <br>
-
-        ${createButton("⬇ Download Reduced Photo")}
-
-      `;
-
-      result.querySelector("button").onclick =
-        function () {
-
-          downloadBlob(
-            bestBlob,
-            "manjeet-reduced.jpg"
-          );
-
-        };
-
-    });
+    );
 
   }
 
@@ -1300,7 +1667,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         <h3>📱 Social Media Resizer</h3>
 
-        <p>Create images in popular social media sizes.</p>
+        <p>
+          Create images in popular social media sizes.
+        </p>
 
         ${createFileInput()}
 
@@ -1340,91 +1709,144 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    const input = toolContent.querySelector(".mdh-file-input");
-    const select = document.getElementById("socialSize");
-    const result = document.getElementById("socialResult");
 
-    input.addEventListener("change", async function () {
+    const input =
+      toolContent.querySelector(".mdh-file-input");
 
-      const file = this.files[0];
+    const select =
+      document.getElementById("socialSize");
 
-      if (!file) return;
+    const result =
+      document.getElementById("socialResult");
 
-      const img = await loadImage(file);
 
-      const [width, height] =
-        select.value.split("x").map(Number);
+    input.addEventListener(
+      "change",
+      async function () {
 
-      const canvas =
-        document.createElement("canvas");
+        const file =
+          this.files[0];
 
-      canvas.width = width;
-      canvas.height = height;
+        if (!file) return;
 
-      const ctx = canvas.getContext("2d");
+        try {
 
-      const imageRatio =
-        img.naturalWidth / img.naturalHeight;
+          const img =
+            await loadImage(file);
 
-      const targetRatio =
-        width / height;
 
-      let sourceWidth = img.naturalWidth;
-      let sourceHeight = img.naturalHeight;
-      let sourceX = 0;
-      let sourceY = 0;
+          const [width, height] =
+            select.value
+              .split("x")
+              .map(Number);
 
-      if (imageRatio > targetRatio) {
 
-        sourceWidth =
-          img.naturalHeight * targetRatio;
+          const canvas =
+            document.createElement("canvas");
 
-        sourceX =
-          (img.naturalWidth - sourceWidth) / 2;
+          canvas.width = width;
+          canvas.height = height;
 
-      } else {
 
-        sourceHeight =
-          img.naturalWidth / targetRatio;
+          const ctx =
+            canvas.getContext("2d");
 
-        sourceY =
-          (img.naturalHeight - sourceHeight) / 2;
 
-      }
+          const imageRatio =
+            img.naturalWidth /
+            img.naturalHeight;
 
-      ctx.drawImage(
-        img,
-        sourceX,
-        sourceY,
-        sourceWidth,
-        sourceHeight,
-        0,
-        0,
-        width,
-        height
-      );
+          const targetRatio =
+            width / height;
 
-      const blob =
-        await canvasToBlob(
-          canvas,
-          "image/jpeg",
-          0.92
-        );
 
-      result.innerHTML =
-        `${createButton("⬇ Download Social Image")}`;
+          let sourceWidth =
+            img.naturalWidth;
 
-      result.querySelector("button").onclick =
-        function () {
+          let sourceHeight =
+            img.naturalHeight;
 
-          downloadBlob(
-            blob,
-            "manjeet-social-image.jpg"
+          let sourceX = 0;
+          let sourceY = 0;
+
+
+          if (
+            imageRatio > targetRatio
+          ) {
+
+            sourceWidth =
+              img.naturalHeight *
+              targetRatio;
+
+            sourceX =
+              (
+                img.naturalWidth -
+                sourceWidth
+              ) / 2;
+
+          } else {
+
+            sourceHeight =
+              img.naturalWidth /
+              targetRatio;
+
+            sourceY =
+              (
+                img.naturalHeight -
+                sourceHeight
+              ) / 2;
+
+          }
+
+
+          ctx.drawImage(
+            img,
+            sourceX,
+            sourceY,
+            sourceWidth,
+            sourceHeight,
+            0,
+            0,
+            width,
+            height
           );
 
-        };
 
-    });
+          const blob =
+            await canvasToBlob(
+              canvas,
+              "image/jpeg",
+              0.92
+            );
+
+
+          result.innerHTML =
+            `${createButton(
+              "⬇ Download Social Image"
+            )}`;
+
+
+          result.querySelector("button").onclick =
+            function () {
+
+              downloadBlob(
+                blob,
+                "manjeet-social-image.jpg"
+              );
+
+            };
+
+        } catch (error) {
+
+          result.innerHTML =
+            `<div class="mdh-error">
+              Unable to create social image.
+            </div>`;
+
+        }
+
+      }
+    );
 
   }
 
@@ -1455,13 +1877,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
             <select id="passportBg">
 
-              <option value="#ffffff">White</option>
-              <option value="#f1f5f9">Light Grey</option>
-              <option value="#e0f2fe">Light Blue</option>
+              <option value="#ffffff">
+                White
+              </option>
+
+              <option value="#f1f5f9">
+                Light Grey
+              </option>
+
+              <option value="#e0f2fe">
+                Light Blue
+              </option>
 
             </select>
 
           </div>
+
 
           <div class="mdh-field">
 
@@ -1489,167 +1920,233 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    const input = toolContent.querySelector(".mdh-file-input");
-    const bg = document.getElementById("passportBg");
-    const output = document.getElementById("passportOutput");
-    const result = document.getElementById("passportResult");
 
-    input.addEventListener("change", async function () {
+    const input =
+      toolContent.querySelector(".mdh-file-input");
 
-      const file = this.files[0];
+    const bg =
+      document.getElementById("passportBg");
 
-      if (!file) return;
+    const output =
+      document.getElementById("passportOutput");
 
-      const img = await loadImage(file);
+    const result =
+      document.getElementById("passportResult");
 
-      const photoWidth = 413;
-      const photoHeight = 531;
 
-      const canvas =
-        document.createElement("canvas");
+    input.addEventListener(
+      "change",
+      async function () {
 
-      canvas.width = photoWidth;
-      canvas.height = photoHeight;
+        const file =
+          this.files[0];
 
-      const ctx = canvas.getContext("2d");
+        if (!file) return;
 
-      ctx.fillStyle = bg.value;
+        try {
 
-      ctx.fillRect(
-        0,
-        0,
-        photoWidth,
-        photoHeight
-      );
+          const img =
+            await loadImage(file);
 
-      const targetRatio =
-        photoWidth / photoHeight;
 
-      const imageRatio =
-        img.naturalWidth / img.naturalHeight;
+          const photoWidth = 413;
+          const photoHeight = 531;
 
-      let sw = img.naturalWidth;
-      let sh = img.naturalHeight;
-      let sx = 0;
-      let sy = 0;
 
-      if (imageRatio > targetRatio) {
+          const canvas =
+            document.createElement("canvas");
 
-        sw =
-          img.naturalHeight *
-          targetRatio;
+          canvas.width =
+            photoWidth;
 
-        sx =
-          (img.naturalWidth - sw) / 2;
+          canvas.height =
+            photoHeight;
 
-      } else {
 
-        sh =
-          img.naturalWidth /
-          targetRatio;
+          const ctx =
+            canvas.getContext("2d");
 
-        sy =
-          (img.naturalHeight - sh) / 2;
+
+          ctx.fillStyle =
+            bg.value;
+
+          ctx.fillRect(
+            0,
+            0,
+            photoWidth,
+            photoHeight
+          );
+
+
+          const targetRatio =
+            photoWidth /
+            photoHeight;
+
+          const imageRatio =
+            img.naturalWidth /
+            img.naturalHeight;
+
+
+          let sw =
+            img.naturalWidth;
+
+          let sh =
+            img.naturalHeight;
+
+          let sx = 0;
+          let sy = 0;
+
+
+          if (
+            imageRatio > targetRatio
+          ) {
+
+            sw =
+              img.naturalHeight *
+              targetRatio;
+
+            sx =
+              (
+                img.naturalWidth -
+                sw
+              ) / 2;
+
+          } else {
+
+            sh =
+              img.naturalWidth /
+              targetRatio;
+
+            sy =
+              (
+                img.naturalHeight -
+                sh
+              ) / 2;
+
+          }
+
+
+          ctx.drawImage(
+            img,
+            sx,
+            sy,
+            sw,
+            sh,
+            0,
+            0,
+            photoWidth,
+            photoHeight
+          );
+
+
+          if (
+            output.value === "single"
+          ) {
+
+            const blob =
+              await canvasToBlob(
+                canvas,
+                "image/jpeg",
+                0.95
+              );
+
+
+            const url =
+              URL.createObjectURL(blob);
+
+
+            result.innerHTML = `
+
+              <img
+                class="mdh-preview"
+                src="${url}"
+                alt="Passport Photo"
+              >
+
+              <br>
+
+              ${createButton(
+                "⬇ Download Passport Photo"
+              )}
+
+              <div class="mdh-note">
+                Size: 35 × 45 mm equivalent at 300 DPI.
+              </div>
+
+            `;
+
+
+            result.querySelector("button").onclick =
+              function () {
+
+                downloadBlob(
+                  blob,
+                  "manjeet-passport-photo.jpg"
+                );
+
+              };
+
+          } else {
+
+            const sheet =
+              createA4PhotoSheet(
+                canvas,
+                8
+              );
+
+
+            const blob =
+              await canvasToBlob(
+                sheet,
+                "image/jpeg",
+                0.92
+              );
+
+
+            const url =
+              URL.createObjectURL(blob);
+
+
+            result.innerHTML = `
+
+              <img
+                class="mdh-preview"
+                src="${url}"
+                alt="A4 Photo Sheet"
+              >
+
+              <br>
+
+              ${createButton(
+                "⬇ Download A4 Photo Sheet"
+              )}
+
+            `;
+
+
+            result.querySelector("button").onclick =
+              function () {
+
+                downloadBlob(
+                  blob,
+                  "manjeet-passport-a4-sheet.jpg"
+                );
+
+              };
+
+          }
+
+        } catch (error) {
+
+          result.innerHTML =
+            `<div class="mdh-error">
+              Unable to create passport photo.
+            </div>`;
+
+        }
 
       }
-
-      ctx.drawImage(
-        img,
-        sx,
-        sy,
-        sw,
-        sh,
-        0,
-        0,
-        photoWidth,
-        photoHeight
-      );
-
-      if (output.value === "single") {
-
-        const blob =
-          await canvasToBlob(
-            canvas,
-            "image/jpeg",
-            0.95
-          );
-
-        const url =
-          URL.createObjectURL(blob);
-
-        result.innerHTML = `
-
-          <img
-            class="mdh-preview"
-            src="${url}"
-            alt="Passport Photo"
-          >
-
-          <br>
-
-          ${createButton("⬇ Download Passport Photo")}
-
-          <div class="mdh-note">
-            Size: 35 × 45 mm equivalent at 300 DPI.
-          </div>
-
-        `;
-
-        result.querySelector("button").onclick =
-          function () {
-
-            downloadBlob(
-              blob,
-              "manjeet-passport-photo.jpg"
-            );
-
-          };
-
-      } else {
-
-        const sheet =
-          createA4PhotoSheet(
-            canvas,
-            8
-          );
-
-        const blob =
-          await canvasToBlob(
-            sheet,
-            "image/jpeg",
-            0.92
-          );
-
-        const url =
-          URL.createObjectURL(blob);
-
-        result.innerHTML = `
-
-          <img
-            class="mdh-preview"
-            src="${url}"
-            alt="A4 Photo Sheet"
-          >
-
-          <br>
-
-          ${createButton("⬇ Download A4 Photo Sheet")}
-
-        `;
-
-        result.querySelector("button").onclick =
-          function () {
-
-            downloadBlob(
-              blob,
-              "manjeet-passport-a4-sheet.jpg"
-            );
-
-          };
-
-      }
-
-    });
+    );
 
   }
 
@@ -1658,20 +2155,31 @@ document.addEventListener("DOMContentLoaded", function () {
      A4 PHOTO SHEET
      ======================================================= */
 
-  function createA4PhotoSheet(photoCanvas, copies = 8) {
+  function createA4PhotoSheet(
+    photoCanvas,
+    copies = 8
+  ) {
 
     const A4_WIDTH = 2480;
     const A4_HEIGHT = 3508;
 
+
     const sheet =
       document.createElement("canvas");
 
-    sheet.width = A4_WIDTH;
-    sheet.height = A4_HEIGHT;
+    sheet.width =
+      A4_WIDTH;
 
-    const ctx = sheet.getContext("2d");
+    sheet.height =
+      A4_HEIGHT;
 
-    ctx.fillStyle = "#ffffff";
+
+    const ctx =
+      sheet.getContext("2d");
+
+
+    ctx.fillStyle =
+      "#ffffff";
 
     ctx.fillRect(
       0,
@@ -1680,56 +2188,98 @@ document.addEventListener("DOMContentLoaded", function () {
       A4_HEIGHT
     );
 
+
     const margin = 100;
     const gap = 40;
 
     const cols = 2;
-    const rows = Math.ceil(copies / cols);
+
+    const rows =
+      Math.ceil(
+        copies / cols
+      );
+
 
     const photoW =
       Math.floor(
-        (A4_WIDTH -
+        (
+          A4_WIDTH -
           margin * 2 -
-          gap) / cols
+          gap
+        ) / cols
       );
+
 
     const photoH =
       Math.floor(
-        (A4_HEIGHT -
+        (
+          A4_HEIGHT -
           margin * 2 -
-          gap * (rows - 1)) / rows
+          gap * (rows - 1)
+        ) / rows
       );
+
 
     const targetRatio =
       photoCanvas.width /
       photoCanvas.height;
 
+
     let drawW = photoW;
+
     let drawH =
-      drawW / targetRatio;
+      drawW /
+      targetRatio;
 
-    if (drawH > photoH) {
 
-      drawH = photoH;
+    if (
+      drawH > photoH
+    ) {
+
+      drawH =
+        photoH;
+
       drawW =
-        drawH * targetRatio;
+        drawH *
+        targetRatio;
 
     }
 
-    for (let i = 0; i < copies; i++) {
 
-      const col = i % cols;
-      const row = Math.floor(i / cols);
+    for (
+      let i = 0;
+      i < copies;
+      i++
+    ) {
+
+      const col =
+        i % cols;
+
+      const row =
+        Math.floor(
+          i / cols
+        );
+
 
       const x =
         margin +
-        col * (photoW + gap) +
-        (photoW - drawW) / 2;
+        col *
+          (photoW + gap) +
+        (
+          photoW -
+          drawW
+        ) / 2;
+
 
       const y =
         margin +
-        row * (photoH + gap) +
-        (photoH - drawH) / 2;
+        row *
+          (photoH + gap) +
+        (
+          photoH -
+          drawH
+        ) / 2;
+
 
       ctx.drawImage(
         photoCanvas,
@@ -1740,6 +2290,7 @@ document.addEventListener("DOMContentLoaded", function () {
       );
 
     }
+
 
     return sheet;
 
@@ -1766,12 +2317,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
           <select id="sheetCopies">
 
-            <option value="4">4 Photos</option>
-            <option value="8" selected>8 Photos</option>
-            <option value="12">12 Photos</option>
-            <option value="16">16 Photos</option>
-            <option value="20">20 Photos</option>
-            <option value="24">24 Photos</option>
+            <option value="4">
+              4 Photos
+            </option>
+
+            <option value="8" selected>
+              8 Photos
+            </option>
+
+            <option value="12">
+              12 Photos
+            </option>
+
+            <option value="16">
+              16 Photos
+            </option>
+
+            <option value="20">
+              20 Photos
+            </option>
+
+            <option value="24">
+              24 Photos
+            </option>
 
           </select>
 
@@ -1783,125 +2351,193 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    const input = toolContent.querySelector(".mdh-file-input");
-    const copies = document.getElementById("sheetCopies");
-    const result = document.getElementById("sheetResult");
 
-    input.addEventListener("change", async function () {
-
-      const file = this.files[0];
-
-      if (!file) return;
-
-      const img = await loadImage(file);
-
-      const photoCanvas =
-        document.createElement("canvas");
-
-      photoCanvas.width = 413;
-      photoCanvas.height = 531;
-
-      const ctx =
-        photoCanvas.getContext("2d");
-
-      ctx.fillStyle = "#ffffff";
-
-      ctx.fillRect(
-        0,
-        0,
-        413,
-        531
+    const input =
+      toolContent.querySelector(
+        ".mdh-file-input"
       );
 
-      const targetRatio =
-        413 / 531;
-
-      const imageRatio =
-        img.naturalWidth /
-        img.naturalHeight;
-
-      let sw = img.naturalWidth;
-      let sh = img.naturalHeight;
-      let sx = 0;
-      let sy = 0;
-
-      if (imageRatio > targetRatio) {
-
-        sw =
-          img.naturalHeight *
-          targetRatio;
-
-        sx =
-          (img.naturalWidth - sw) / 2;
-
-      } else {
-
-        sh =
-          img.naturalWidth /
-          targetRatio;
-
-        sy =
-          (img.naturalHeight - sh) / 2;
-
-      }
-
-      ctx.drawImage(
-        img,
-        sx,
-        sy,
-        sw,
-        sh,
-        0,
-        0,
-        413,
-        531
+    const copies =
+      document.getElementById(
+        "sheetCopies"
       );
 
-      const sheet =
-        createA4PhotoSheet(
-          photoCanvas,
-          Number(copies.value)
-        );
+    const result =
+      document.getElementById(
+        "sheetResult"
+      );
 
-      const blob =
-        await canvasToBlob(
-          sheet,
-          "image/jpeg",
-          0.92
-        );
 
-      const url =
-        URL.createObjectURL(blob);
+    input.addEventListener(
+      "change",
+      async function () {
 
-      result.innerHTML = `
+        const file =
+          this.files[0];
 
-        <img
-          class="mdh-preview"
-          src="${url}"
-          alt="A4 Photo Sheet"
-        >
+        if (!file) return;
 
-        <br>
+        try {
 
-        ${createButton("⬇ Download A4 Sheet")}
+          const img =
+            await loadImage(file);
 
-        <div class="mdh-note">
-          A4 size: 2480 × 3508 pixels.
-        </div>
 
-      `;
+          const photoCanvas =
+            document.createElement(
+              "canvas"
+            );
 
-      result.querySelector("button").onclick =
-        function () {
 
-          downloadBlob(
-            blob,
-            "manjeet-a4-photo-sheet.jpg"
+          photoCanvas.width =
+            413;
+
+          photoCanvas.height =
+            531;
+
+
+          const ctx =
+            photoCanvas.getContext(
+              "2d"
+            );
+
+
+          ctx.fillStyle =
+            "#ffffff";
+
+
+          ctx.fillRect(
+            0,
+            0,
+            413,
+            531
           );
 
-        };
 
-    });
+          const targetRatio =
+            413 / 531;
+
+
+          const imageRatio =
+            img.naturalWidth /
+            img.naturalHeight;
+
+
+          let sw =
+            img.naturalWidth;
+
+          let sh =
+            img.naturalHeight;
+
+          let sx = 0;
+          let sy = 0;
+
+
+          if (
+            imageRatio > targetRatio
+          ) {
+
+            sw =
+              img.naturalHeight *
+              targetRatio;
+
+            sx =
+              (
+                img.naturalWidth -
+                sw
+              ) / 2;
+
+          } else {
+
+            sh =
+              img.naturalWidth /
+              targetRatio;
+
+            sy =
+              (
+                img.naturalHeight -
+                sh
+              ) / 2;
+
+          }
+
+
+          ctx.drawImage(
+            img,
+            sx,
+            sy,
+            sw,
+            sh,
+            0,
+            0,
+            413,
+            531
+          );
+
+
+          const sheet =
+            createA4PhotoSheet(
+              photoCanvas,
+              Number(
+                copies.value
+              )
+            );
+
+
+          const blob =
+            await canvasToBlob(
+              sheet,
+              "image/jpeg",
+              0.92
+            );
+
+
+          const url =
+            URL.createObjectURL(blob);
+
+
+          result.innerHTML = `
+
+            <img
+              class="mdh-preview"
+              src="${url}"
+              alt="A4 Photo Sheet"
+            >
+
+            <br>
+
+            ${createButton(
+              "⬇ Download A4 Sheet"
+            )}
+
+            <div class="mdh-note">
+              A4 size: 2480 × 3508 pixels.
+            </div>
+
+          `;
+
+
+          result.querySelector("button").onclick =
+            function () {
+
+              downloadBlob(
+                blob,
+                "manjeet-a4-photo-sheet.jpg"
+              );
+
+            };
+
+        } catch (error) {
+
+          result.innerHTML =
+            `<div class="mdh-error">
+              Unable to create A4 sheet.
+            </div>`;
+
+        }
+
+      }
+    );
 
   }
 
@@ -1923,7 +2559,10 @@ document.addEventListener("DOMContentLoaded", function () {
           Select one or more images and save them as PDF.
         </p>
 
-        ${createFileInput("image/*", true)}
+        ${createFileInput(
+          "image/*",
+          true
+        )}
 
         <div id="pdfResult"></div>
 
@@ -1931,41 +2570,65 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    const input = toolContent.querySelector(".mdh-file-input");
-    const result = document.getElementById("pdfResult");
 
-    input.addEventListener("change", function () {
+    const input =
+      toolContent.querySelector(
+        ".mdh-file-input"
+      );
 
-      const files =
-        Array.from(this.files);
+    const result =
+      document.getElementById(
+        "pdfResult"
+      );
 
-      if (!files.length) return;
 
-      result.innerHTML = `
+    input.addEventListener(
+      "change",
+      function () {
 
-        <div class="mdh-result">
+        const files =
+          Array.from(
+            this.files
+          );
 
-          <strong>
-            ${files.length} image${files.length > 1 ? "s" : ""}
-            selected
-          </strong>
 
-          <br><br>
+        if (!files.length) return;
 
-          ${createButton("🖨️ Create / Save PDF")}
 
-        </div>
+        result.innerHTML = `
 
-      `;
+          <div class="mdh-result">
 
-      result.querySelector("button").onclick =
-        function () {
+            <strong>
+              ${files.length}
+              image${files.length > 1 ? "s" : ""}
+              selected
+            </strong>
 
-          printImagesAsPDF(files);
+            <br><br>
 
-        };
+            ${createButton(
+              "🖨️ Create / Save PDF"
+            )}
 
-    });
+          </div>
+
+        `;
+
+
+        result.querySelector(
+          "button"
+        ).onclick =
+          function () {
+
+            printImagesAsPDF(
+              files
+            );
+
+          };
+
+      }
+    );
 
   }
 
@@ -1979,6 +2642,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "width=900,height=700"
       );
 
+
     if (!printWindow) {
 
       alert(
@@ -1989,6 +2653,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     }
 
+
     let html = `
 
       <!DOCTYPE html>
@@ -1997,7 +2662,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
       <head>
 
-        <title>Manjeet Digital Hub - PDF</title>
+        <title>
+          Manjeet Digital Hub - PDF
+        </title>
 
         <style>
 
@@ -2035,22 +2702,29 @@ document.addEventListener("DOMContentLoaded", function () {
       <body>
     `;
 
-    files.forEach(function (file) {
 
-      const url =
-        URL.createObjectURL(file);
+    files.forEach(
+      function (file) {
 
-      html += `
+        const url =
+          URL.createObjectURL(
+            file
+          );
 
-        <div class="page">
 
-          <img src="${url}">
+        html += `
 
-        </div>
+          <div class="page">
 
-      `;
+            <img src="${url}">
 
-    });
+          </div>
+
+        `;
+
+      }
+    );
+
 
     html += `
 
@@ -2059,23 +2733,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
+
     printWindow.document.open();
 
-    printWindow.document.write(html);
+    printWindow.document.write(
+      html
+    );
 
     printWindow.document.close();
 
-    printWindow.onload = function () {
 
-      setTimeout(function () {
+    printWindow.onload =
+      function () {
 
-        printWindow.focus();
+        setTimeout(
+          function () {
 
-        printWindow.print();
+            printWindow.focus();
 
-      }, 700);
+            printWindow.print();
 
-    };
+          },
+          700
+        );
+
+      };
 
   }
 
@@ -2092,24 +2774,60 @@ document.addEventListener("DOMContentLoaded", function () {
 
         <h3>₹ EMI Calculator</h3>
 
-        <p>Calculate monthly EMI, interest and total payment.</p>
+        <p>
+          Calculate monthly EMI, interest and total payment.
+        </p>
 
         <div class="mdh-field">
-          <label>Loan Amount (₹)</label>
-          <input type="number" id="emiPrincipal" value="500000">
+
+          <label>
+            Loan Amount (₹)
+          </label>
+
+          <input
+            type="number"
+            id="emiPrincipal"
+            value="500000"
+          >
+
         </div>
+
 
         <div class="mdh-field">
-          <label>Annual Interest Rate (%)</label>
-          <input type="number" id="emiRate" value="10" step="0.01">
+
+          <label>
+            Annual Interest Rate (%)
+          </label>
+
+          <input
+            type="number"
+            id="emiRate"
+            value="10"
+            step="0.01"
+          >
+
         </div>
+
 
         <div class="mdh-field">
-          <label>Loan Tenure (Years)</label>
-          <input type="number" id="emiYears" value="5">
+
+          <label>
+            Loan Tenure (Years)
+          </label>
+
+          <input
+            type="number"
+            id="emiYears"
+            value="5"
+          >
+
         </div>
 
-        ${createButton("Calculate EMI")}
+
+        ${createButton(
+          "Calculate EMI"
+        )}
+
 
         <div id="emiResult"></div>
 
@@ -2117,70 +2835,130 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
+
     toolContent
       .querySelector("button")
-      .addEventListener("click", function () {
+      .addEventListener(
+        "click",
+        function () {
 
-        const P =
-          Number(document.getElementById("emiPrincipal").value);
+          const P =
+            Number(
+              document.getElementById(
+                "emiPrincipal"
+              ).value
+            );
 
-        const annual =
-          Number(document.getElementById("emiRate").value);
 
-        const years =
-          Number(document.getElementById("emiYears").value);
+          const annual =
+            Number(
+              document.getElementById(
+                "emiRate"
+              ).value
+            );
 
-        const n = years * 12;
 
-        const r =
-          annual / 12 / 100;
+          const years =
+            Number(
+              document.getElementById(
+                "emiYears"
+              ).value
+            );
 
-        let emi;
 
-        if (r === 0) {
+          const n =
+            years * 12;
 
-          emi = P / n;
 
-        } else {
+          const r =
+            annual / 12 / 100;
 
-          emi =
-            P *
-            r *
-            Math.pow(1 + r, n) /
-            (Math.pow(1 + r, n) - 1);
+
+          if (
+            P <= 0 ||
+            years <= 0
+          ) {
+
+            document.getElementById(
+              "emiResult"
+            ).innerHTML =
+              `<div class="mdh-error">
+                Please enter valid values.
+              </div>`;
+
+            return;
+
+          }
+
+
+          let emi;
+
+
+          if (r === 0) {
+
+            emi =
+              P / n;
+
+          } else {
+
+            emi =
+              P *
+              r *
+              Math.pow(
+                1 + r,
+                n
+              ) /
+              (
+                Math.pow(
+                  1 + r,
+                  n
+                ) - 1
+              );
+
+          }
+
+
+          const total =
+            emi * n;
+
+
+          const interest =
+            total - P;
+
+
+          document.getElementById(
+            "emiResult"
+          ).innerHTML = `
+
+            <div class="mdh-grid-3">
+
+              <div class="mdh-stat">
+                <span>Monthly EMI</span>
+                <strong>
+                  ₹${formatNumber(emi)}
+                </strong>
+              </div>
+
+              <div class="mdh-stat">
+                <span>Total Interest</span>
+                <strong>
+                  ₹${formatNumber(interest)}
+                </strong>
+              </div>
+
+              <div class="mdh-stat">
+                <span>Total Payment</span>
+                <strong>
+                  ₹${formatNumber(total)}
+                </strong>
+              </div>
+
+            </div>
+
+          `;
 
         }
-
-        const total =
-          emi * n;
-
-        const interest =
-          total - P;
-
-        document.getElementById("emiResult").innerHTML = `
-
-          <div class="mdh-grid-3">
-
-            <div class="mdh-stat">
-              <span>Monthly EMI</span>
-              <strong>₹${formatNumber(emi)}</strong>
-            </div>
-
-            <div class="mdh-stat">
-              <span>Total Interest</span>
-              <strong>₹${formatNumber(interest)}</strong>
-            </div>
-
-            <div class="mdh-stat">
-              <span>Total Payment</span>
-              <strong>₹${formatNumber(total)}</strong>
-            </div>
-
-          </div>
-
-        `;
-
-      });
+      );
 
   }
 
@@ -2199,7 +2977,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         <div class="mdh-field">
 
-          <label>Amount (₹)</label>
+          <label>
+            Amount (₹)
+          </label>
 
           <input
             type="number"
@@ -2209,9 +2989,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
+
         <div class="mdh-field">
 
-          <label>GST Rate</label>
+          <label>
+            GST Rate
+          </label>
 
           <select id="gstRate">
 
@@ -2225,7 +3008,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-        ${createButton("Calculate GST")}
+
+        ${createButton(
+          "Calculate GST"
+        )}
+
 
         <div id="gstResult"></div>
 
@@ -2233,38 +3020,54 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
+
     toolContent
       .querySelector("button")
-      .onclick = function () {
+      .onclick =
+      function () {
 
         const amount =
           Number(
-            document.getElementById("gstAmount").value
+            document.getElementById(
+              "gstAmount"
+            ).value
           );
+
 
         const rate =
           Number(
-            document.getElementById("gstRate").value
+            document.getElementById(
+              "gstRate"
+            ).value
           );
+
 
         const gst =
           amount * rate / 100;
 
+
         const total =
           amount + gst;
 
-        document.getElementById("gstResult").innerHTML = `
+
+        document.getElementById(
+          "gstResult"
+        ).innerHTML = `
 
           <div class="mdh-grid">
 
             <div class="mdh-stat">
               <span>GST Amount</span>
-              <strong>₹${formatNumber(gst)}</strong>
+              <strong>
+                ₹${formatNumber(gst)}
+              </strong>
             </div>
 
             <div class="mdh-stat">
               <span>Total Amount</span>
-              <strong>₹${formatNumber(total)}</strong>
+              <strong>
+                ₹${formatNumber(total)}
+              </strong>
             </div>
 
           </div>
@@ -2290,7 +3093,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         <div class="mdh-field">
 
-          <label>Percentage (%)</label>
+          <label>
+            Percentage (%)
+          </label>
 
           <input
             type="number"
@@ -2300,9 +3105,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
+
         <div class="mdh-field">
 
-          <label>Number</label>
+          <label>
+            Number
+          </label>
 
           <input
             type="number"
@@ -2312,7 +3120,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-        ${createButton("Calculate")}
+
+        ${createButton(
+          "Calculate"
+        )}
+
 
         <div id="percentResult"></div>
 
@@ -2320,29 +3132,45 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    toolContent.querySelector("button").onclick =
+
+    toolContent
+      .querySelector("button")
+      .onclick =
       function () {
 
         const percentage =
           Number(
-            document.getElementById("percentValue").value
+            document.getElementById(
+              "percentValue"
+            ).value
           );
+
 
         const number =
           Number(
-            document.getElementById("percentNumber").value
+            document.getElementById(
+              "percentNumber"
+            ).value
           );
 
-        const result =
-          percentage * number / 100;
 
-        document.getElementById("percentResult").innerHTML = `
+        const result =
+          percentage *
+          number /
+          100;
+
+
+        document.getElementById(
+          "percentResult"
+        ).innerHTML = `
 
           <div class="mdh-result">
 
             <strong>
-              ${percentage}% of ${formatNumber(number)}
-              = ${formatNumber(result)}
+              ${percentage}% of
+              ${formatNumber(number)}
+              =
+              ${formatNumber(result)}
             </strong>
 
           </div>
@@ -2368,7 +3196,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         <div class="mdh-field">
 
-          <label>Monthly Investment (₹)</label>
+          <label>
+            Monthly Investment (₹)
+          </label>
 
           <input
             type="number"
@@ -2378,9 +3208,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
+
         <div class="mdh-field">
 
-          <label>Expected Annual Return (%)</label>
+          <label>
+            Expected Annual Return (%)
+          </label>
 
           <input
             type="number"
@@ -2391,9 +3224,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
+
         <div class="mdh-field">
 
-          <label>Investment Period (Years)</label>
+          <label>
+            Investment Period (Years)
+          </label>
 
           <input
             type="number"
@@ -2403,7 +3239,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-        ${createButton("Calculate SIP")}
+
+        ${createButton(
+          "Calculate SIP"
+        )}
+
 
         <div id="sipResult"></div>
 
@@ -2411,71 +3251,103 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    toolContent.querySelector("button").onclick =
+
+    toolContent
+      .querySelector("button")
+      .onclick =
       function () {
 
         const p =
           Number(
-            document.getElementById("sipAmount").value
+            document.getElementById(
+              "sipAmount"
+            ).value
           );
+
 
         const annual =
           Number(
-            document.getElementById("sipRate").value
+            document.getElementById(
+              "sipRate"
+            ).value
           );
+
 
         const years =
           Number(
-            document.getElementById("sipYears").value
+            document.getElementById(
+              "sipYears"
+            ).value
           );
+
 
         const n =
           years * 12;
 
+
         const r =
           annual / 12 / 100;
+
 
         const invested =
           p * n;
 
+
         let value;
+
 
         if (r === 0) {
 
-          value = invested;
+          value =
+            invested;
 
         } else {
 
           value =
             p *
             (
-              (Math.pow(1 + r, n) - 1) /
-              r
+              (
+                Math.pow(
+                  1 + r,
+                  n
+                ) - 1
+              ) / r
             ) *
             (1 + r);
 
         }
 
-        const gain =
-          value - invested;
 
-        document.getElementById("sipResult").innerHTML = `
+        const gain =
+          value -
+          invested;
+
+
+        document.getElementById(
+          "sipResult"
+        ).innerHTML = `
 
           <div class="mdh-grid-3">
 
             <div class="mdh-stat">
               <span>Invested</span>
-              <strong>₹${formatNumber(invested)}</strong>
+              <strong>
+                ₹${formatNumber(invested)}
+              </strong>
             </div>
 
             <div class="mdh-stat">
               <span>Estimated Gain</span>
-              <strong>₹${formatNumber(gain)}</strong>
+              <strong>
+                ₹${formatNumber(gain)}
+              </strong>
             </div>
 
             <div class="mdh-stat">
               <span>Future Value</span>
-              <strong>₹${formatNumber(value)}</strong>
+              <strong>
+                ₹${formatNumber(value)}
+              </strong>
             </div>
 
           </div>
@@ -2500,21 +3372,55 @@ document.addEventListener("DOMContentLoaded", function () {
         <h3>🏦 FD Calculator</h3>
 
         <div class="mdh-field">
-          <label>Deposit Amount (₹)</label>
-          <input type="number" id="fdPrincipal" value="100000">
+
+          <label>
+            Deposit Amount (₹)
+          </label>
+
+          <input
+            type="number"
+            id="fdPrincipal"
+            value="100000"
+          >
+
         </div>
+
 
         <div class="mdh-field">
-          <label>Annual Interest (%)</label>
-          <input type="number" id="fdRate" value="7" step="0.01">
+
+          <label>
+            Annual Interest (%)
+          </label>
+
+          <input
+            type="number"
+            id="fdRate"
+            value="7"
+            step="0.01"
+          >
+
         </div>
+
 
         <div class="mdh-field">
-          <label>Tenure (Years)</label>
-          <input type="number" id="fdYears" value="5">
+
+          <label>
+            Tenure (Years)
+          </label>
+
+          <input
+            type="number"
+            id="fdYears"
+            value="5"
+          >
+
         </div>
 
-        ${createButton("Calculate FD")}
+
+        ${createButton(
+          "Calculate FD"
+        )}
+
 
         <div id="fdResult"></div>
 
@@ -2522,19 +3428,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    toolContent.querySelector("button").onclick =
+
+    toolContent
+      .querySelector("button")
+      .onclick =
       function () {
 
         const P =
-          Number(document.getElementById("fdPrincipal").value);
+          Number(
+            document.getElementById(
+              "fdPrincipal"
+            ).value
+          );
+
 
         const r =
-          Number(document.getElementById("fdRate").value) / 100;
+          Number(
+            document.getElementById(
+              "fdRate"
+            ).value
+          ) / 100;
+
 
         const years =
-          Number(document.getElementById("fdYears").value);
+          Number(
+            document.getElementById(
+              "fdYears"
+            ).value
+          );
+
 
         const n = 4;
+
 
         const maturity =
           P *
@@ -2543,21 +3468,30 @@ document.addEventListener("DOMContentLoaded", function () {
             n * years
           );
 
-        const interest =
-          maturity - P;
 
-        document.getElementById("fdResult").innerHTML = `
+        const interest =
+          maturity -
+          P;
+
+
+        document.getElementById(
+          "fdResult"
+        ).innerHTML = `
 
           <div class="mdh-grid">
 
             <div class="mdh-stat">
               <span>Interest</span>
-              <strong>₹${formatNumber(interest)}</strong>
+              <strong>
+                ₹${formatNumber(interest)}
+              </strong>
             </div>
 
             <div class="mdh-stat">
               <span>Maturity</span>
-              <strong>₹${formatNumber(maturity)}</strong>
+              <strong>
+                ₹${formatNumber(maturity)}
+              </strong>
             </div>
 
           </div>
@@ -2582,21 +3516,55 @@ document.addEventListener("DOMContentLoaded", function () {
         <h3>🏦 RD Calculator</h3>
 
         <div class="mdh-field">
-          <label>Monthly Deposit (₹)</label>
-          <input type="number" id="rdDeposit" value="5000">
+
+          <label>
+            Monthly Deposit (₹)
+          </label>
+
+          <input
+            type="number"
+            id="rdDeposit"
+            value="5000"
+          >
+
         </div>
+
 
         <div class="mdh-field">
-          <label>Annual Interest (%)</label>
-          <input type="number" id="rdRate" value="7" step="0.01">
+
+          <label>
+            Annual Interest (%)
+          </label>
+
+          <input
+            type="number"
+            id="rdRate"
+            value="7"
+            step="0.01"
+          >
+
         </div>
+
 
         <div class="mdh-field">
-          <label>Tenure (Months)</label>
-          <input type="number" id="rdMonths" value="60">
+
+          <label>
+            Tenure (Months)
+          </label>
+
+          <input
+            type="number"
+            id="rdMonths"
+            value="60"
+          >
+
         </div>
 
-        ${createButton("Calculate RD")}
+
+        ${createButton(
+          "Calculate RD"
+        )}
+
 
         <div id="rdResult"></div>
 
@@ -2604,49 +3572,87 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    toolContent.querySelector("button").onclick =
+
+    toolContent
+      .querySelector("button")
+      .onclick =
       function () {
 
         const monthly =
-          Number(document.getElementById("rdDeposit").value);
+          Number(
+            document.getElementById(
+              "rdDeposit"
+            ).value
+          );
+
 
         const annual =
-          Number(document.getElementById("rdRate").value);
+          Number(
+            document.getElementById(
+              "rdRate"
+            ).value
+          );
+
 
         const months =
-          Number(document.getElementById("rdMonths").value);
+          Number(
+            document.getElementById(
+              "rdMonths"
+            ).value
+          );
+
 
         const r =
           annual / 400;
 
+
         let maturity = 0;
 
-        for (let i = 1; i <= months; i++) {
+
+        for (
+          let i = 1;
+          i <= months;
+          i++
+        ) {
 
           maturity +=
             monthly *
-            Math.pow(1 + r, months - i + 1);
+            Math.pow(
+              1 + r,
+              months - i + 1
+            );
 
         }
 
+
         const invested =
-          monthly * months;
+          monthly *
+          months;
+
 
         const interest =
-          maturity - invested;
+          maturity -
+          invested;
 
-        document.getElementById("rdResult").innerHTML = `
+
+        document.getElementById(
+          "rdResult"
+        ).innerHTML = `
 
           <div class="mdh-grid">
 
             <div class="mdh-stat">
               <span>Invested</span>
-              <strong>₹${formatNumber(invested)}</strong>
+              <strong>
+                ₹${formatNumber(invested)}
+              </strong>
             </div>
 
             <div class="mdh-stat">
               <span>Maturity</span>
-              <strong>₹${formatNumber(maturity)}</strong>
+              <strong>
+                ₹${formatNumber(maturity)}
+              </strong>
             </div>
 
           </div>
@@ -2654,8 +3660,12 @@ document.addEventListener("DOMContentLoaded", function () {
           <br>
 
           <div class="mdh-result">
+
             Interest:
-            <strong>₹${formatNumber(interest)}</strong>
+            <strong>
+              ₹${formatNumber(interest)}
+            </strong>
+
           </div>
 
         `;
@@ -2678,21 +3688,54 @@ document.addEventListener("DOMContentLoaded", function () {
         <h3>➕ Simple Interest Calculator</h3>
 
         <div class="mdh-field">
-          <label>Principal (₹)</label>
-          <input type="number" id="siP" value="100000">
+
+          <label>
+            Principal (₹)
+          </label>
+
+          <input
+            type="number"
+            id="siP"
+            value="100000"
+          >
+
         </div>
+
 
         <div class="mdh-field">
-          <label>Rate (%)</label>
-          <input type="number" id="siR" value="8">
+
+          <label>
+            Rate (%)
+          </label>
+
+          <input
+            type="number"
+            id="siR"
+            value="8"
+          >
+
         </div>
+
 
         <div class="mdh-field">
-          <label>Time (Years)</label>
-          <input type="number" id="siT" value="5">
+
+          <label>
+            Time (Years)
+          </label>
+
+          <input
+            type="number"
+            id="siT"
+            value="5"
+          >
+
         </div>
 
-        ${createButton("Calculate")}
+
+        ${createButton(
+          "Calculate"
+        )}
+
 
         <div id="siResult"></div>
 
@@ -2700,36 +3743,66 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    toolContent.querySelector("button").onclick =
+
+    toolContent
+      .querySelector("button")
+      .onclick =
       function () {
 
         const P =
-          Number(document.getElementById("siP").value);
+          Number(
+            document.getElementById(
+              "siP"
+            ).value
+          );
+
 
         const R =
-          Number(document.getElementById("siR").value);
+          Number(
+            document.getElementById(
+              "siR"
+            ).value
+          );
+
 
         const T =
-          Number(document.getElementById("siT").value);
+          Number(
+            document.getElementById(
+              "siT"
+            ).value
+          );
+
 
         const interest =
-          P * R * T / 100;
+          P *
+          R *
+          T /
+          100;
+
 
         const total =
-          P + interest;
+          P +
+          interest;
 
-        document.getElementById("siResult").innerHTML = `
+
+        document.getElementById(
+          "siResult"
+        ).innerHTML = `
 
           <div class="mdh-grid">
 
             <div class="mdh-stat">
               <span>Interest</span>
-              <strong>₹${formatNumber(interest)}</strong>
+              <strong>
+                ₹${formatNumber(interest)}
+              </strong>
             </div>
 
             <div class="mdh-stat">
               <span>Total</span>
-              <strong>₹${formatNumber(total)}</strong>
+              <strong>
+                ₹${formatNumber(total)}
+              </strong>
             </div>
 
           </div>
@@ -2751,38 +3824,91 @@ document.addEventListener("DOMContentLoaded", function () {
 
       <div class="mdh-tool">
 
-        <h3>📊 Compound Interest Calculator</h3>
+        <h3>
+          📊 Compound Interest Calculator
+        </h3>
 
         <div class="mdh-field">
-          <label>Principal (₹)</label>
-          <input type="number" id="ciP" value="100000">
+
+          <label>
+            Principal (₹)
+          </label>
+
+          <input
+            type="number"
+            id="ciP"
+            value="100000"
+          >
+
         </div>
 
-        <div class="mdh-field">
-          <label>Rate (%)</label>
-          <input type="number" id="ciR" value="8">
-        </div>
 
         <div class="mdh-field">
-          <label>Time (Years)</label>
-          <input type="number" id="ciT" value="5">
+
+          <label>
+            Rate (%)
+          </label>
+
+          <input
+            type="number"
+            id="ciR"
+            value="8"
+          >
+
         </div>
 
+
         <div class="mdh-field">
-          <label>Compounding</label>
+
+          <label>
+            Time (Years)
+          </label>
+
+          <input
+            type="number"
+            id="ciT"
+            value="5"
+          >
+
+        </div>
+
+
+        <div class="mdh-field">
+
+          <label>
+            Compounding
+          </label>
 
           <select id="ciN">
 
-            <option value="1">Yearly</option>
-            <option value="2">Half-Yearly</option>
-            <option value="4" selected>Quarterly</option>
-            <option value="12">Monthly</option>
+            <option value="1">
+              Yearly
+            </option>
+
+            <option value="2">
+              Half-Yearly
+            </option>
+
+            <option
+              value="4"
+              selected
+            >
+              Quarterly
+            </option>
+
+            <option value="12">
+              Monthly
+            </option>
 
           </select>
 
         </div>
 
-        ${createButton("Calculate")}
+
+        ${createButton(
+          "Calculate"
+        )}
+
 
         <div id="ciResult"></div>
 
@@ -2790,20 +3916,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    toolContent.querySelector("button").onclick =
+
+    toolContent
+      .querySelector("button")
+      .onclick =
       function () {
 
         const P =
-          Number(document.getElementById("ciP").value);
+          Number(
+            document.getElementById(
+              "ciP"
+            ).value
+          );
+
 
         const R =
-          Number(document.getElementById("ciR").value) / 100;
+          Number(
+            document.getElementById(
+              "ciR"
+            ).value
+          ) / 100;
+
 
         const T =
-          Number(document.getElementById("ciT").value);
+          Number(
+            document.getElementById(
+              "ciT"
+            ).value
+          );
+
 
         const n =
-          Number(document.getElementById("ciN").value);
+          Number(
+            document.getElementById(
+              "ciN"
+            ).value
+          );
+
 
         const amount =
           P *
@@ -2812,21 +3961,30 @@ document.addEventListener("DOMContentLoaded", function () {
             n * T
           );
 
-        const interest =
-          amount - P;
 
-        document.getElementById("ciResult").innerHTML = `
+        const interest =
+          amount -
+          P;
+
+
+        document.getElementById(
+          "ciResult"
+        ).innerHTML = `
 
           <div class="mdh-grid">
 
             <div class="mdh-stat">
               <span>Interest</span>
-              <strong>₹${formatNumber(interest)}</strong>
+              <strong>
+                ₹${formatNumber(interest)}
+              </strong>
             </div>
 
             <div class="mdh-stat">
               <span>Total Amount</span>
-              <strong>₹${formatNumber(amount)}</strong>
+              <strong>
+                ₹${formatNumber(amount)}
+              </strong>
             </div>
 
           </div>
@@ -2851,16 +4009,39 @@ document.addEventListener("DOMContentLoaded", function () {
         <h3>🏷️ Discount Calculator</h3>
 
         <div class="mdh-field">
-          <label>Original Price (₹)</label>
-          <input type="number" id="discountPrice" value="1000">
+
+          <label>
+            Original Price (₹)
+          </label>
+
+          <input
+            type="number"
+            id="discountPrice"
+            value="1000"
+          >
+
         </div>
+
 
         <div class="mdh-field">
-          <label>Discount (%)</label>
-          <input type="number" id="discountRate" value="20">
+
+          <label>
+            Discount (%)
+          </label>
+
+          <input
+            type="number"
+            id="discountRate"
+            value="20"
+          >
+
         </div>
 
-        ${createButton("Calculate Discount")}
+
+        ${createButton(
+          "Calculate Discount"
+        )}
+
 
         <div id="discountResult"></div>
 
@@ -2868,37 +4049,57 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    toolContent.querySelector("button").onclick =
+
+    toolContent
+      .querySelector("button")
+      .onclick =
       function () {
 
         const price =
           Number(
-            document.getElementById("discountPrice").value
+            document.getElementById(
+              "discountPrice"
+            ).value
           );
+
 
         const rate =
           Number(
-            document.getElementById("discountRate").value
+            document.getElementById(
+              "discountRate"
+            ).value
           );
 
+
         const discount =
-          price * rate / 100;
+          price *
+          rate /
+          100;
+
 
         const finalPrice =
-          price - discount;
+          price -
+          discount;
 
-        document.getElementById("discountResult").innerHTML = `
+
+        document.getElementById(
+          "discountResult"
+        ).innerHTML = `
 
           <div class="mdh-grid">
 
             <div class="mdh-stat">
               <span>Discount</span>
-              <strong>₹${formatNumber(discount)}</strong>
+              <strong>
+                ₹${formatNumber(discount)}
+              </strong>
             </div>
 
             <div class="mdh-stat">
               <span>Final Price</span>
-              <strong>₹${formatNumber(finalPrice)}</strong>
+              <strong>
+                ₹${formatNumber(finalPrice)}
+              </strong>
             </div>
 
           </div>
@@ -2920,19 +4121,44 @@ document.addEventListener("DOMContentLoaded", function () {
 
       <div class="mdh-tool">
 
-        <h3>📈 Profit & Loss Calculator</h3>
+        <h3>
+          📈 Profit & Loss Calculator
+        </h3>
 
         <div class="mdh-field">
-          <label>Cost Price (₹)</label>
-          <input type="number" id="profitCP" value="1000">
+
+          <label>
+            Cost Price (₹)
+          </label>
+
+          <input
+            type="number"
+            id="profitCP"
+            value="1000"
+          >
+
         </div>
+
 
         <div class="mdh-field">
-          <label>Selling Price (₹)</label>
-          <input type="number" id="profitSP" value="1200">
+
+          <label>
+            Selling Price (₹)
+          </label>
+
+          <input
+            type="number"
+            id="profitSP"
+            value="1200"
+          >
+
         </div>
 
-        ${createButton("Calculate")}
+
+        ${createButton(
+          "Calculate"
+        )}
+
 
         <div id="profitResult"></div>
 
@@ -2940,42 +4166,66 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    toolContent.querySelector("button").onclick =
+
+    toolContent
+      .querySelector("button")
+      .onclick =
       function () {
 
         const cp =
           Number(
-            document.getElementById("profitCP").value
+            document.getElementById(
+              "profitCP"
+            ).value
           );
+
 
         const sp =
           Number(
-            document.getElementById("profitSP").value
+            document.getElementById(
+              "profitSP"
+            ).value
           );
 
+
         const difference =
-          sp - cp;
+          sp -
+          cp;
+
 
         const percentage =
           cp
-            ? Math.abs(difference) / cp * 100
+            ? Math.abs(difference) /
+              cp *
+              100
             : 0;
+
 
         const type =
           difference >= 0
             ? "Profit"
             : "Loss";
 
-        document.getElementById("profitResult").innerHTML = `
+
+        document.getElementById(
+          "profitResult"
+        ).innerHTML = `
 
           <div class="mdh-result">
 
-            <strong>${type}: ₹${formatNumber(Math.abs(difference))}</strong>
+            <strong>
+              ${type}:
+              ₹${formatNumber(
+                Math.abs(difference)
+              )}
+            </strong>
 
             <br><br>
 
             ${type} Percentage:
-            ${formatNumber(percentage)}%
+            ${formatNumber(
+              percentage
+            )}%
 
           </div>
 
@@ -2996,24 +4246,59 @@ document.addEventListener("DOMContentLoaded", function () {
 
       <div class="mdh-tool">
 
-        <h3>💰 Loan Interest Calculator</h3>
+        <h3>
+          💰 Loan Interest Calculator
+        </h3>
 
         <div class="mdh-field">
-          <label>Loan Amount (₹)</label>
-          <input type="number" id="liP" value="500000">
+
+          <label>
+            Loan Amount (₹)
+          </label>
+
+          <input
+            type="number"
+            id="liP"
+            value="500000"
+          >
+
         </div>
+
 
         <div class="mdh-field">
-          <label>Annual Interest (%)</label>
-          <input type="number" id="liR" value="10">
+
+          <label>
+            Annual Interest (%)
+          </label>
+
+          <input
+            type="number"
+            id="liR"
+            value="10"
+          >
+
         </div>
+
 
         <div class="mdh-field">
-          <label>Tenure (Years)</label>
-          <input type="number" id="liT" value="5">
+
+          <label>
+            Tenure (Years)
+          </label>
+
+          <input
+            type="number"
+            id="liT"
+            value="5"
+          >
+
         </div>
 
-        ${createButton("Calculate")}
+
+        ${createButton(
+          "Calculate"
+        )}
+
 
         <div id="liResult"></div>
 
@@ -3021,36 +4306,66 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    toolContent.querySelector("button").onclick =
+
+    toolContent
+      .querySelector("button")
+      .onclick =
       function () {
 
         const P =
-          Number(document.getElementById("liP").value);
+          Number(
+            document.getElementById(
+              "liP"
+            ).value
+          );
+
 
         const R =
-          Number(document.getElementById("liR").value);
+          Number(
+            document.getElementById(
+              "liR"
+            ).value
+          );
+
 
         const T =
-          Number(document.getElementById("liT").value);
+          Number(
+            document.getElementById(
+              "liT"
+            ).value
+          );
+
 
         const interest =
-          P * R * T / 100;
+          P *
+          R *
+          T /
+          100;
+
 
         const total =
-          P + interest;
+          P +
+          interest;
 
-        document.getElementById("liResult").innerHTML = `
+
+        document.getElementById(
+          "liResult"
+        ).innerHTML = `
 
           <div class="mdh-grid">
 
             <div class="mdh-stat">
               <span>Total Interest</span>
-              <strong>₹${formatNumber(interest)}</strong>
+              <strong>
+                ₹${formatNumber(interest)}
+              </strong>
             </div>
 
             <div class="mdh-stat">
               <span>Total Payable</span>
-              <strong>₹${formatNumber(total)}</strong>
+              <strong>
+                ₹${formatNumber(total)}
+              </strong>
             </div>
 
           </div>
@@ -3076,7 +4391,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         <div class="mdh-field">
 
-          <label>Date of Birth</label>
+          <label>
+            Date of Birth
+          </label>
 
           <input
             type="date"
@@ -3085,7 +4402,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-        ${createButton("Calculate Age")}
+
+        ${createButton(
+          "Calculate Age"
+        )}
+
 
         <div id="ageResult"></div>
 
@@ -3093,35 +4414,62 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    toolContent.querySelector("button").onclick =
+
+    toolContent
+      .querySelector("button")
+      .onclick =
       function () {
 
         const value =
-          document.getElementById("dob").value;
+          document.getElementById(
+            "dob"
+          ).value;
 
-        if (!value) return;
+
+        if (!value) {
+
+          document.getElementById(
+            "ageResult"
+          ).innerHTML =
+            `<div class="mdh-error">
+              Please select your date of birth.
+            </div>`;
+
+          return;
+
+        }
+
 
         const dob =
-          new Date(value + "T00:00:00");
+          new Date(
+            value +
+            "T00:00:00"
+          );
+
 
         const today =
           new Date();
+
 
         let years =
           today.getFullYear() -
           dob.getFullYear();
 
+
         let months =
           today.getMonth() -
           dob.getMonth();
+
 
         let days =
           today.getDate() -
           dob.getDate();
 
+
         if (days < 0) {
 
           months--;
+
 
           const previousMonth =
             new Date(
@@ -3130,19 +4478,25 @@ document.addEventListener("DOMContentLoaded", function () {
               0
             );
 
+
           days +=
             previousMonth.getDate();
 
         }
 
+
         if (months < 0) {
 
           years--;
+
           months += 12;
 
         }
 
-        document.getElementById("ageResult").innerHTML = `
+
+        document.getElementById(
+          "ageResult"
+        ).innerHTML = `
 
           <div class="mdh-result">
 
@@ -3171,7 +4525,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
       <div class="mdh-tool">
 
-        <h3>🛡️ Insurance Policy Return Calculator</h3>
+        <h3>
+          🛡️ Insurance Policy Return Calculator
+        </h3>
 
         <p>
           Estimate maturity value and return on total premiums.
@@ -3179,7 +4535,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         <div class="mdh-field">
 
-          <label>Annual Premium (₹)</label>
+          <label>
+            Annual Premium (₹)
+          </label>
 
           <input
             type="number"
@@ -3189,9 +4547,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
+
         <div class="mdh-field">
 
-          <label>Policy Term (Years)</label>
+          <label>
+            Policy Term (Years)
+          </label>
 
           <input
             type="number"
@@ -3201,9 +4562,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
+
         <div class="mdh-field">
 
-          <label>Expected Annual Return (%)</label>
+          <label>
+            Expected Annual Return (%)
+          </label>
 
           <input
             type="number"
@@ -3214,69 +4578,117 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-        ${createButton("Calculate Return")}
+
+        ${createButton(
+          "Calculate Return"
+        )}
+
 
         <div id="insResult"></div>
 
+
         <div class="mdh-note">
+
           This is only an illustrative calculator.
           Actual insurance policy benefits depend on the
           specific policy, bonuses, charges and terms.
+
         </div>
 
       </div>
 
     `;
 
-    toolContent.querySelector("button").onclick =
+
+    toolContent
+      .querySelector("button")
+      .onclick =
       function () {
 
         const premium =
           Number(
-            document.getElementById("insPremium").value
+            document.getElementById(
+              "insPremium"
+            ).value
           );
+
 
         const years =
           Number(
-            document.getElementById("insYears").value
+            document.getElementById(
+              "insYears"
+            ).value
           );
+
 
         const rate =
           Number(
-            document.getElementById("insRate").value
+            document.getElementById(
+              "insRate"
+            ).value
           ) / 100;
 
-        const invested =
-          premium * years;
 
-        const maturity =
+        const invested =
           premium *
-          (
-            (Math.pow(1 + rate, years) - 1) /
-            rate
-          ) *
-          (1 + rate);
+          years;
+
+
+        let maturity;
+
+
+        if (rate === 0) {
+
+          maturity =
+            invested;
+
+        } else {
+
+          maturity =
+            premium *
+            (
+              (
+                Math.pow(
+                  1 + rate,
+                  years
+                ) - 1
+              ) / rate
+            ) *
+            (1 + rate);
+
+        }
+
 
         const gain =
-          maturity - invested;
+          maturity -
+          invested;
 
-        document.getElementById("insResult").innerHTML = `
+
+        document.getElementById(
+          "insResult"
+        ).innerHTML = `
 
           <div class="mdh-grid-3">
 
             <div class="mdh-stat">
               <span>Total Premium</span>
-              <strong>₹${formatNumber(invested)}</strong>
+              <strong>
+                ₹${formatNumber(invested)}
+              </strong>
             </div>
 
             <div class="mdh-stat">
               <span>Estimated Gain</span>
-              <strong>₹${formatNumber(gain)}</strong>
+              <strong>
+                ₹${formatNumber(gain)}
+              </strong>
             </div>
 
             <div class="mdh-stat">
               <span>Estimated Value</span>
-              <strong>₹${formatNumber(maturity)}</strong>
+              <strong>
+                ₹${formatNumber(maturity)}
+              </strong>
             </div>
 
           </div>
@@ -3298,11 +4710,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
       <div class="mdh-tool">
 
-        <h3>🎓 CGPA → Percentage</h3>
+        <h3>
+          🎓 CGPA → Percentage
+        </h3>
 
         <div class="mdh-field">
 
-          <label>CGPA</label>
+          <label>
+            CGPA
+          </label>
 
           <input
             type="number"
@@ -3313,7 +4729,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-        ${createButton("Convert")}
+
+        ${createButton(
+          "Convert"
+        )}
+
 
         <div id="cgpaResult"></div>
 
@@ -3321,24 +4741,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    toolContent.querySelector("button").onclick =
+
+    toolContent
+      .querySelector("button")
+      .onclick =
       function () {
 
         const cgpa =
           Number(
-            document.getElementById("cgpaValue").value
+            document.getElementById(
+              "cgpaValue"
+            ).value
           );
 
-        const percentage =
-          cgpa * 9.5;
 
-        document.getElementById("cgpaResult").innerHTML = `
+        const percentage =
+          cgpa *
+          9.5;
+
+
+        document.getElementById(
+          "cgpaResult"
+        ).innerHTML = `
 
           <div class="mdh-result">
 
             <strong>
               Approx. Percentage:
-              ${formatNumber(percentage)}%
+              ${formatNumber(
+                percentage
+              )}%
             </strong>
 
           </div>
@@ -3370,37 +4802,65 @@ document.addEventListener("DOMContentLoaded", function () {
 
           <div class="mdh-field">
             <label>Grade Point 1</label>
-            <input type="number" class="gp" value="8">
+            <input
+              type="number"
+              class="gp"
+              value="8"
+            >
           </div>
 
           <div class="mdh-field">
             <label>Credit 1</label>
-            <input type="number" class="credit" value="3">
+            <input
+              type="number"
+              class="credit"
+              value="3"
+            >
           </div>
 
           <div class="mdh-field">
             <label>Grade Point 2</label>
-            <input type="number" class="gp" value="9">
+            <input
+              type="number"
+              class="gp"
+              value="9"
+            >
           </div>
 
           <div class="mdh-field">
             <label>Credit 2</label>
-            <input type="number" class="credit" value="3">
+            <input
+              type="number"
+              class="credit"
+              value="3"
+            >
           </div>
 
           <div class="mdh-field">
             <label>Grade Point 3</label>
-            <input type="number" class="gp" value="7">
+            <input
+              type="number"
+              class="gp"
+              value="7"
+            >
           </div>
 
           <div class="mdh-field">
             <label>Credit 3</label>
-            <input type="number" class="credit" value="4">
+            <input
+              type="number"
+              class="credit"
+              value="4"
+            >
           </div>
 
         </div>
 
-        ${createButton("Calculate GPA")}
+
+        ${createButton(
+          "Calculate GPA"
+        )}
+
 
         <div id="gpaResult"></div>
 
@@ -3408,41 +4868,67 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    toolContent.querySelector("button").onclick =
+
+    toolContent
+      .querySelector("button")
+      .onclick =
       function () {
 
         const gp =
           Array.from(
-            toolContent.querySelectorAll(".gp")
+            toolContent.querySelectorAll(
+              ".gp"
+            )
           ).map(Number);
+
 
         const credits =
           Array.from(
-            toolContent.querySelectorAll(".credit")
+            toolContent.querySelectorAll(
+              ".credit"
+            )
           ).map(Number);
+
 
         let weighted = 0;
         let totalCredits = 0;
 
-        for (let i = 0; i < gp.length; i++) {
 
-          weighted += gp[i] * credits[i];
+        for (
+          let i = 0;
+          i < gp.length;
+          i++
+        ) {
 
-          totalCredits += credits[i];
+          weighted +=
+            gp[i] *
+            credits[i];
+
+          totalCredits +=
+            credits[i];
 
         }
 
+
         const gpa =
           totalCredits
-            ? weighted / totalCredits
+            ? weighted /
+              totalCredits
             : 0;
 
-        document.getElementById("gpaResult").innerHTML = `
+
+        document.getElementById(
+          "gpaResult"
+        ).innerHTML = `
 
           <div class="mdh-result">
 
             <strong>
-              GPA: ${formatNumber(gpa, 2)}
+              GPA:
+              ${formatNumber(
+                gpa,
+                2
+              )}
             </strong>
 
           </div>
@@ -3464,24 +4950,59 @@ document.addEventListener("DOMContentLoaded", function () {
 
       <div class="mdh-tool">
 
-        <h3>📝 Marks Required Calculator</h3>
+        <h3>
+          📝 Marks Required Calculator
+        </h3>
 
         <div class="mdh-field">
-          <label>Total Marks</label>
-          <input type="number" id="marksTotal" value="100">
+
+          <label>
+            Total Marks
+          </label>
+
+          <input
+            type="number"
+            id="marksTotal"
+            value="100"
+          >
+
         </div>
+
 
         <div class="mdh-field">
-          <label>Target Percentage</label>
-          <input type="number" id="marksTarget" value="60">
+
+          <label>
+            Target Percentage
+          </label>
+
+          <input
+            type="number"
+            id="marksTarget"
+            value="60"
+          >
+
         </div>
+
 
         <div class="mdh-field">
-          <label>Marks Already Obtained</label>
-          <input type="number" id="marksObtained" value="40">
+
+          <label>
+            Marks Already Obtained
+          </label>
+
+          <input
+            type="number"
+            id="marksObtained"
+            value="40"
+          >
+
         </div>
 
-        ${createButton("Calculate Required Marks")}
+
+        ${createButton(
+          "Calculate Required Marks"
+        )}
+
 
         <div id="marksResult"></div>
 
@@ -3489,35 +5010,57 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    toolContent.querySelector("button").onclick =
+
+    toolContent
+      .querySelector("button")
+      .onclick =
       function () {
 
         const total =
           Number(
-            document.getElementById("marksTotal").value
+            document.getElementById(
+              "marksTotal"
+            ).value
           );
+
 
         const target =
           Number(
-            document.getElementById("marksTarget").value
+            document.getElementById(
+              "marksTarget"
+            ).value
           );
+
 
         const obtained =
           Number(
-            document.getElementById("marksObtained").value
+            document.getElementById(
+              "marksObtained"
+            ).value
           );
 
+
         const required =
-          total * target / 100 -
+          total *
+          target /
+          100 -
           obtained;
 
-        document.getElementById("marksResult").innerHTML = `
+
+        document.getElementById(
+          "marksResult"
+        ).innerHTML = `
 
           <div class="mdh-result">
 
             <strong>
               Required Marks:
-              ${formatNumber(Math.max(0, required))}
+              ${formatNumber(
+                Math.max(
+                  0,
+                  required
+                )
+              )}
             </strong>
 
           </div>
@@ -3539,11 +5082,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
       <div class="mdh-tool">
 
-        <h3>🏅 Grade Calculator</h3>
+        <h3>
+          🏅 Grade Calculator
+        </h3>
 
         <div class="mdh-field">
 
-          <label>Percentage</label>
+          <label>
+            Percentage
+          </label>
 
           <input
             type="number"
@@ -3553,7 +5100,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-        ${createButton("Calculate Grade")}
+
+        ${createButton(
+          "Calculate Grade"
+        )}
+
 
         <div id="gradeResult"></div>
 
@@ -3561,29 +5112,51 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    toolContent.querySelector("button").onclick =
+
+    toolContent
+      .querySelector("button")
+      .onclick =
       function () {
 
         const p =
           Number(
-            document.getElementById("gradePercentage").value
+            document.getElementById(
+              "gradePercentage"
+            ).value
           );
+
 
         let grade;
 
-        if (p >= 90) grade = "A+";
-        else if (p >= 80) grade = "A";
-        else if (p >= 70) grade = "B";
-        else if (p >= 60) grade = "C";
-        else if (p >= 50) grade = "D";
-        else grade = "F";
 
-        document.getElementById("gradeResult").innerHTML = `
+        if (p >= 90)
+          grade = "A+";
+
+        else if (p >= 80)
+          grade = "A";
+
+        else if (p >= 70)
+          grade = "B";
+
+        else if (p >= 60)
+          grade = "C";
+
+        else if (p >= 50)
+          grade = "D";
+
+        else
+          grade = "F";
+
+
+        document.getElementById(
+          "gradeResult"
+        ).innerHTML = `
 
           <div class="mdh-result">
 
             <strong>
-              Grade: ${grade}
+              Grade:
+              ${grade}
             </strong>
 
           </div>
@@ -3605,11 +5178,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
       <div class="mdh-tool">
 
-        <h3>⏱️ Study Time Calculator</h3>
+        <h3>
+          ⏱️ Study Time Calculator
+        </h3>
 
         <div class="mdh-field">
 
-          <label>Total Study Hours</label>
+          <label>
+            Total Study Hours
+          </label>
 
           <input
             type="number"
@@ -3619,9 +5196,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
+
         <div class="mdh-field">
 
-          <label>Number of Subjects</label>
+          <label>
+            Number of Subjects
+          </label>
 
           <input
             type="number"
@@ -3631,7 +5211,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-        ${createButton("Calculate")}
+
+        ${createButton(
+          "Calculate"
+        )}
+
 
         <div id="studyResult"></div>
 
@@ -3639,31 +5223,47 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
-    toolContent.querySelector("button").onclick =
+
+    toolContent
+      .querySelector("button")
+      .onclick =
       function () {
 
         const hours =
           Number(
-            document.getElementById("studyHours").value
+            document.getElementById(
+              "studyHours"
+            ).value
           );
+
 
         const subjects =
           Number(
-            document.getElementById("studySubjects").value
+            document.getElementById(
+              "studySubjects"
+            ).value
           );
+
 
         const perSubject =
           subjects
-            ? hours / subjects
+            ? hours /
+              subjects
             : 0;
 
-        document.getElementById("studyResult").innerHTML = `
+
+        document.getElementById(
+          "studyResult"
+        ).innerHTML = `
 
           <div class="mdh-result">
 
             <strong>
               Suggested Time:
-              ${formatNumber(perSubject, 2)}
+              ${formatNumber(
+                perSubject,
+                2
+              )}
               hours per subject
             </strong>
 
@@ -3686,41 +5286,69 @@ document.addEventListener("DOMContentLoaded", function () {
 
       {
         q: "What is 25% of 200?",
-        options: ["25", "40", "50", "75"],
+        options: [
+          "25",
+          "40",
+          "50",
+          "75"
+        ],
         answer: 2
       },
 
       {
         q: "What is 12 × 8?",
-        options: ["86", "96", "108", "112"],
+        options: [
+          "86",
+          "96",
+          "108",
+          "112"
+        ],
         answer: 1
       },
 
       {
         q: "Which is the largest planet?",
-        options: ["Earth", "Mars", "Jupiter", "Venus"],
+        options: [
+          "Earth",
+          "Mars",
+          "Jupiter",
+          "Venus"
+        ],
         answer: 2
       },
 
       {
         q: "1000 metres equals?",
-        options: ["1 km", "10 km", "100 km", "0.1 km"],
+        options: [
+          "1 km",
+          "10 km",
+          "100 km",
+          "0.1 km"
+        ],
         answer: 0
       },
 
       {
         q: "What is 15 + 27?",
-        options: ["32", "40", "42", "45"],
+        options: [
+          "32",
+          "40",
+          "42",
+          "45"
+        ],
         answer: 2
       }
 
     ];
 
+
     toolContent.innerHTML = toolCSS() + `
 
       <div class="mdh-tool">
 
-        <h3>🧠 Mini Mock Test</h3>
+        <h3>
+          🧠 Mini Mock Test
+        </h3>
 
         <p>
           Answer all questions and check your score.
@@ -3728,7 +5356,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         <div id="mockQuestions"></div>
 
-        ${createButton("Submit Test")}
+        ${createButton(
+          "Submit Test"
+        )}
 
         <div id="mockResult"></div>
 
@@ -3736,91 +5366,137 @@ document.addEventListener("DOMContentLoaded", function () {
 
     `;
 
+
     const box =
-      document.getElementById("mockQuestions");
-
-    questions.forEach(function (item, index) {
-
-      let html = `
-
-        <div class="mdh-result" style="margin-bottom:10px">
-
-          <strong>
-            ${index + 1}. ${escapeHTML(item.q)}
-          </strong>
-
-          <br><br>
-
-      `;
-
-      item.options.forEach(function (option, optionIndex) {
-
-        html += `
-
-          <label style="display:block;margin:7px 0">
-
-            <input
-              type="radio"
-              name="question${index}"
-              value="${optionIndex}"
-            >
-
-            ${escapeHTML(option)}
-
-          </label>
-
-        `;
-
-      });
-
-      html += `</div>`;
-
-      box.insertAdjacentHTML(
-        "beforeend",
-        html
+      document.getElementById(
+        "mockQuestions"
       );
 
-    });
 
+    questions.forEach(
+      function (
+        item,
+        index
+      ) {
 
-    toolContent.querySelector("button").onclick =
-      function () {
+        let html = `
 
-        let score = 0;
-
-        questions.forEach(function (item, index) {
-
-          const selected =
-            toolContent.querySelector(
-              `input[name="question${index}"]:checked`
-            );
-
-          if (
-            selected &&
-            Number(selected.value) === item.answer
-          ) {
-
-            score++;
-
-          }
-
-        });
-
-        document.getElementById("mockResult").innerHTML = `
-
-          <div class="mdh-result">
+          <div
+            class="mdh-result"
+            style="margin-bottom:10px"
+          >
 
             <strong>
-              Your Score: ${score}/${questions.length}
+              ${index + 1}.
+              ${escapeHTML(item.q)}
             </strong>
 
             <br><br>
 
-            ${score === questions.length
-              ? "🎉 Excellent!"
-              : score >= 3
-                ? "👍 Good job!"
-                : "📚 Keep practicing!"}
+        `;
+
+
+        item.options.forEach(
+          function (
+            option,
+            optionIndex
+          ) {
+
+            html += `
+
+              <label
+                style="
+                  display:block;
+                  margin:7px 0;
+                  font-size:12px;
+                "
+              >
+
+                <input
+                  type="radio"
+                  name="question${index}"
+                  value="${optionIndex}"
+                >
+
+                ${escapeHTML(
+                  option
+                )}
+
+              </label>
+
+            `;
+
+          }
+        );
+
+
+        html += `</div>`;
+
+
+        box.insertAdjacentHTML(
+          "beforeend",
+          html
+        );
+
+      }
+    );
+
+
+    toolContent
+      .querySelector("button")
+      .onclick =
+      function () {
+
+        let score = 0;
+
+
+        questions.forEach(
+          function (
+            item,
+            index
+          ) {
+
+            const selected =
+              toolContent.querySelector(
+                `input[name="question${index}"]:checked`
+              );
+
+
+            if (
+              selected &&
+              Number(
+                selected.value
+              ) === item.answer
+            ) {
+
+              score++;
+
+            }
+
+          }
+        );
+
+
+        document.getElementById(
+          "mockResult"
+        ).innerHTML = `
+
+          <div class="mdh-result">
+
+            <strong>
+              Your Score:
+              ${score}/${questions.length}
+            </strong>
+
+            <br><br>
+
+            ${
+              score === questions.length
+                ? "🎉 Excellent!"
+                : score >= 3
+                  ? "👍 Good job!"
+                  : "📚 Keep practicing!"
+            }
 
           </div>
 
@@ -3839,9 +5515,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!toolContent) return;
 
+
     switch (tool) {
 
-      /* IMAGE */
+      /* ===================================================
+         IMAGE
+         =================================================== */
 
       case "compressor":
         loadCompressor();
@@ -3868,7 +5547,9 @@ document.addEventListener("DOMContentLoaded", function () {
         break;
 
 
-      /* PDF */
+      /* ===================================================
+         PDF
+         =================================================== */
 
       case "jpgpdf":
       case "pdf":
@@ -3880,7 +5561,9 @@ document.addEventListener("DOMContentLoaded", function () {
         break;
 
 
-      /* FINANCE */
+      /* ===================================================
+         FINANCE
+         =================================================== */
 
       case "emi":
         loadEMI();
@@ -3935,7 +5618,9 @@ document.addEventListener("DOMContentLoaded", function () {
         break;
 
 
-      /* STUDENT */
+      /* ===================================================
+         STUDENT
+         =================================================== */
 
       case "cgpa":
         loadCGPA();
@@ -3962,7 +5647,9 @@ document.addEventListener("DOMContentLoaded", function () {
         break;
 
 
-      /* NOT YET IMPLEMENTED */
+      /* ===================================================
+         NOT YET IMPLEMENTED
+         =================================================== */
 
       case "mergepdf":
       case "splitpdf":
@@ -4019,36 +5706,42 @@ document.addEventListener("DOMContentLoaded", function () {
      KEYBOARD SHORTCUT
      ======================================================= */
 
-  document.addEventListener("keydown", function (event) {
+  document.addEventListener(
+    "keydown",
+    function (event) {
 
-    const isMac =
-      navigator.platform
-        .toUpperCase()
-        .indexOf("MAC") >= 0;
+      const isMac =
+        navigator.platform
+          .toUpperCase()
+          .indexOf("MAC") >= 0;
 
-    const modifier =
-      isMac
-        ? event.metaKey
-        : event.ctrlKey;
 
-    if (
-      modifier &&
-      event.key.toLowerCase() === "k"
-    ) {
+      const modifier =
+        isMac
+          ? event.metaKey
+          : event.ctrlKey;
 
-      event.preventDefault();
 
-      if (searchInput) {
+      if (
+        modifier &&
+        event.key.toLowerCase() === "k"
+      ) {
 
-        searchInput.focus();
+        event.preventDefault();
 
-        searchInput.select();
+
+        if (searchInput) {
+
+          searchInput.focus();
+
+          searchInput.select();
+
+        }
 
       }
 
     }
-
-  });
+  );
 
 
   /* =======================================================
@@ -4064,12 +5757,16 @@ document.addEventListener("DOMContentLoaded", function () {
       function () {
 
         navigator.serviceWorker
-          .register("./service-worker.js")
-          .catch(function () {
+          .register(
+            "./service-worker.js"
+          )
+          .catch(
+            function () {
 
-            /* Silent failure */
+              /* Silent failure */
 
-          });
+            }
+          );
 
       }
     );
@@ -4082,7 +5779,7 @@ document.addEventListener("DOMContentLoaded", function () {
      ======================================================= */
 
   console.log(
-    "Manjeet Digital Hub loaded successfully."
+    "Manjeet Digital Hub v3.1 loaded successfully."
   );
 
 });
