@@ -1,0 +1,18 @@
+{
+  "name": "Manjeet Tools",
+  "short_name": "Manjeet Tools",
+  "description": "Free online tools for images, calculators, documents and more.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
