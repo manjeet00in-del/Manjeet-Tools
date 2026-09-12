@@ -1,5 +1,6 @@
 /* =========================================================
-   MANJEET TOOLS - COMPLETE APP.JS
+   MANJEET DIGITAL HUB - COMPLETE APP.JS
+   Version: 2.0
    ========================================================= */
 
 "use strict";
@@ -38,79 +39,450 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const toolData = {
 
+    /* ---------- IMAGE TOOLS ---------- */
+
     compressor: {
       title: "Image Compressor",
-      icon: "🗜️"
+      icon: "🗜️",
+      active: true
     },
 
     resizer: {
       title: "Image Resizer",
-      icon: "↔️"
+      icon: "↔️",
+      active: true
     },
 
     cropper: {
       title: "Image Cropper",
-      icon: "✂️"
+      icon: "✂️",
+      active: true
     },
 
     converter: {
       title: "Image Converter",
-      icon: "🔄"
+      icon: "🔄",
+      active: true
     },
 
     reducer: {
       title: "Photo Size Reducer",
-      icon: "📉"
+      icon: "📉",
+      active: true
     },
 
     social: {
       title: "Social Media Resizer",
-      icon: "📱"
+      icon: "📱",
+      active: true
     },
 
     pdf: {
       title: "Images to PDF",
-      icon: "📄"
+      icon: "📄",
+      active: true
     },
 
-    qr: {
-      title: "QR Generator",
-      icon: "▦"
+    watermark: {
+      title: "Image Watermark",
+      icon: "💧",
+      active: false
     },
+
+    rotate: {
+      title: "Image Rotate",
+      icon: "🔄",
+      active: false
+    },
+
+    flip: {
+      title: "Image Flip",
+      icon: "↔️",
+      active: false
+    },
+
+    blur: {
+      title: "Image Blur",
+      icon: "🌫️",
+      active: false
+    },
+
+    textimage: {
+      title: "Text to Image",
+      icon: "📝",
+      active: false
+    },
+
+
+    /* ---------- PDF TOOLS ---------- */
+
+    mergepdf: {
+      title: "Merge PDF",
+      icon: "📑",
+      active: false
+    },
+
+    splitpdf: {
+      title: "Split PDF",
+      icon: "✂️",
+      active: false
+    },
+
+    compresspdf: {
+      title: "Compress PDF",
+      icon: "🗜️",
+      active: false
+    },
+
+    pdfjpg: {
+      title: "PDF to JPG",
+      icon: "🖼️",
+      active: false
+    },
+
+    jpgpdf: {
+      title: "JPG to PDF",
+      icon: "📄",
+      active: false
+    },
+
+    pdfword: {
+      title: "PDF to Word",
+      icon: "📝",
+      active: false
+    },
+
+    wordpdf: {
+      title: "Word to PDF",
+      icon: "📄",
+      active: false
+    },
+
+    pdfprotect: {
+      title: "Protect PDF",
+      icon: "🔐",
+      active: false
+    },
+
+    pdfunlock: {
+      title: "Unlock PDF",
+      icon: "🔓",
+      active: false
+    },
+
+    pdfrotate: {
+      title: "Rotate PDF",
+      icon: "🔄",
+      active: false
+    },
+
+    pdfwatermark: {
+      title: "PDF Watermark",
+      icon: "💧",
+      active: false
+    },
+
+    pdfsign: {
+      title: "Sign PDF",
+      icon: "✍️",
+      active: false
+    },
+
+
+    /* ---------- ID & PRINT ---------- */
+
+    idcard: {
+      title: "ID Card Maker",
+      icon: "🪪",
+      active: false
+    },
+
+    schoolid: {
+      title: "School ID Card",
+      icon: "🎓",
+      active: false
+    },
+
+    employeeid: {
+      title: "Employee ID Card",
+      icon: "👨‍💼",
+      active: false
+    },
+
+    passport: {
+      title: "Passport Photo Maker",
+      icon: "📷",
+      active: false
+    },
+
+    photosheet: {
+      title: "Passport Photo Sheet",
+      icon: "🖨️",
+      active: false
+    },
+
+    signature: {
+      title: "Signature Resizer",
+      icon: "✍️",
+      active: false
+    },
+
+    a4photo: {
+      title: "A4 Photo Sheet",
+      icon: "📄",
+      active: false
+    },
+
+    document: {
+      title: "Document Photo",
+      icon: "📃",
+      active: false
+    },
+
+    resume: {
+      title: "Resume Maker",
+      icon: "📄",
+      active: false
+    },
+
+    visiting: {
+      title: "Visiting Card Maker",
+      icon: "💼",
+      active: false
+    },
+
+    certificate: {
+      title: "Certificate Maker",
+      icon: "🏆",
+      active: false
+    },
+
+    printsheet: {
+      title: "Print Sheet Maker",
+      icon: "🖨️",
+      active: false
+    },
+
+
+    /* ---------- TEXT TOOLS ---------- */
 
     words: {
       title: "Word Counter",
-      icon: "Aa"
+      icon: "Aa",
+      active: true
     },
 
     case: {
       title: "Case Converter",
-      icon: "Aa"
+      icon: "Aa",
+      active: true
     },
 
-    invoice: {
-      title: "Invoice Generator",
-      icon: "🧾"
+    duplicate: {
+      title: "Duplicate Line Remover",
+      icon: "🧹",
+      active: false
     },
+
+    spaces: {
+      title: "Remove Extra Spaces",
+      icon: "␠",
+      active: false
+    },
+
+    sorter: {
+      title: "Text Sorter",
+      icon: "↕️",
+      active: false
+    },
+
+    formatter: {
+      title: "Text Formatter",
+      icon: "📝",
+      active: false
+    },
+
+    json: {
+      title: "JSON Formatter",
+      icon: "{}",
+      active: false
+    },
+
+    urlencode: {
+      title: "URL Encoder",
+      icon: "🔗",
+      active: false
+    },
+
+    urldecode: {
+      title: "URL Decoder",
+      icon: "🔓",
+      active: false
+    },
+
+    slug: {
+      title: "Slug Generator",
+      icon: "🔗",
+      active: false
+    },
+
+    lorem: {
+      title: "Lorem Ipsum Generator",
+      icon: "📃",
+      active: false
+    },
+
+    frequency: {
+      title: "Word Frequency",
+      icon: "📊",
+      active: false
+    },
+
+
+    /* ---------- FINANCE ---------- */
 
     emi: {
       title: "EMI Calculator",
-      icon: "₹"
+      icon: "₹",
+      active: true
     },
 
     gst: {
       title: "GST Calculator",
-      icon: "%"
+      icon: "%",
+      active: true
     },
 
     percentage: {
       title: "Percentage Calculator",
-      icon: "%"
+      icon: "%",
+      active: true
     },
 
     age: {
       title: "Age Calculator",
-      icon: "🎂"
+      icon: "🎂",
+      active: true
+    },
+
+    sip: {
+      title: "SIP Calculator",
+      icon: "📈",
+      active: false
+    },
+
+    fd: {
+      title: "FD Calculator",
+      icon: "🏦",
+      active: false
+    },
+
+    rd: {
+      title: "RD Calculator",
+      icon: "💰",
+      active: false
+    },
+
+    interest: {
+      title: "Simple Interest",
+      icon: "₹",
+      active: false
+    },
+
+    compound: {
+      title: "Compound Interest",
+      icon: "📈",
+      active: false
+    },
+
+    discount: {
+      title: "Discount Calculator",
+      icon: "🏷️",
+      active: false
+    },
+
+    profit: {
+      title: "Profit & Loss",
+      icon: "📊",
+      active: false
+    },
+
+    salary: {
+      title: "Salary Calculator",
+      icon: "💼",
+      active: false
+    },
+
+
+    /* ---------- STUDENT ---------- */
+
+    cgpa: {
+      title: "CGPA Calculator",
+      icon: "🎓",
+      active: false
+    },
+
+    marks: {
+      title: "Marks Calculator",
+      icon: "📝",
+      active: false
+    },
+
+    attendance: {
+      title: "Attendance Calculator",
+      icon: "📅",
+      active: false
+    },
+
+    date: {
+      title: "Date Calculator",
+      icon: "📆",
+      active: false
+    },
+
+    study: {
+      title: "Study Timer",
+      icon: "⏱️",
+      active: false
+    },
+
+    gpa: {
+      title: "GPA Calculator",
+      icon: "🎓",
+      active: false
+    },
+
+    countdown: {
+      title: "Exam Countdown",
+      icon: "⏳",
+      active: false
+    },
+
+    notes: {
+      title: "Student Notes",
+      icon: "📒",
+      active: false
+    },
+
+    timetable: {
+      title: "Timetable Maker",
+      icon: "🗓️",
+      active: false
+    },
+
+
+    /* ---------- EXTRA ---------- */
+
+    qr: {
+      title: "QR Generator",
+      icon: "▦",
+      active: true
+    },
+
+    invoice: {
+      title: "Invoice Generator",
+      icon: "🧾",
+      active: true
     }
 
   };
@@ -120,13 +492,34 @@ document.addEventListener("DOMContentLoaded", function () {
      OPEN TOOL
      ======================================================= */
 
-  function openTool(toolName) {
+  function openTool(toolName, cardTitle) {
 
     const data = toolData[toolName];
 
     if (!data) {
+      showComingSoon("Digital Tool");
       return;
     }
+
+
+    /*
+      PDF category mein kai cards currently same
+      data-tool="pdf" use kar rahe hain.
+      Sirf "Images to PDF" existing functional tool hai.
+    */
+
+    if (
+      toolName === "pdf" &&
+      cardTitle &&
+      cardTitle.toLowerCase() !== "images to pdf"
+    ) {
+
+      showComingSoon(cardTitle);
+
+      return;
+
+    }
+
 
     if (modalTitle) {
       modalTitle.textContent = data.title;
@@ -136,16 +529,32 @@ document.addEventListener("DOMContentLoaded", function () {
       modalIcon.textContent = data.icon;
     }
 
+
     if (modal) {
+
       modal.classList.add("active");
-      modal.setAttribute("aria-hidden", "false");
+
+      modal.setAttribute(
+        "aria-hidden",
+        "false"
+      );
+
     }
 
-    document.body.classList.add("modal-open");
+
+    document.body.classList.add(
+      "modal-open"
+    );
+
 
     loadTool(toolName);
 
+
     setTimeout(function () {
+
+      if (!toolContent) {
+        return;
+      }
 
       const firstInput =
         toolContent.querySelector(
@@ -156,23 +565,113 @@ document.addEventListener("DOMContentLoaded", function () {
         firstInput.focus();
       }
 
-    }, 100);
+    }, 150);
 
   }
 
 
   /* =======================================================
-     CLOSE TOOL
+     COMING SOON
+     ======================================================= */
+
+  function showComingSoon(title) {
+
+    if (modalTitle) {
+      modalTitle.textContent = title;
+    }
+
+    if (modalIcon) {
+      modalIcon.textContent = "🚀";
+    }
+
+
+    if (modal) {
+
+      modal.classList.add("active");
+
+      modal.setAttribute(
+        "aria-hidden",
+        "false"
+      );
+
+    }
+
+
+    document.body.classList.add(
+      "modal-open"
+    );
+
+
+    if (toolContent) {
+
+      toolContent.innerHTML = `
+
+        <div class="coming-soon">
+
+          <div class="coming-icon">
+            🚀
+          </div>
+
+          <h2>
+            Coming Soon
+          </h2>
+
+          <p>
+            <strong>${escapeHTML(title)}</strong>
+            is being developed for Manjeet Digital Hub.
+          </p>
+
+          <div class="coming-features">
+
+            <div>
+              ⚡ Fast
+            </div>
+
+            <div>
+              🔒 Secure
+            </div>
+
+            <div>
+              🆓 Free
+            </div>
+
+          </div>
+
+          <p class="coming-note">
+            This tool will be available in a future update.
+          </p>
+
+        </div>
+
+      `;
+
+    }
+
+  }
+
+
+  /* =======================================================
+     CLOSE MODAL
      ======================================================= */
 
   function closeModal() {
 
     if (modal) {
+
       modal.classList.remove("active");
-      modal.setAttribute("aria-hidden", "true");
+
+      modal.setAttribute(
+        "aria-hidden",
+        "true"
+      );
+
     }
 
-    document.body.classList.remove("modal-open");
+
+    document.body.classList.remove(
+      "modal-open"
+    );
+
 
     if (toolContent) {
       toolContent.innerHTML = "";
@@ -185,39 +684,77 @@ document.addEventListener("DOMContentLoaded", function () {
      CARD CLICK
      ======================================================= */
 
-  document.querySelectorAll(".tool-card").forEach(function (card) {
+  document
+    .querySelectorAll(".tool-card")
+    .forEach(function (card) {
 
-    card.addEventListener("click", function () {
+      card.setAttribute(
+        "tabindex",
+        "0"
+      );
 
-      const tool = card.getAttribute("data-tool");
 
-      if (tool) {
-        openTool(tool);
-      }
+      card.setAttribute(
+        "role",
+        "button"
+      );
+
+
+      card.addEventListener(
+        "click",
+        function () {
+
+          const tool =
+            card.getAttribute(
+              "data-tool"
+            );
+
+
+          if (!tool) {
+            return;
+          }
+
+
+          const titleElement =
+            card.querySelector(
+              "h3, h4, .tool-name"
+            );
+
+
+          const cardTitle =
+            titleElement
+              ? titleElement.textContent.trim()
+              : "";
+
+
+          openTool(
+            tool,
+            cardTitle
+          );
+
+        }
+      );
+
+
+      card.addEventListener(
+        "keydown",
+        function (event) {
+
+          if (
+            event.key === "Enter" ||
+            event.key === " "
+          ) {
+
+            event.preventDefault();
+
+            card.click();
+
+          }
+
+        }
+      );
 
     });
-
-
-    const button = card.querySelector(".tool-button");
-
-    if (button) {
-
-      button.addEventListener("click", function (event) {
-
-        event.preventDefault();
-        event.stopPropagation();
-
-        const tool = card.getAttribute("data-tool");
-
-        if (tool) {
-          openTool(tool);
-        }
-
-      });
-
-    }
-
-  });
 
 
   /* =======================================================
@@ -225,21 +762,35 @@ document.addEventListener("DOMContentLoaded", function () {
      ======================================================= */
 
   if (closeTool) {
-    closeTool.addEventListener("click", closeModal);
+
+    closeTool.addEventListener(
+      "click",
+      closeModal
+    );
+
   }
+
 
   if (modalOverlay) {
-    modalOverlay.addEventListener("click", closeModal);
+
+    modalOverlay.addEventListener(
+      "click",
+      closeModal
+    );
+
   }
 
 
-  document.addEventListener("keydown", function (event) {
+  document.addEventListener(
+    "keydown",
+    function (event) {
 
-    if (event.key === "Escape") {
-      closeModal();
+      if (event.key === "Escape") {
+        closeModal();
+      }
+
     }
-
-  });
+  );
 
 
   /* =======================================================
@@ -248,55 +799,113 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (searchInput) {
 
-    searchInput.addEventListener("input", function () {
+    searchInput.addEventListener(
+      "input",
+      function () {
 
-      const query =
-        searchInput.value
-          .trim()
-          .toLowerCase();
+        const query =
+          searchInput.value
+            .trim()
+            .toLowerCase();
 
-      const cards =
-        document.querySelectorAll(".tool-card");
 
-      let visible = 0;
+        const cards =
+          document.querySelectorAll(
+            ".tool-card"
+          );
 
-      cards.forEach(function (card) {
 
-        const name =
-          (
-            card.getAttribute("data-name") ||
-            card.textContent ||
-            ""
-          ).toLowerCase();
+        let visible =
+          0;
 
-        if (!query || name.includes(query)) {
 
-          card.style.display = "";
+        cards.forEach(
+          function (card) {
 
-          visible++;
+            const name =
+              (
+                card.getAttribute(
+                  "data-name"
+                ) ||
+                card.textContent ||
+                ""
+              ).toLowerCase();
 
-        } else {
 
-          card.style.display = "none";
+            if (
+              !query ||
+              name.includes(query)
+            ) {
+
+              card.style.display =
+                "";
+
+              visible++;
+
+            } else {
+
+              card.style.display =
+                "none";
+
+            }
+
+          }
+        );
+
+
+        if (noResults) {
+
+          if (visible === 0) {
+
+            noResults.classList.add(
+              "show"
+            );
+
+          } else {
+
+            noResults.classList.remove(
+              "show"
+            );
+
+          }
 
         }
 
-      });
+      }
+    );
+
+  }
 
 
-      if (noResults) {
+  /* =======================================================
+     KEYBOARD SEARCH SHORTCUT
+     ======================================================= */
 
-        if (visible === 0) {
-          noResults.classList.add("show");
-        } else {
-          noResults.classList.remove("show");
+  document.addEventListener(
+    "keydown",
+    function (event) {
+
+      const isMac =
+        navigator.platform
+          .toUpperCase()
+          .indexOf("MAC") >= 0;
+
+
+      if (
+        (isMac && event.metaKey && event.key === "k") ||
+        (!isMac && event.ctrlKey && event.key === "k")
+      ) {
+
+        event.preventDefault();
+
+        if (searchInput) {
+          searchInput.focus();
         }
 
       }
 
-    });
-
-  }
+    }
+  );
 
 
   /* =======================================================
@@ -317,15 +926,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function formatNumber(value) {
 
-    const number = Number(value);
+    const number =
+      Number(value);
+
 
     if (!Number.isFinite(number)) {
       return "0";
     }
 
-    return number.toLocaleString("en-IN", {
-      maximumFractionDigits: 2
-    });
+
+    return number.toLocaleString(
+      "en-IN",
+      {
+        maximumFractionDigits: 2
+      }
+    );
 
   }
 
@@ -339,16 +954,25 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
-  function downloadBlob(blob, filename) {
+  function downloadBlob(
+    blob,
+    filename
+  ) {
 
     const url =
       URL.createObjectURL(blob);
 
+
     const a =
-      document.createElement("a");
+      document.createElement(
+        "a"
+      );
+
 
     a.href = url;
+
     a.download = filename;
+
 
     document.body.appendChild(a);
 
@@ -356,44 +980,68 @@ document.addEventListener("DOMContentLoaded", function () {
 
     a.remove();
 
-    setTimeout(function () {
-      URL.revokeObjectURL(url);
-    }, 1000);
+
+    setTimeout(
+      function () {
+
+        URL.revokeObjectURL(
+          url
+        );
+
+      },
+      1000
+    );
 
   }
 
 
   function loadImage(file) {
 
-    return new Promise(function (resolve, reject) {
+    return new Promise(
+      function (resolve, reject) {
 
-      const img =
-        new Image();
+        const img =
+          new Image();
 
-      const url =
-        URL.createObjectURL(file);
 
-      img.onload = function () {
+        const url =
+          URL.createObjectURL(
+            file
+          );
 
-        URL.revokeObjectURL(url);
 
-        resolve(img);
+        img.onload =
+          function () {
 
-      };
+            URL.revokeObjectURL(
+              url
+            );
 
-      img.onerror = function () {
+            resolve(img);
 
-        URL.revokeObjectURL(url);
+          };
 
-        reject(
-          new Error("Image could not be loaded.")
-        );
 
-      };
+        img.onerror =
+          function () {
 
-      img.src = url;
+            URL.revokeObjectURL(
+              url
+            );
 
-    });
+            reject(
+              new Error(
+                "Image could not be loaded."
+              )
+            );
+
+          };
+
+
+        img.src = url;
+
+      }
+    );
 
   }
 
@@ -404,29 +1052,41 @@ document.addEventListener("DOMContentLoaded", function () {
     quality = 0.85
   ) {
 
-    return new Promise(function (resolve, reject) {
+    return new Promise(
+      function (resolve, reject) {
 
-      canvas.toBlob(
-        function (blob) {
+        canvas.toBlob(
+          function (blob) {
 
-          if (!blob) {
-            reject(
-              new Error("Could not create image.")
-            );
-            return;
-          }
+            if (!blob) {
 
-          resolve(blob);
+              reject(
+                new Error(
+                  "Could not create image."
+                )
+              );
 
-        },
-        type,
-        quality
-      );
+              return;
 
-    });
+            }
+
+
+            resolve(blob);
+
+          },
+          type,
+          quality
+        );
+
+      }
+    );
 
   }
 
+
+  /* =======================================================
+     FILE DROP
+     ======================================================= */
 
   function createFileDrop(
     accept,
@@ -434,7 +1094,10 @@ document.addEventListener("DOMContentLoaded", function () {
   ) {
 
     const wrapper =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
+
 
     wrapper.innerHTML = `
 
@@ -449,70 +1112,123 @@ document.addEventListener("DOMContentLoaded", function () {
         </h4>
 
         <p>
-          Click here or drag and drop your file
+          Click here or drag and drop
         </p>
 
         <label class="file-select-button">
+
           Choose File
+
           <input
             type="file"
             accept="${accept}"
             ${multiple ? "multiple" : ""}
           >
+
         </label>
 
       </div>
 
     `;
 
+
     const drop =
-      wrapper.querySelector(".file-drop");
+      wrapper.querySelector(
+        ".file-drop"
+      );
+
 
     const input =
-      wrapper.querySelector("input");
+      wrapper.querySelector(
+        "input"
+      );
 
-    drop.addEventListener("dragover", function (event) {
 
-      event.preventDefault();
+    drop.addEventListener(
+      "dragover",
+      function (event) {
 
-      drop.classList.add("dragover");
+        event.preventDefault();
 
-    });
-
-    drop.addEventListener("dragleave", function () {
-
-      drop.classList.remove("dragover");
-
-    });
-
-    drop.addEventListener("drop", function (event) {
-
-      event.preventDefault();
-
-      drop.classList.remove("dragover");
-
-      if (event.dataTransfer.files.length) {
-
-        const dataTransfer =
-          new DataTransfer();
-
-        Array.from(event.dataTransfer.files)
-          .forEach(function (file) {
-
-            dataTransfer.items.add(file);
-
-          });
-
-        input.files =
-          dataTransfer.files;
-
-        input.dispatchEvent(
-          new Event("change")
+        drop.classList.add(
+          "dragover"
         );
 
       }
+    );
 
-    });
+
+    drop.addEventListener(
+      "dragleave",
+      function () {
+
+        drop.classList.remove(
+          "dragover"
+        );
+
+      }
+    );
+
+
+    drop.addEventListener(
+      "drop",
+      function (event) {
+
+        event.preventDefault();
+
+        drop.classList.remove(
+          "dragover"
+        );
+
+
+        if (
+          event.dataTransfer &&
+          event.dataTransfer.files.length
+        ) {
+
+          try {
+
+            const dataTransfer =
+              new DataTransfer();
+
+
+            Array.from(
+              event.dataTransfer.files
+            ).forEach(
+              function (file) {
+
+                dataTransfer.items.add(
+                  file
+                );
+
+              }
+            );
+
+
+            input.files =
+              dataTransfer.files;
+
+
+            input.dispatchEvent(
+              new Event(
+                "change"
+              )
+            );
+
+          } catch (error) {
+
+            console.warn(
+              "Drag/drop file assignment unavailable.",
+              error
+            );
+
+          }
+
+        }
+
+      }
+    );
+
 
     return {
       wrapper,
@@ -533,7 +1249,9 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
+
     toolContent.innerHTML = "";
+
 
     switch (tool) {
 
@@ -596,6 +1314,13 @@ document.addEventListener("DOMContentLoaded", function () {
       case "age":
         loadAge();
         break;
+
+      default:
+        showComingSoon(
+          toolData[tool]
+            ? toolData[tool].title
+            : "This Tool"
+        );
 
     }
 
@@ -660,9 +1385,14 @@ document.addEventListener("DOMContentLoaded", function () {
         "image/jpeg,image/png,image/webp"
       );
 
+
     document
-      .getElementById("compressorFile")
-      .appendChild(dropData.wrapper);
+      .getElementById(
+        "compressorFile"
+      )
+      .appendChild(
+        dropData.wrapper
+      );
 
 
     const quality =
@@ -670,10 +1400,12 @@ document.addEventListener("DOMContentLoaded", function () {
         "compressQuality"
       );
 
+
     const qualityValue =
       document.getElementById(
         "compressQualityValue"
       );
+
 
     quality.addEventListener(
       "input",
@@ -687,142 +1419,181 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     document
-      .getElementById("compressButton")
-      .addEventListener("click", async function () {
+      .getElementById(
+        "compressButton"
+      )
+      .addEventListener(
+        "click",
+        async function () {
 
-        const file =
-          dropData.input.files[0];
-
-        if (!file) {
-
-          alert("Please select an image first.");
-
-          return;
-
-        }
+          const file =
+            dropData.input.files[0];
 
 
-        try {
+          if (!file) {
 
-          const img =
-            await loadImage(file);
-
-          const canvas =
-            document.createElement("canvas");
-
-          canvas.width =
-            img.naturalWidth;
-
-          canvas.height =
-            img.naturalHeight;
-
-          const ctx =
-            canvas.getContext("2d");
-
-          ctx.drawImage(img, 0, 0);
-
-
-          const blob =
-            await canvasToBlob(
-              canvas,
-              "image/jpeg",
-              Number(quality.value) / 100
+            alert(
+              "Please select an image first."
             );
 
+            return;
 
-          const originalSize =
-            file.size;
+          }
 
-          const newSize =
-            blob.size;
 
-          const saved =
-            Math.max(
+          try {
+
+            const img =
+              await loadImage(
+                file
+              );
+
+
+            const canvas =
+              document.createElement(
+                "canvas"
+              );
+
+
+            canvas.width =
+              img.naturalWidth;
+
+            canvas.height =
+              img.naturalHeight;
+
+
+            const ctx =
+              canvas.getContext(
+                "2d"
+              );
+
+
+            ctx.drawImage(
+              img,
               0,
-              ((originalSize - newSize) /
-                originalSize) * 100
+              0
             );
 
 
-          document
-            .getElementById("compressResult")
-            .innerHTML = `
+            const blob =
+              await canvasToBlob(
+                canvas,
+                "image/jpeg",
+                Number(
+                  quality.value
+                ) / 100
+              );
 
-              <div class="result-box">
 
-                <h4>
-                  Compression Complete
-                </h4>
+            const originalSize =
+              file.size;
 
-                <div class="result-grid">
 
-                  <div class="result-item">
-                    <span>Original Size</span>
-                    <strong>
-                      ${formatKB(originalSize)}
-                    </strong>
+            const newSize =
+              blob.size;
+
+
+            const saved =
+              Math.max(
+                0,
+                (
+                  (
+                    originalSize -
+                    newSize
+                  ) /
+                  originalSize
+                ) * 100
+              );
+
+
+            document
+              .getElementById(
+                "compressResult"
+              )
+              .innerHTML = `
+
+                <div class="result-box">
+
+                  <h4>
+                    Compression Complete
+                  </h4>
+
+                  <div class="result-grid">
+
+                    <div class="result-item">
+                      <span>Original Size</span>
+                      <strong>
+                        ${formatKB(originalSize)}
+                      </strong>
+                    </div>
+
+                    <div class="result-item">
+                      <span>New Size</span>
+                      <strong>
+                        ${formatKB(newSize)}
+                      </strong>
+                    </div>
+
+                    <div class="result-item">
+                      <span>Saved</span>
+                      <strong>
+                        ${saved.toFixed(1)}%
+                      </strong>
+                    </div>
+
+                    <div class="result-item">
+                      <span>Quality</span>
+                      <strong>
+                        ${quality.value}%
+                      </strong>
+                    </div>
+
                   </div>
 
-                  <div class="result-item">
-                    <span>New Size</span>
-                    <strong>
-                      ${formatKB(newSize)}
-                    </strong>
-                  </div>
+                  <br>
 
-                  <div class="result-item">
-                    <span>Saved</span>
-                    <strong>
-                      ${saved.toFixed(1)}%
-                    </strong>
-                  </div>
-
-                  <div class="result-item">
-                    <span>Quality</span>
-                    <strong>
-                      ${quality.value}%
-                    </strong>
-                  </div>
+                  <button
+                    id="downloadCompressed"
+                    class="download-button"
+                  >
+                    ⬇ Download Compressed Image
+                  </button>
 
                 </div>
 
-                <br>
-
-                <button
-                  id="downloadCompressed"
-                  class="download-button"
-                >
-                  ⬇ Download Compressed Image
-                </button>
-
-              </div>
-
-            `;
+              `;
 
 
-          document
-            .getElementById("downloadCompressed")
-            .addEventListener(
-              "click",
-              function () {
+            document
+              .getElementById(
+                "downloadCompressed"
+              )
+              .addEventListener(
+                "click",
+                function () {
 
-                downloadBlob(
-                  blob,
-                  "manjeet-compressed.jpg"
-                );
+                  downloadBlob(
+                    blob,
+                    "manjeet-compressed.jpg"
+                  );
 
-              }
+                }
+              );
+
+          } catch (error) {
+
+            console.error(
+              error
             );
 
-        } catch (error) {
+            alert(
+              "Unable to compress this image."
+            );
 
-          alert(
-            "Unable to compress this image."
-          );
+          }
 
         }
-
-      });
+      );
 
   }
 
@@ -873,7 +1644,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-
         <label class="check-row">
 
           <input
@@ -885,7 +1655,6 @@ document.addEventListener("DOMContentLoaded", function () {
           Keep aspect ratio
 
         </label>
-
 
         <button
           id="resizeButton"
@@ -906,9 +1675,14 @@ document.addEventListener("DOMContentLoaded", function () {
         "image/jpeg,image/png,image/webp"
       );
 
+
     document
-      .getElementById("resizerFile")
-      .appendChild(dropData.wrapper);
+      .getElementById(
+        "resizerFile"
+      )
+      .appendChild(
+        dropData.wrapper
+      );
 
 
     let image = null;
@@ -921,22 +1695,38 @@ document.addEventListener("DOMContentLoaded", function () {
         const file =
           dropData.input.files[0];
 
+
         if (!file) {
           return;
         }
 
-        image =
-          await loadImage(file);
 
-        document.getElementById(
-          "resizeWidth"
-        ).value =
-          image.naturalWidth;
+        try {
 
-        document.getElementById(
-          "resizeHeight"
-        ).value =
-          image.naturalHeight;
+          image =
+            await loadImage(
+              file
+            );
+
+
+          document.getElementById(
+            "resizeWidth"
+          ).value =
+            image.naturalWidth;
+
+
+          document.getElementById(
+            "resizeHeight"
+          ).value =
+            image.naturalHeight;
+
+        } catch (error) {
+
+          alert(
+            "Unable to load image."
+          );
+
+        }
 
       }
     );
@@ -947,10 +1737,12 @@ document.addEventListener("DOMContentLoaded", function () {
         "resizeWidth"
       );
 
+
     const heightInput =
       document.getElementById(
         "resizeHeight"
       );
+
 
     const keepRatio =
       document.getElementById(
@@ -971,9 +1763,12 @@ document.addEventListener("DOMContentLoaded", function () {
             image.naturalHeight /
             image.naturalWidth;
 
+
           heightInput.value =
             Math.round(
-              Number(widthInput.value) * ratio
+              Number(
+                widthInput.value
+              ) * ratio
             );
 
         }
@@ -983,117 +1778,145 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     document
-      .getElementById("resizeButton")
-      .addEventListener("click", async function () {
+      .getElementById(
+        "resizeButton"
+      )
+      .addEventListener(
+        "click",
+        async function () {
 
-        if (!image) {
+          if (!image) {
 
-          alert("Please select an image first.");
+            alert(
+              "Please select an image first."
+            );
 
-          return;
+            return;
 
-        }
+          }
 
 
-        const width =
-          Math.max(
-            1,
-            Number(widthInput.value)
+          const width =
+            Math.max(
+              1,
+              Number(
+                widthInput.value
+              )
+            );
+
+
+          const height =
+            Math.max(
+              1,
+              Number(
+                heightInput.value
+              )
+            );
+
+
+          const canvas =
+            document.createElement(
+              "canvas"
+            );
+
+
+          canvas.width =
+            width;
+
+          canvas.height =
+            height;
+
+
+          const ctx =
+            canvas.getContext(
+              "2d"
+            );
+
+
+          ctx.drawImage(
+            image,
+            0,
+            0,
+            width,
+            height
           );
 
-        const height =
-          Math.max(
-            1,
-            Number(heightInput.value)
-          );
+
+          const blob =
+            await canvasToBlob(
+              canvas,
+              "image/jpeg",
+              0.90
+            );
 
 
-        const canvas =
-          document.createElement("canvas");
-
-        canvas.width = width;
-        canvas.height = height;
-
-        const ctx =
-          canvas.getContext("2d");
-
-        ctx.drawImage(
-          image,
-          0,
-          0,
-          width,
-          height
-        );
+          const url =
+            URL.createObjectURL(
+              blob
+            );
 
 
-        const blob =
-          await canvasToBlob(
-            canvas,
-            "image/jpeg",
-            0.90
-          );
+          document
+            .getElementById(
+              "resizeResult"
+            )
+            .innerHTML = `
 
+              <div class="result-box">
 
-        const url =
-          URL.createObjectURL(blob);
+                <h4>
+                  Image Resized
+                </h4>
 
+                <div class="preview-area">
 
-        document
-          .getElementById("resizeResult")
-          .innerHTML = `
+                  <div class="preview-card">
 
-            <div class="result-box">
+                    <span>
+                      Preview
+                    </span>
 
-              <h4>
-                Image Resized
-              </h4>
+                    <img
+                      src="${url}"
+                      alt="Resized image"
+                    >
 
-              <div class="preview-area">
-
-                <div class="preview-card">
-
-                  <span>
-                    Preview
-                  </span>
-
-                  <img
-                    src="${url}"
-                    alt="Resized image"
-                  >
+                  </div>
 
                 </div>
 
+                <br>
+
+                <button
+                  id="downloadResized"
+                  class="download-button"
+                >
+                  ⬇ Download Resized Image
+                </button>
+
               </div>
 
-              <br>
-
-              <button
-                id="downloadResized"
-                class="download-button"
-              >
-                ⬇ Download Resized Image
-              </button>
-
-            </div>
-
-          `;
+            `;
 
 
-        document
-          .getElementById("downloadResized")
-          .addEventListener(
-            "click",
-            function () {
+          document
+            .getElementById(
+              "downloadResized"
+            )
+            .addEventListener(
+              "click",
+              function () {
 
-              downloadBlob(
-                blob,
-                "manjeet-resized.jpg"
-              );
+                downloadBlob(
+                  blob,
+                  "manjeet-resized.jpg"
+                );
 
-            }
-          );
+              }
+            );
 
-      });
+        }
+      );
 
   }
 
@@ -1114,31 +1937,47 @@ document.addEventListener("DOMContentLoaded", function () {
 
           <div class="form-group">
             <label>X</label>
-            <input id="cropX" type="number" min="0" value="0">
+            <input
+              id="cropX"
+              type="number"
+              min="0"
+              value="0"
+            >
           </div>
 
           <div class="form-group">
             <label>Y</label>
-            <input id="cropY" type="number" min="0" value="0">
+            <input
+              id="cropY"
+              type="number"
+              min="0"
+              value="0"
+            >
           </div>
 
         </div>
-
 
         <div class="form-row">
 
           <div class="form-group">
             <label>Width</label>
-            <input id="cropW" type="number" min="1">
+            <input
+              id="cropW"
+              type="number"
+              min="1"
+            >
           </div>
 
           <div class="form-group">
             <label>Height</label>
-            <input id="cropH" type="number" min="1">
+            <input
+              id="cropH"
+              type="number"
+              min="1"
+            >
           </div>
 
         </div>
-
 
         <button
           id="cropButton"
@@ -1159,9 +1998,14 @@ document.addEventListener("DOMContentLoaded", function () {
         "image/jpeg,image/png,image/webp"
       );
 
+
     document
-      .getElementById("cropFile")
-      .appendChild(dropData.wrapper);
+      .getElementById(
+        "cropFile"
+      )
+      .appendChild(
+        dropData.wrapper
+      );
 
 
     let image = null;
@@ -1174,36 +2018,56 @@ document.addEventListener("DOMContentLoaded", function () {
         const file =
           dropData.input.files[0];
 
+
         if (!file) {
           return;
         }
 
-        image =
-          await loadImage(file);
 
-        document.getElementById(
-          "cropW"
-        ).value =
-          image.naturalWidth;
+        try {
 
-        document.getElementById(
-          "cropH"
-        ).value =
-          image.naturalHeight;
+          image =
+            await loadImage(
+              file
+            );
+
+
+          document.getElementById(
+            "cropW"
+          ).value =
+            image.naturalWidth;
+
+
+          document.getElementById(
+            "cropH"
+          ).value =
+            image.naturalHeight;
+
+        } catch (error) {
+
+          alert(
+            "Unable to load image."
+          );
+
+        }
 
       }
     );
 
 
     document
-      .getElementById("cropButton")
+      .getElementById(
+        "cropButton"
+      )
       .addEventListener(
         "click",
         async function () {
 
           if (!image) {
 
-            alert("Please select an image first.");
+            alert(
+              "Please select an image first."
+            );
 
             return;
 
@@ -1214,31 +2078,42 @@ document.addEventListener("DOMContentLoaded", function () {
             Math.max(
               0,
               Number(
-                document.getElementById("cropX").value
+                document.getElementById(
+                  "cropX"
+                ).value
               )
             );
+
 
           let y =
             Math.max(
               0,
               Number(
-                document.getElementById("cropY").value
+                document.getElementById(
+                  "cropY"
+                ).value
               )
             );
+
 
           let w =
             Math.max(
               1,
               Number(
-                document.getElementById("cropW").value
+                document.getElementById(
+                  "cropW"
+                ).value
               )
             );
+
 
           let h =
             Math.max(
               1,
               Number(
-                document.getElementById("cropH").value
+                document.getElementById(
+                  "cropH"
+                ).value
               )
             );
 
@@ -1249,17 +2124,20 @@ document.addEventListener("DOMContentLoaded", function () {
               image.naturalWidth - 1
             );
 
+
           y =
             Math.min(
               y,
               image.naturalHeight - 1
             );
 
+
           w =
             Math.min(
               w,
               image.naturalWidth - x
             );
+
 
           h =
             Math.min(
@@ -1269,13 +2147,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
           const canvas =
-            document.createElement("canvas");
+            document.createElement(
+              "canvas"
+            );
 
-          canvas.width = w;
-          canvas.height = h;
+
+          canvas.width =
+            w;
+
+          canvas.height =
+            h;
+
 
           const ctx =
-            canvas.getContext("2d");
+            canvas.getContext(
+              "2d"
+            );
+
 
           ctx.drawImage(
             image,
@@ -1299,11 +2187,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
           const url =
-            URL.createObjectURL(blob);
+            URL.createObjectURL(
+              blob
+            );
 
 
           document
-            .getElementById("cropResult")
+            .getElementById(
+              "cropResult"
+            )
             .innerHTML = `
 
               <div class="result-box">
@@ -1344,7 +2236,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
           document
-            .getElementById("downloadCrop")
+            .getElementById(
+              "downloadCrop"
+            )
             .addEventListener(
               "click",
               function () {
@@ -1399,7 +2293,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-
         <button
           id="convertButton"
           class="primary-button"
@@ -1419,13 +2312,20 @@ document.addEventListener("DOMContentLoaded", function () {
         "image/jpeg,image/png,image/webp"
       );
 
+
     document
-      .getElementById("converterFile")
-      .appendChild(dropData.wrapper);
+      .getElementById(
+        "converterFile"
+      )
+      .appendChild(
+        dropData.wrapper
+      );
 
 
     document
-      .getElementById("convertButton")
+      .getElementById(
+        "convertButton"
+      )
       .addEventListener(
         "click",
         async function () {
@@ -1433,105 +2333,142 @@ document.addEventListener("DOMContentLoaded", function () {
           const file =
             dropData.input.files[0];
 
+
           if (!file) {
 
-            alert("Please select an image first.");
+            alert(
+              "Please select an image first."
+            );
 
             return;
 
           }
 
 
-          const image =
-            await loadImage(file);
+          try {
+
+            const image =
+              await loadImage(
+                file
+              );
 
 
-          const canvas =
-            document.createElement("canvas");
-
-          canvas.width =
-            image.naturalWidth;
-
-          canvas.height =
-            image.naturalHeight;
+            const canvas =
+              document.createElement(
+                "canvas"
+              );
 
 
-          const ctx =
-            canvas.getContext("2d");
+            canvas.width =
+              image.naturalWidth;
 
-          ctx.drawImage(
-            image,
-            0,
-            0
-          );
+            canvas.height =
+              image.naturalHeight;
 
 
-          const type =
-            document.getElementById(
-              "convertType"
-            ).value;
+            const ctx =
+              canvas.getContext(
+                "2d"
+              );
 
 
-          const blob =
-            await canvasToBlob(
-              canvas,
-              type,
-              0.92
+            ctx.drawImage(
+              image,
+              0,
+              0
             );
 
 
-          let extension = "jpg";
-
-          if (type === "image/png") {
-            extension = "png";
-          }
-
-          if (type === "image/webp") {
-            extension = "webp";
-          }
+            const type =
+              document.getElementById(
+                "convertType"
+              ).value;
 
 
-          document
-            .getElementById("convertResult")
-            .innerHTML = `
-
-              <div class="result-box">
-
-                <h4>
-                  Conversion Complete
-                </h4>
-
-                <p>
-                  Format: ${extension.toUpperCase()}
-                </p>
-
-                <br>
-
-                <button
-                  id="downloadConverted"
-                  class="download-button"
-                >
-                  ⬇ Download ${extension.toUpperCase()}
-                </button>
-
-              </div>
-
-            `;
+            const blob =
+              await canvasToBlob(
+                canvas,
+                type,
+                0.92
+              );
 
 
-          document
-            .getElementById("downloadConverted")
-            .addEventListener(
-              "click",
-              function () {
+            let extension =
+              "jpg";
 
-                downloadBlob(
-                  blob,
-                  "manjeet-converted." + extension
-                );
 
-              }
+            if (
+              type ===
+              "image/png"
+            ) {
+              extension = "png";
+            }
+
+
+            if (
+              type ===
+              "image/webp"
+            ) {
+              extension = "webp";
+            }
+
+
+            document
+              .getElementById(
+                "convertResult"
+              )
+              .innerHTML = `
+
+                <div class="result-box">
+
+                  <h4>
+                    Conversion Complete
+                  </h4>
+
+                  <p>
+                    Format:
+                    ${extension.toUpperCase()}
+                  </p>
+
+                  <br>
+
+                  <button
+                    id="downloadConverted"
+                    class="download-button"
+                  >
+                    ⬇ Download
+                    ${extension.toUpperCase()}
+                  </button>
+
+                </div>
+
+              `;
+
+
+            document
+              .getElementById(
+                "downloadConverted"
+              )
+              .addEventListener(
+                "click",
+                function () {
+
+                  downloadBlob(
+                    blob,
+                    "manjeet-converted." +
+                    extension
+                  );
+
+                }
+              );
+
+          } catch (error) {
+
+            alert(
+              "Unable to convert image."
             );
+
+          }
 
         }
       );
@@ -1566,7 +2503,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-
         <button
           id="reduceButton"
           class="primary-button"
@@ -1586,13 +2522,20 @@ document.addEventListener("DOMContentLoaded", function () {
         "image/jpeg,image/png,image/webp"
       );
 
+
     document
-      .getElementById("reducerFile")
-      .appendChild(dropData.wrapper);
+      .getElementById(
+        "reducerFile"
+      )
+      .appendChild(
+        dropData.wrapper
+      );
 
 
     document
-      .getElementById("reduceButton")
+      .getElementById(
+        "reduceButton"
+      )
       .addEventListener(
         "click",
         async function () {
@@ -1600,161 +2543,201 @@ document.addEventListener("DOMContentLoaded", function () {
           const file =
             dropData.input.files[0];
 
+
           if (!file) {
 
-            alert("Please select an image first.");
+            alert(
+              "Please select an image first."
+            );
 
             return;
 
           }
 
 
-          const target =
-            Math.max(
-              5,
-              Number(
-                document.getElementById(
-                  "targetKB"
-                ).value
-              )
-            ) * 1024;
+          try {
+
+            const target =
+              Math.max(
+                5,
+                Number(
+                  document.getElementById(
+                    "targetKB"
+                  ).value
+                )
+              ) * 1024;
 
 
-          const image =
-            await loadImage(file);
-
-
-          const canvas =
-            document.createElement("canvas");
-
-          canvas.width =
-            image.naturalWidth;
-
-          canvas.height =
-            image.naturalHeight;
-
-          const ctx =
-            canvas.getContext("2d");
-
-          ctx.drawImage(
-            image,
-            0,
-            0
-          );
-
-
-          let low = 0.05;
-          let high = 0.95;
-
-          let bestBlob = null;
-
-
-          for (let i = 0; i < 9; i++) {
-
-            const quality =
-              (low + high) / 2;
-
-            const blob =
-              await canvasToBlob(
-                canvas,
-                "image/jpeg",
-                quality
+            const image =
+              await loadImage(
+                file
               );
 
 
-            if (blob.size <= target) {
+            const canvas =
+              document.createElement(
+                "canvas"
+              );
 
-              bestBlob = blob;
 
-              low = quality;
+            canvas.width =
+              image.naturalWidth;
 
-            } else {
+            canvas.height =
+              image.naturalHeight;
 
-              high = quality;
+
+            const ctx =
+              canvas.getContext(
+                "2d"
+              );
+
+
+            ctx.drawImage(
+              image,
+              0,
+              0
+            );
+
+
+            let low = 0.05;
+
+            let high = 0.95;
+
+            let bestBlob = null;
+
+
+            for (
+              let i = 0;
+              i < 10;
+              i++
+            ) {
+
+              const quality =
+                (
+                  low +
+                  high
+                ) / 2;
+
+
+              const blob =
+                await canvasToBlob(
+                  canvas,
+                  "image/jpeg",
+                  quality
+                );
+
+
+              if (
+                blob.size <=
+                target
+              ) {
+
+                bestBlob =
+                  blob;
+
+                low =
+                  quality;
+
+              } else {
+
+                high =
+                  quality;
+
+              }
 
             }
 
-          }
+
+            if (!bestBlob) {
+
+              bestBlob =
+                await canvasToBlob(
+                  canvas,
+                  "image/jpeg",
+                  0.05
+                );
+
+            }
 
 
-          if (!bestBlob) {
+            document
+              .getElementById(
+                "reduceResult"
+              )
+              .innerHTML = `
 
-            bestBlob =
-              await canvasToBlob(
-                canvas,
-                "image/jpeg",
-                0.05
-              );
+                <div class="result-box">
 
-          }
+                  <h4>
+                    Photo Size Reduced
+                  </h4>
 
+                  <div class="result-grid">
 
-          document
-            .getElementById("reduceResult")
-            .innerHTML = `
+                    <div class="result-item">
 
-              <div class="result-box">
+                      <span>
+                        Original
+                      </span>
 
-                <h4>
-                  Photo Size Reduced
-                </h4>
+                      <strong>
+                        ${formatKB(file.size)}
+                      </strong>
 
-                <div class="result-grid">
+                    </div>
 
-                  <div class="result-item">
+                    <div class="result-item">
 
-                    <span>
-                      Original
-                    </span>
+                      <span>
+                        New Size
+                      </span>
 
-                    <strong>
-                      ${formatKB(file.size)}
-                    </strong>
+                      <strong>
+                        ${formatKB(bestBlob.size)}
+                      </strong>
+
+                    </div>
 
                   </div>
 
+                  <br>
 
-                  <div class="result-item">
-
-                    <span>
-                      New Size
-                    </span>
-
-                    <strong>
-                      ${formatKB(bestBlob.size)}
-                    </strong>
-
-                  </div>
+                  <button
+                    id="downloadReduced"
+                    class="download-button"
+                  >
+                    ⬇ Download Reduced Photo
+                  </button>
 
                 </div>
 
-                <br>
-
-                <button
-                  id="downloadReduced"
-                  class="download-button"
-                >
-                  ⬇ Download Reduced Photo
-                </button>
-
-              </div>
-
-            `;
+              `;
 
 
-          document
-            .getElementById("downloadReduced")
-            .addEventListener(
-              "click",
-              function () {
+            document
+              .getElementById(
+                "downloadReduced"
+              )
+              .addEventListener(
+                "click",
+                function () {
 
-                downloadBlob(
-                  bestBlob,
-                  "manjeet-reduced.jpg"
-                );
+                  downloadBlob(
+                    bestBlob,
+                    "manjeet-reduced.jpg"
+                  );
 
-              }
+                }
+              );
+
+          } catch (error) {
+
+            alert(
+              "Unable to reduce image size."
             );
+
+          }
 
         }
       );
@@ -1806,7 +2789,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-
         <button
           id="socialButton"
           class="primary-button"
@@ -1826,13 +2808,20 @@ document.addEventListener("DOMContentLoaded", function () {
         "image/jpeg,image/png,image/webp"
       );
 
+
     document
-      .getElementById("socialFile")
-      .appendChild(dropData.wrapper);
+      .getElementById(
+        "socialFile"
+      )
+      .appendChild(
+        dropData.wrapper
+      );
 
 
     document
-      .getElementById("socialButton")
+      .getElementById(
+        "socialButton"
+      )
       .addEventListener(
         "click",
         async function () {
@@ -1840,166 +2829,216 @@ document.addEventListener("DOMContentLoaded", function () {
           const file =
             dropData.input.files[0];
 
+
           if (!file) {
 
-            alert("Please select an image first.");
+            alert(
+              "Please select an image first."
+            );
 
             return;
 
           }
 
 
-          const image =
-            await loadImage(file);
+          try {
+
+            const image =
+              await loadImage(
+                file
+              );
 
 
-          const parts =
-            document
-              .getElementById("socialSize")
-              .value
-              .split(",");
+            const parts =
+              document
+                .getElementById(
+                  "socialSize"
+                )
+                .value
+                .split(",");
 
 
-          const targetW =
-            Number(parts[0]);
-
-          const targetH =
-            Number(parts[1]);
+            const targetW =
+              Number(parts[0]);
 
 
-          const canvas =
-            document.createElement("canvas");
-
-          canvas.width =
-            targetW;
-
-          canvas.height =
-            targetH;
+            const targetH =
+              Number(parts[1]);
 
 
-          const ctx =
-            canvas.getContext("2d");
+            const canvas =
+              document.createElement(
+                "canvas"
+              );
 
 
-          const sourceRatio =
-            image.naturalWidth /
-            image.naturalHeight;
-
-          const targetRatio =
-            targetW /
-            targetH;
-
-
-          let drawW;
-          let drawH;
-          let offsetX;
-          let offsetY;
-
-
-          if (sourceRatio > targetRatio) {
-
-            drawH =
-              targetH;
-
-            drawW =
-              targetH * sourceRatio;
-
-            offsetX =
-              (targetW - drawW) / 2;
-
-            offsetY = 0;
-
-          } else {
-
-            drawW =
+            canvas.width =
               targetW;
 
-            drawH =
-              targetW / sourceRatio;
-
-            offsetX = 0;
-
-            offsetY =
-              (targetH - drawH) / 2;
-
-          }
+            canvas.height =
+              targetH;
 
 
-          ctx.drawImage(
-            image,
-            offsetX,
-            offsetY,
-            drawW,
-            drawH
-          );
+            const ctx =
+              canvas.getContext(
+                "2d"
+              );
 
 
-          const blob =
-            await canvasToBlob(
-              canvas,
-              "image/jpeg",
-              0.92
+            const sourceRatio =
+              image.naturalWidth /
+              image.naturalHeight;
+
+
+            const targetRatio =
+              targetW /
+              targetH;
+
+
+            let drawW;
+
+            let drawH;
+
+            let offsetX;
+
+            let offsetY;
+
+
+            if (
+              sourceRatio >
+              targetRatio
+            ) {
+
+              drawH =
+                targetH;
+
+
+              drawW =
+                targetH *
+                sourceRatio;
+
+
+              offsetX =
+                (
+                  targetW -
+                  drawW
+                ) / 2;
+
+
+              offsetY = 0;
+
+            } else {
+
+              drawW =
+                targetW;
+
+
+              drawH =
+                targetW /
+                sourceRatio;
+
+
+              offsetX = 0;
+
+
+              offsetY =
+                (
+                  targetH -
+                  drawH
+                ) / 2;
+
+            }
+
+
+            ctx.drawImage(
+              image,
+              offsetX,
+              offsetY,
+              drawW,
+              drawH
             );
 
 
-          const url =
-            URL.createObjectURL(blob);
+            const blob =
+              await canvasToBlob(
+                canvas,
+                "image/jpeg",
+                0.92
+              );
 
 
-          document
-            .getElementById("socialResult")
-            .innerHTML = `
+            const url =
+              URL.createObjectURL(
+                blob
+              );
 
-              <div class="result-box">
 
-                <h4>
-                  Social Media Image Ready
-                </h4>
+            document
+              .getElementById(
+                "socialResult"
+              )
+              .innerHTML = `
 
-                <div class="preview-area">
+                <div class="result-box">
 
-                  <div class="preview-card">
+                  <h4>
+                    Social Media Image Ready
+                  </h4>
 
-                    <span>
-                      ${targetW} × ${targetH}
-                    </span>
+                  <div class="preview-area">
 
-                    <img
-                      src="${url}"
-                      alt="Social media image"
-                    >
+                    <div class="preview-card">
+
+                      <span>
+                        ${targetW} × ${targetH}
+                      </span>
+
+                      <img
+                        src="${url}"
+                        alt="Social media image"
+                      >
+
+                    </div>
 
                   </div>
 
+                  <br>
+
+                  <button
+                    id="downloadSocial"
+                    class="download-button"
+                  >
+                    ⬇ Download Image
+                  </button>
+
                 </div>
 
-                <br>
-
-                <button
-                  id="downloadSocial"
-                  class="download-button"
-                >
-                  ⬇ Download Image
-                </button>
-
-              </div>
-
-            `;
+              `;
 
 
-          document
-            .getElementById("downloadSocial")
-            .addEventListener(
-              "click",
-              function () {
+            document
+              .getElementById(
+                "downloadSocial"
+              )
+              .addEventListener(
+                "click",
+                function () {
 
-                downloadBlob(
-                  blob,
-                  "manjeet-social-image.jpg"
-                );
+                  downloadBlob(
+                    blob,
+                    "manjeet-social-image.jpg"
+                  );
 
-              }
+                }
+              );
+
+          } catch (error) {
+
+            alert(
+              "Unable to resize image."
             );
+
+          }
 
         }
       );
@@ -2026,9 +3065,9 @@ document.addEventListener("DOMContentLoaded", function () {
           </h4>
 
           <p>
-            Select multiple images. A print-ready PDF
-            window will open. Choose "Save as PDF"
-            from your browser's print options.
+            Select multiple images.
+            A print-ready PDF window will open.
+            Choose "Save as PDF".
           </p>
 
         </div>
@@ -2053,13 +3092,20 @@ document.addEventListener("DOMContentLoaded", function () {
         true
       );
 
+
     document
-      .getElementById("pdfFile")
-      .appendChild(dropData.wrapper);
+      .getElementById(
+        "pdfFile"
+      )
+      .appendChild(
+        dropData.wrapper
+      );
 
 
     document
-      .getElementById("pdfButton")
+      .getElementById(
+        "pdfButton"
+      )
       .addEventListener(
         "click",
         async function () {
@@ -2108,7 +3154,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <head>
 
               <title>
-                Manjeet Tools - Images to PDF
+                Manjeet Digital Hub - Images to PDF
               </title>
 
               <style>
@@ -2164,13 +3210,21 @@ document.addEventListener("DOMContentLoaded", function () {
           `);
 
 
-          for (const file of files) {
+          for (
+            const file of files
+          ) {
 
             const image =
-              await loadImage(file);
+              await loadImage(
+                file
+              );
+
 
             const canvas =
-              document.createElement("canvas");
+              document.createElement(
+                "canvas"
+              );
+
 
             canvas.width =
               image.naturalWidth;
@@ -2178,8 +3232,12 @@ document.addEventListener("DOMContentLoaded", function () {
             canvas.height =
               image.naturalHeight;
 
+
             const ctx =
-              canvas.getContext("2d");
+              canvas.getContext(
+                "2d"
+              );
+
 
             ctx.drawImage(
               image,
@@ -2201,6 +3259,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 <img
                   src="${dataURL}"
+                  alt="PDF page"
                 >
 
               </div>
@@ -2240,13 +3299,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
           document
-            .getElementById("pdfResult")
+            .getElementById(
+              "pdfResult"
+            )
             .innerHTML = `
 
               <div class="result-box">
 
                 <p>
-                  PDF print window opened successfully.
+                  PDF print window opened.
                   Select <strong>Save as PDF</strong>.
                 </p>
 
@@ -2283,14 +3344,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-
         <button
           id="qrButton"
           class="primary-button"
         >
           Generate QR Code
         </button>
-
 
         <div
           id="qrResult"
@@ -2303,14 +3362,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     document
-      .getElementById("qrButton")
+      .getElementById(
+        "qrButton"
+      )
       .addEventListener(
         "click",
         function () {
 
           const text =
             document
-              .getElementById("qrText")
+              .getElementById(
+                "qrText"
+              )
               .value
               .trim();
 
@@ -2329,11 +3392,15 @@ document.addEventListener("DOMContentLoaded", function () {
           const qrURL =
             "https://api.qrserver.com/v1/create-qr-code/?" +
             "size=500x500&data=" +
-            encodeURIComponent(text);
+            encodeURIComponent(
+              text
+            );
 
 
           document
-            .getElementById("qrResult")
+            .getElementById(
+              "qrResult"
+            )
             .innerHTML = `
 
               <img
@@ -2381,7 +3448,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-
         <div
           id="wordStats"
           class="result-box"
@@ -2390,23 +3456,59 @@ document.addEventListener("DOMContentLoaded", function () {
           <div class="result-grid">
 
             <div class="result-item">
-              <span>Words</span>
-              <strong id="wordCount">0</strong>
+
+              <span>
+                Words
+              </span>
+
+              <strong
+                id="wordCount"
+              >
+                0
+              </strong>
+
             </div>
 
             <div class="result-item">
-              <span>Characters</span>
-              <strong id="charCount">0</strong>
+
+              <span>
+                Characters
+              </span>
+
+              <strong
+                id="charCount"
+              >
+                0
+              </strong>
+
             </div>
 
             <div class="result-item">
-              <span>No Spaces</span>
-              <strong id="charNoSpace">0</strong>
+
+              <span>
+                No Spaces
+              </span>
+
+              <strong
+                id="charNoSpace"
+              >
+                0
+              </strong>
+
             </div>
 
             <div class="result-item">
-              <span>Sentences</span>
-              <strong id="sentenceCount">0</strong>
+
+              <span>
+                Sentences
+              </span>
+
+              <strong
+                id="sentenceCount"
+              >
+                0
+              </strong>
+
             </div>
 
           </div>
@@ -2419,7 +3521,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     const textarea =
-      document.getElementById("wordText");
+      document.getElementById(
+        "wordText"
+      );
 
 
     textarea.addEventListener(
@@ -2441,7 +3545,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
         const noSpaces =
-          text.replace(/\s/g, "").length;
+          text.replace(
+            /\s/g,
+            ""
+          ).length;
 
 
         const sentences =
@@ -2506,7 +3613,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-
         <div class="form-row">
 
           <button
@@ -2524,7 +3630,6 @@ document.addEventListener("DOMContentLoaded", function () {
           </button>
 
         </div>
-
 
         <div class="form-row">
 
@@ -2544,7 +3649,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-
         <button
           id="copyCase"
           class="secondary-button"
@@ -2558,11 +3662,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     const textarea =
-      document.getElementById("caseText");
+      document.getElementById(
+        "caseText"
+      );
 
 
     document
-      .getElementById("upperCase")
+      .getElementById(
+        "upperCase"
+      )
       .addEventListener(
         "click",
         function () {
@@ -2575,7 +3683,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     document
-      .getElementById("lowerCase")
+      .getElementById(
+        "lowerCase"
+      )
       .addEventListener(
         "click",
         function () {
@@ -2588,7 +3698,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     document
-      .getElementById("titleCase")
+      .getElementById(
+        "titleCase"
+      )
       .addEventListener(
         "click",
         function () {
@@ -2599,7 +3711,9 @@ document.addEventListener("DOMContentLoaded", function () {
               .replace(
                 /\b\w/g,
                 function (letter) {
+
                   return letter.toUpperCase();
+
                 }
               );
 
@@ -2608,7 +3722,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     document
-      .getElementById("sentenceCase")
+      .getElementById(
+        "sentenceCase"
+      )
       .addEventListener(
         "click",
         function () {
@@ -2619,7 +3735,9 @@ document.addEventListener("DOMContentLoaded", function () {
               .replace(
                 /(^\s*\w|[.!?]\s*\w)/g,
                 function (match) {
+
                   return match.toUpperCase();
+
                 }
               );
 
@@ -2628,7 +3746,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     document
-      .getElementById("copyCase")
+      .getElementById(
+        "copyCase"
+      )
       .addEventListener(
         "click",
         async function () {
@@ -2639,13 +3759,17 @@ document.addEventListener("DOMContentLoaded", function () {
               textarea.value
             );
 
+
             this.textContent =
               "✓ Copied";
 
+
             setTimeout(
               () => {
+
                 this.textContent =
                   "📋 Copy Text";
+
               },
               1500
             );
@@ -2654,7 +3778,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
             textarea.select();
 
-            document.execCommand("copy");
+            document.execCommand(
+              "copy"
+            );
 
           }
 
@@ -2689,7 +3815,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
           </div>
 
-
           <div class="form-group">
 
             <label>
@@ -2705,7 +3830,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-
         <div class="form-row">
 
           <div class="form-group">
@@ -2720,7 +3844,6 @@ document.addEventListener("DOMContentLoaded", function () {
             >
 
           </div>
-
 
           <div class="form-group">
 
@@ -2739,14 +3862,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-
         <button
           id="generateInvoice"
           class="primary-button"
         >
           Generate Invoice
         </button>
-
 
         <div id="invoiceResult"></div>
 
@@ -2756,7 +3877,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     document
-      .getElementById("generateInvoice")
+      .getElementById(
+        "generateInvoice"
+      )
       .addEventListener(
         "click",
         function () {
@@ -2791,7 +3914,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
           document
-            .getElementById("invoiceResult")
+            .getElementById(
+              "invoiceResult"
+            )
             .innerHTML = `
 
               <div class="invoice-preview">
@@ -2805,7 +3930,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     </h2>
 
                     <p>
-                      ${escapeHTML(business)}
+                      ${escapeHTML(
+                        business
+                      )}
                     </p>
 
                   </div>
@@ -2814,23 +3941,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     <p>
                       Date:
-                      ${new Date().toLocaleDateString("en-IN")}
+                      ${new Date().toLocaleDateString(
+                        "en-IN"
+                      )}
                     </p>
 
                   </div>
 
                 </div>
 
-
                 <br>
 
                 <p>
+
                   <strong>
                     Bill To:
                   </strong>
-                  ${escapeHTML(customer)}
-                </p>
 
+                  ${escapeHTML(
+                    customer
+                  )}
+
+                </p>
 
                 <table class="invoice-items">
 
@@ -2855,11 +3987,15 @@ document.addEventListener("DOMContentLoaded", function () {
                     <tr>
 
                       <td>
-                        ${escapeHTML(item)}
+                        ${escapeHTML(
+                          item
+                        )}
                       </td>
 
                       <td>
-                        ₹${formatNumber(amount)}
+                        ₹${formatNumber(
+                          amount
+                        )}
                       </td>
 
                     </tr>
@@ -2867,7 +4003,6 @@ document.addEventListener("DOMContentLoaded", function () {
                   </tbody>
 
                 </table>
-
 
                 <div class="invoice-total">
 
@@ -2878,13 +4013,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     </span>
 
                     <strong>
-                      ₹${formatNumber(amount)}
+                      ₹${formatNumber(
+                        amount
+                      )}
                     </strong>
 
                   </div>
 
                 </div>
-
 
                 <br>
 
@@ -2901,7 +4037,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
           document
-            .getElementById("printInvoice")
+            .getElementById(
+              "printInvoice"
+            )
             .addEventListener(
               "click",
               function () {
@@ -2957,7 +4095,7 @@ document.addEventListener("DOMContentLoaded", function () {
       <head>
 
         <title>
-          Invoice
+          Manjeet Digital Hub - Invoice
         </title>
 
         <style>
@@ -3023,6 +4161,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     printWindow.focus();
 
+
     setTimeout(
       function () {
 
@@ -3062,7 +4201,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
           </div>
 
-
           <div class="form-group">
 
             <label>
@@ -3081,7 +4219,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-
         <div class="form-group">
 
           <label>
@@ -3097,14 +4234,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         </div>
 
-
         <button
           id="emiButton"
           class="primary-button"
         >
           Calculate EMI
         </button>
-
 
         <div id="emiResult"></div>
 
@@ -3114,7 +4249,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     document
-      .getElementById("emiButton")
+      .getElementById(
+        "emiButton"
+      )
       .addEventListener(
         "click",
         function () {
@@ -3163,16 +4300,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
           const monthlyRate =
-            annualRate / 12 / 100;
+            annualRate /
+            12 /
+            100;
 
 
           let emi;
 
 
-          if (monthlyRate === 0) {
+          if (
+            monthlyRate === 0
+          ) {
 
             emi =
-              principal / months;
+              principal /
+              months;
 
           } else {
 
@@ -3181,574 +4323,4 @@ document.addEventListener("DOMContentLoaded", function () {
               monthlyRate *
               Math.pow(
                 1 + monthlyRate,
-                months
-              ) /
-              (
-                Math.pow(
-                  1 + monthlyRate,
-                  months
-                ) - 1
-              );
-
-          }
-
-
-          const totalPayment =
-            emi * months;
-
-
-          const totalInterest =
-            totalPayment - principal;
-
-
-          document
-            .getElementById("emiResult")
-            .innerHTML = `
-
-              <div class="calculator-result">
-
-                <div class="result-label">
-                  Monthly EMI
-                </div>
-
-                <div class="main-value">
-                  ₹${formatNumber(emi)}
-                </div>
-
-              </div>
-
-
-              <div class="result-grid">
-
-                <div class="result-item">
-
-                  <span>
-                    Principal
-                  </span>
-
-                  <strong>
-                    ₹${formatNumber(principal)}
-                  </strong>
-
-                </div>
-
-
-                <div class="result-item">
-
-                  <span>
-                    Total Interest
-                  </span>
-
-                  <strong>
-                    ₹${formatNumber(totalInterest)}
-                  </strong>
-
-                </div>
-
-
-                <div class="result-item">
-
-                  <span>
-                    Total Payment
-                  </span>
-
-                  <strong>
-                    ₹${formatNumber(totalPayment)}
-                  </strong>
-
-                </div>
-
-
-                <div class="result-item">
-
-                  <span>
-                    Tenure
-                  </span>
-
-                  <strong>
-                    ${years} Years
-                  </strong>
-
-                </div>
-
-              </div>
-
-            `;
-
-        }
-      );
-
-  }
-
-
-  /* =======================================================
-     13. GST CALCULATOR
-     ======================================================= */
-
-  function loadGST() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-row">
-
-          <div class="form-group">
-
-            <label>
-              Amount (₹)
-            </label>
-
-            <input
-              id="gstAmount"
-              type="number"
-              min="0"
-              value="10000"
-            >
-
-          </div>
-
-
-          <div class="form-group">
-
-            <label>
-              GST Rate (%)
-            </label>
-
-            <select id="gstRate">
-
-              <option value="0">
-                0%
-              </option>
-
-              <option value="5">
-                5%
-              </option>
-
-              <option value="12">
-                12%
-              </option>
-
-              <option value="18" selected>
-                18%
-              </option>
-
-              <option value="28">
-                28%
-              </option>
-
-            </select>
-
-          </div>
-
-        </div>
-
-
-        <button
-          id="gstButton"
-          class="primary-button"
-        >
-          Calculate GST
-        </button>
-
-
-        <div id="gstResult"></div>
-
-      </div>
-
-    `;
-
-
-    document
-      .getElementById("gstButton")
-      .addEventListener(
-        "click",
-        function () {
-
-          const amount =
-            Number(
-              document.getElementById(
-                "gstAmount"
-              ).value
-            );
-
-
-          const rate =
-            Number(
-              document.getElementById(
-                "gstRate"
-              ).value
-            );
-
-
-          if (amount < 0) {
-
-            alert(
-              "Please enter a valid amount."
-            );
-
-            return;
-
-          }
-
-
-          const gst =
-            amount * rate / 100;
-
-
-          const total =
-            amount + gst;
-
-
-          document
-            .getElementById("gstResult")
-            .innerHTML = `
-
-              <div class="result-box">
-
-                <h4>
-                  GST Calculation
-                </h4>
-
-                <div class="result-grid">
-
-                  <div class="result-item">
-
-                    <span>
-                      Amount
-                    </span>
-
-                    <strong>
-                      ₹${formatNumber(amount)}
-                    </strong>
-
-                  </div>
-
-
-                  <div class="result-item">
-
-                    <span>
-                      GST (${rate}%)
-                    </span>
-
-                    <strong>
-                      ₹${formatNumber(gst)}
-                    </strong>
-
-                  </div>
-
-
-                  <div class="result-item">
-
-                    <span>
-                      Final Total
-                    </span>
-
-                    <strong>
-                      ₹${formatNumber(total)}
-                    </strong>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-            `;
-
-        }
-      );
-
-  }
-
-
-  /* =======================================================
-     14. PERCENTAGE CALCULATOR
-     ======================================================= */
-
-  function loadPercentage() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-row">
-
-          <div class="form-group">
-
-            <label>
-              Percentage (%)
-            </label>
-
-            <input
-              id="percentValue"
-              type="number"
-              value="10"
-            >
-
-          </div>
-
-
-          <div class="form-group">
-
-            <label>
-              Number
-            </label>
-
-            <input
-              id="percentNumber"
-              type="number"
-              value="1000"
-            >
-
-          </div>
-
-        </div>
-
-
-        <button
-          id="percentageButton"
-          class="primary-button"
-        >
-          Calculate
-        </button>
-
-
-        <div id="percentageResult"></div>
-
-      </div>
-
-    `;
-
-
-    document
-      .getElementById("percentageButton")
-      .addEventListener(
-        "click",
-        function () {
-
-          const percent =
-            Number(
-              document.getElementById(
-                "percentValue"
-              ).value
-            );
-
-
-          const number =
-            Number(
-              document.getElementById(
-                "percentNumber"
-              ).value
-            );
-
-
-          const result =
-            percent * number / 100;
-
-
-          document
-            .getElementById(
-              "percentageResult"
-            )
-            .innerHTML = `
-
-              <div class="calculator-result">
-
-                <div class="result-label">
-                  Result
-                </div>
-
-                <div class="main-value">
-                  ${formatNumber(result)}
-                </div>
-
-                <p>
-                  ${percent}% of
-                  ${formatNumber(number)}
-                </p>
-
-              </div>
-
-            `;
-
-        }
-      );
-
-  }
-
-
-  /* =======================================================
-     15. AGE CALCULATOR
-     ======================================================= */
-
-  function loadAge() {
-
-    toolContent.innerHTML = `
-
-      <div class="tool-form">
-
-        <div class="form-group">
-
-          <label>
-            Date of Birth
-          </label>
-
-          <input
-            id="dob"
-            type="date"
-          >
-
-        </div>
-
-
-        <button
-          id="ageButton"
-          class="primary-button"
-        >
-          Calculate Age
-        </button>
-
-
-        <div id="ageResult"></div>
-
-      </div>
-
-    `;
-
-
-    const dobInput =
-      document.getElementById("dob");
-
-
-    const today =
-      new Date();
-
-
-    dobInput.max =
-      today.toISOString().split("T")[0];
-
-
-    document
-      .getElementById("ageButton")
-      .addEventListener(
-        "click",
-        function () {
-
-          if (!dobInput.value) {
-
-            alert(
-              "Please select your date of birth."
-            );
-
-            return;
-
-          }
-
-
-          const dob =
-            new Date(
-              dobInput.value + "T00:00:00"
-            );
-
-
-          const now =
-            new Date();
-
-
-          if (dob > now) {
-
-            alert(
-              "Date of birth cannot be in the future."
-            );
-
-            return;
-
-          }
-
-
-          let years =
-            now.getFullYear() -
-            dob.getFullYear();
-
-
-          let months =
-            now.getMonth() -
-            dob.getMonth();
-
-
-          let days =
-            now.getDate() -
-            dob.getDate();
-
-
-          if (days < 0) {
-
-            months--;
-
-            const previousMonth =
-              new Date(
-                now.getFullYear(),
-                now.getMonth(),
-                0
-              );
-
-            days +=
-              previousMonth.getDate();
-
-          }
-
-
-          if (months < 0) {
-
-            years--;
-
-            months += 12;
-
-          }
-
-
-          document
-            .getElementById("ageResult")
-            .innerHTML = `
-
-              <div class="calculator-result">
-
-                <div class="result-label">
-                  Your Exact Age
-                </div>
-
-                <div class="main-value">
-
-                  ${years}
-                  Years
-
-                </div>
-
-                <p>
-
-                  ${months} Months
-                  and
-                  ${days} Days
-
-                </p>
-
-              </div>
-
-            `;
-
-        }
-      );
-
-  }
-
-
-  /* =======================================================
-     INITIAL MESSAGE
-     ======================================================= */
-
-  console.log(
-    "Manjeet Tools loaded successfully."
-  );
-
-});
+               
