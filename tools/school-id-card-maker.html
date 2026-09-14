@@ -2,14 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>School ID Card Maker – Manjeet Digital Hub</title>
 
 <meta name="description"
-      content="Create professional school ID cards online with ready-made templates, student photo, school logo, front and back design and A4 print sheet.">
+content="Create professional school ID cards online with ready-made templates, student photo, school logo, front and back design and print-ready layout.">
 
 <meta name="theme-color" content="#2563eb">
 
@@ -30,7 +28,8 @@ body{
 
 button,
 input,
-select{
+select,
+textarea{
     font:inherit;
 }
 
@@ -182,7 +181,8 @@ select{
 }
 
 .field input,
-.field select{
+.field select,
+.field textarea{
     width:100%;
     border:1px solid #dbe3ef;
     border-radius:8px;
@@ -192,8 +192,15 @@ select{
     font-size:12px;
 }
 
+.field textarea{
+    min-height:100px;
+    resize:vertical;
+    line-height:1.5;
+}
+
 .field input:focus,
-.field select:focus{
+.field select:focus,
+.field textarea:focus{
     border-color:#60a5fa;
     box-shadow:0 0 0 2px rgba(37,99,235,.08);
 }
@@ -305,12 +312,18 @@ select{
     background:#0f172a;
 }
 
+.action.both{
+    grid-column:1/-1;
+    background:#059669;
+}
+
 .preview-panel{
     min-width:0;
 }
 
 .preview-tabs{
-    display:flex;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
     gap:6px;
     margin-bottom:12px;
 }
@@ -343,6 +356,14 @@ select{
     justify-content:center;
 }
 
+.preview-both{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:18px;
+}
+
 .card-preview{
     width:506px;
     max-width:100%;
@@ -352,6 +373,7 @@ select{
     overflow:hidden;
     box-shadow:0 10px 30px rgba(15,23,42,.18);
     position:relative;
+    flex:none;
 }
 
 .card-header{
@@ -464,13 +486,9 @@ select{
 }
 
 .back-card{
-    display:none;
+    width:100%;
     height:100%;
     background:#fff;
-}
-
-.back-card.active{
-    display:block;
 }
 
 .back-top{
@@ -493,10 +511,11 @@ select{
     margin-bottom:12px;
 }
 
-.rules{
+.back-text{
     font-size:9px;
     color:#475569;
     line-height:1.6;
+    white-space:pre-line;
     margin-bottom:12px;
 }
 
@@ -566,8 +585,6 @@ select{
     font-size:10px;
 }
 
-/* Toast */
-
 .toast{
     position:fixed;
     bottom:20px;
@@ -588,8 +605,6 @@ select{
     opacity:1;
     transform:translateX(-50%) translateY(0);
 }
-
-/* Mobile */
 
 @media(max-width:800px){
 
@@ -657,6 +672,10 @@ select{
         min-height:230px;
     }
 
+    .preview-both{
+        gap:10px;
+    }
+
     .school-logo{
         width:42px;
         height:42px;
@@ -709,7 +728,7 @@ select{
     }
 
     .back-address,
-    .rules{
+    .back-text{
         font-size:7px;
     }
 
@@ -724,7 +743,7 @@ select{
 
 }
 
-/* Print */
+/* PRINT */
 
 @media print{
 
@@ -758,10 +777,32 @@ select{
     .preview-area{
         background:#fff;
         padding:0;
+        display:block;
+        overflow:visible;
     }
 
     .card-preview{
         box-shadow:none;
+        margin:0 auto 25px;
+        page-break-inside:avoid;
+    }
+
+    #frontCard,
+    #backCard{
+        display:block!important;
+    }
+
+    .preview-both{
+        display:block!important;
+    }
+
+    .print-both-mode #frontCard,
+    .print-both-mode #backCard{
+        display:block!important;
+    }
+
+    .print-both-mode #frontCard{
+        page-break-after:always;
     }
 
 }
@@ -773,35 +814,33 @@ select{
 
 <header class="header">
 
-    <div class="header-inner">
+<div class="header-inner">
 
-        <div class="brand">
+<div class="brand">
 
-            <div class="logo">
-                MDH
-            </div>
+<div class="logo">MDH</div>
 
-            <div>
-                <div class="brand-title">
-                    Manjeet Digital Hub
-                </div>
+<div>
+<div class="brand-title">
+Manjeet Digital Hub
+</div>
 
-                <div class="brand-sub">
-                    Smart Digital Tools. Simple Solutions.
-                </div>
-            </div>
+<div class="brand-sub">
+Smart Digital Tools. Simple Solutions.
+</div>
+</div>
 
-        </div>
+</div>
 
-        <button
-            class="back-btn"
-            onclick="goHome()">
+<button
+class="back-btn"
+onclick="goHome()">
 
-            ← Back to Tools
+← Back to Tools
 
-        </button>
+</button>
 
-    </div>
+</div>
 
 </header>
 
@@ -810,19 +849,19 @@ select{
 
 <section class="hero">
 
-    <span class="badge">
-        🪪 ID & PRINT TOOL
-    </span>
+<span class="badge">
+🪪 ID & PRINT TOOL
+</span>
 
-    <h1>
-        School ID Card Maker
-    </h1>
+<h1>
+School ID Card Maker
+</h1>
 
-    <p>
-        Create professional school identity cards with
-        student photo, school logo, front & back design
-        and print-ready layout.
-    </p>
+<p>
+Create professional school identity cards with
+student photo, school logo, front & back design
+and print-ready layout.
+</p>
 
 </section>
 
@@ -834,428 +873,409 @@ select{
 
 <div class="panel controls">
 
-    <div class="panel-title">
-        Create Your ID Card
-    </div>
+<div class="panel-title">
+Create Your ID Card
+</div>
 
 
-    <!-- Templates -->
+<!-- TEMPLATES -->
 
-    <div class="section">
+<div class="section">
 
-        <div class="section-title">
-            🎨 Choose Template
-        </div>
+<div class="section-title">
+🎨 Choose Template
+</div>
 
-        <div class="templates">
+<div class="templates">
 
-            <button
-                class="template-btn active"
-                data-template="blue">
-                Classic Blue
-            </button>
+<button class="template-btn active"
+data-template="blue">
+Classic Blue
+</button>
 
-            <button
-                class="template-btn"
-                data-template="purple">
-                Modern Purple
-            </button>
+<button class="template-btn"
+data-template="purple">
+Modern Purple
+</button>
 
-            <button
-                class="template-btn"
-                data-template="green">
-                Green School
-            </button>
+<button class="template-btn"
+data-template="green">
+Green School
+</button>
 
-            <button
-                class="template-btn"
-                data-template="red">
-                Red Premium
-            </button>
+<button class="template-btn"
+data-template="red">
+Red Premium
+</button>
 
-            <button
-                class="template-btn"
-                data-template="navy">
-                Corporate
-            </button>
+<button class="template-btn"
+data-template="navy">
+Corporate
+</button>
 
-            <button
-                class="template-btn"
-                data-template="custom">
-                Custom
-            </button>
+<button class="template-btn"
+data-template="custom">
+Custom
+</button>
 
-        </div>
+</div>
 
-    </div>
+</div>
 
 
-    <!-- School -->
+<!-- SCHOOL -->
 
-    <div class="section">
+<div class="section">
 
-        <div class="section-title">
-            🏫 School Details
-        </div>
+<div class="section-title">
+🏫 School Details
+</div>
 
-        <div class="form-grid">
+<div class="form-grid">
 
-            <div class="field full">
+<div class="field full">
 
-                <label>
-                    School Name
-                </label>
+<label>School Name</label>
 
-                <input
-                    id="schoolName"
-                    type="text"
-                    value="ABC PUBLIC SCHOOL"
-                    placeholder="Enter school name">
+<input
+id="schoolName"
+type="text"
+value="ABC PUBLIC SCHOOL"
+placeholder="Enter school name">
 
-            </div>
+</div>
 
+<div class="field">
 
-            <div class="field">
+<label>Session</label>
 
-                <label>
-                    Session
-                </label>
+<input
+id="session"
+type="text"
+value="2026 - 2027">
 
-                <input
-                    id="session"
-                    type="text"
-                    value="2026 - 2027">
+</div>
 
-            </div>
+<div class="field">
 
+<label>Contact</label>
 
-            <div class="field">
+<input
+id="schoolContact"
+type="text"
+placeholder="School phone">
 
-                <label>
-                    Contact
-                </label>
+</div>
 
-                <input
-                    id="schoolContact"
-                    type="text"
-                    placeholder="School phone">
+<div class="field full">
 
-            </div>
+<label>School Address</label>
 
+<input
+id="schoolAddress"
+type="text"
+placeholder="School address">
 
-            <div class="field full">
+</div>
 
-                <label>
-                    School Address
-                </label>
+</div>
 
-                <input
-                    id="schoolAddress"
-                    type="text"
-                    placeholder="School address">
+</div>
 
-            </div>
 
-        </div>
+<!-- STUDENT -->
 
-    </div>
+<div class="section">
 
+<div class="section-title">
+👨‍🎓 Student Details
+</div>
 
-    <!-- Student -->
+<div class="form-grid">
 
-    <div class="section">
+<div class="field full">
 
-        <div class="section-title">
-            👨‍🎓 Student Details
-        </div>
+<label>Student Name</label>
 
-        <div class="form-grid">
+<input
+id="studentName"
+type="text"
+placeholder="Student name">
 
-            <div class="field full">
+</div>
 
-                <label>
-                    Student Name
-                </label>
+<div class="field">
 
-                <input
-                    id="studentName"
-                    type="text"
-                    placeholder="Student name">
+<label>Class</label>
 
-            </div>
+<input
+id="studentClass"
+type="text"
+placeholder="10">
 
+</div>
 
-            <div class="field">
+<div class="field">
 
-                <label>
-                    Class
-                </label>
+<label>Section</label>
 
-                <input
-                    id="studentClass"
-                    type="text"
-                    placeholder="10">
+<input
+id="section"
+type="text"
+placeholder="A">
 
-            </div>
+</div>
 
+<div class="field">
 
-            <div class="field">
+<label>Roll No.</label>
 
-                <label>
-                    Section
-                </label>
+<input
+id="rollNo"
+type="text"
+placeholder="101">
 
-                <input
-                    id="section"
-                    type="text"
-                    placeholder="A">
+</div>
 
-            </div>
+<div class="field">
 
+<label>DOB</label>
 
-            <div class="field">
+<input
+id="dob"
+type="text"
+placeholder="01/01/2012">
 
-                <label>
-                    Roll No.
-                </label>
+</div>
 
-                <input
-                    id="rollNo"
-                    type="text"
-                    placeholder="101">
+<div class="field">
 
-            </div>
+<label>Blood Group</label>
 
+<select id="bloodGroup">
 
-            <div class="field">
+<option value="">Select</option>
+<option>A+</option>
+<option>A-</option>
+<option>B+</option>
+<option>B-</option>
+<option>AB+</option>
+<option>AB-</option>
+<option>O+</option>
+<option>O-</option>
 
-                <label>
-                    DOB
-                </label>
+</select>
 
-                <input
-                    id="dob"
-                    type="text"
-                    placeholder="01/01/2012">
+</div>
 
-            </div>
+<div class="field">
 
+<label>Student Contact</label>
 
-            <div class="field">
+<input
+id="studentContact"
+type="text"
+placeholder="Mobile">
 
-                <label>
-                    Blood Group
-                </label>
+</div>
 
-                <select id="bloodGroup">
+</div>
 
-                    <option value="">
-                        Select
-                    </option>
+</div>
 
-                    <option>A+</option>
-                    <option>A-</option>
-                    <option>B+</option>
-                    <option>B-</option>
-                    <option>AB+</option>
-                    <option>AB-</option>
-                    <option>O+</option>
-                    <option>O-</option>
 
-                </select>
+<!-- UPLOAD -->
 
-            </div>
+<div class="section">
 
+<div class="section-title">
+📸 Upload Photos
+</div>
 
-            <div class="field">
+<label class="upload">
 
-                <label>
-                    Student Contact
-                </label>
+<input
+id="logoInput"
+type="file"
+accept="image/*">
 
-                <input
-                    id="studentContact"
-                    type="text"
-                    placeholder="Mobile">
+<div class="upload-icon">🏫</div>
 
-            </div>
+<strong>
+Upload School Logo
+</strong>
 
-        </div>
+<small>
+PNG / JPG
+</small>
 
-    </div>
+</label>
 
+<br>
 
-    <!-- Upload -->
+<label class="upload">
 
-    <div class="section">
+<input
+id="photoInput"
+type="file"
+accept="image/*">
 
-        <div class="section-title">
-            📸 Upload Photos
-        </div>
+<div class="upload-icon">📸</div>
 
+<strong>
+Upload Student Photo
+</strong>
 
-        <label class="upload">
+<small>
+Passport-size photo recommended
+</small>
 
-            <input
-                id="logoInput"
-                type="file"
-                accept="image/*">
+</label>
 
-            <div class="upload-icon">
-                🏫
-            </div>
+</div>
 
-            <strong>
-                Upload School Logo
-            </strong>
 
-            <small>
-                PNG / JPG
-            </small>
+<!-- BACK SIDE TEXT -->
 
-        </label>
+<div class="section">
 
+<div class="section-title">
+🔄 Back Side Content
+</div>
 
-        <br>
+<div class="form-grid">
 
+<div class="field full">
 
-        <label class="upload">
+<label>
+Back Side Heading
+</label>
 
-            <input
-                id="photoInput"
-                type="file"
-                accept="image/*">
+<input
+id="backTitle"
+type="text"
+value="STUDENT IDENTITY CARD"
+placeholder="Back side heading">
 
-            <div class="upload-icon">
-                📸
-            </div>
+</div>
 
-            <strong>
-                Upload Student Photo
-            </strong>
+<div class="field full">
 
-            <small>
-                Passport-size photo recommended
-            </small>
+<label>
+Back Side Text / Instructions
+</label>
 
-        </label>
+<textarea
+id="backText"
+placeholder="Enter instructions for back side">• This card must be carried by the student while in school.
+• If found, please return it to the school office.
+• This card is the property of the school.
+• The card should not be damaged or altered.</textarea>
 
-    </div>
+</div>
 
+</div>
 
-    <!-- Custom Colors -->
+</div>
 
-    <div
-        class="section"
-        id="customColorsSection"
-        style="display:none">
 
-        <div class="section-title">
-            🎨 Custom Colors
-        </div>
+<!-- COLORS -->
 
-        <div class="colors">
+<div
+class="section"
+id="customColorsSection"
+style="display:none">
 
-            <div class="color-field">
+<div class="section-title">
+🎨 Custom Colors
+</div>
 
-                <input
-                    id="customHeader"
-                    type="color"
-                    value="#2563eb">
+<div class="colors">
 
-                <span>
-                    Header
-                </span>
+<div class="color-field">
 
-            </div>
+<input
+id="customHeader"
+type="color"
+value="#2563eb">
 
+<span>Header</span>
 
-            <div class="color-field">
+</div>
 
-                <input
-                    id="customFooter"
-                    type="color"
-                    value="#1d4ed8">
+<div class="color-field">
 
-                <span>
-                    Footer
-                </span>
+<input
+id="customFooter"
+type="color"
+value="#1d4ed8">
 
-            </div>
+<span>Footer</span>
 
+</div>
 
-            <div class="color-field">
+<div class="color-field">
 
-                <input
-                    id="customBackground"
-                    type="color"
-                    value="#ffffff">
+<input
+id="customBackground"
+type="color"
+value="#ffffff">
 
-                <span>
-                    Background
-                </span>
+<span>Background</span>
 
-            </div>
+</div>
 
+<div class="color-field">
 
-            <div class="color-field">
+<input
+id="customAccent"
+type="color"
+value="#2563eb">
 
-                <input
-                    id="customAccent"
-                    type="color"
-                    value="#2563eb">
+<span>Accent</span>
 
-                <span>
-                    Accent
-                </span>
+</div>
 
-            </div>
+</div>
 
-        </div>
+</div>
 
-    </div>
 
+<!-- BUTTONS -->
 
-    <!-- Buttons -->
+<div class="actions">
 
-    <div class="actions">
+<button
+class="action"
+onclick="downloadFront()">
+📥 Front PNG
+</button>
 
-        <button
-            class="action"
-            onclick="downloadFront()">
+<button
+class="action secondary"
+onclick="downloadBack()">
+📥 Back PNG
+</button>
 
-            📥 Front PNG
+<button
+class="action dark"
+onclick="printCurrent()">
+🖨️ Print Current
+</button>
 
-        </button>
+<button
+class="action secondary"
+onclick="resetForm()">
+↻ Reset
+</button>
 
+<button
+class="action both"
+onclick="printBothSides()">
+🖨️ Print Both Sides
+</button>
 
-        <button
-            class="action secondary"
-            onclick="downloadBack()">
-
-            📥 Back PNG
-
-        </button>
-
-
-        <button
-            class="action dark"
-            onclick="printCards()">
-
-            🖨️ Print
-
-        </button>
-
-
-        <button
-            class="action secondary"
-            onclick="resetForm()">
-
-            ↻ Reset
-
-        </button>
-
-    </div>
+</div>
 
 </div>
 
@@ -1264,389 +1284,311 @@ select{
 
 <div class="panel preview-panel">
 
-    <div class="panel-title">
-        👀 Live Preview
-    </div>
+<div class="panel-title">
+👀 Live Preview
+</div>
 
 
-    <div class="preview-tabs">
+<div class="preview-tabs">
 
-        <button
-            class="preview-tab active"
-            id="frontTab"
-            onclick="showSide('front')">
+<button
+class="preview-tab active"
+id="frontTab"
+onclick="showSide('front')">
+Front
+</button>
 
-            Front
+<button
+class="preview-tab"
+id="backTab"
+onclick="showSide('back')">
+Back
+</button>
 
-        </button>
+<button
+class="preview-tab"
+id="bothTab"
+onclick="showSide('both')">
+Both Sides
+</button>
 
+</div>
 
-        <button
-            class="preview-tab"
-            id="backTab"
-            onclick="showSide('back')">
 
-            Back
+<div class="preview-area" id="previewArea">
 
-        </button>
 
-    </div>
+<!-- FRONT -->
 
+<div
+class="card-preview"
+id="frontCard">
 
-    <div class="preview-area">
+<div
+class="card-header"
+id="frontHeader">
 
+<img
+id="logoPreview"
+class="school-logo"
+alt="School Logo"
+style="display:none">
 
-        <!-- FRONT -->
+<div class="school-info">
 
-        <div
-            class="card-preview"
-            id="frontCard">
+<div
+class="school-name"
+id="previewSchoolName">
+ABC PUBLIC SCHOOL
+</div>
 
-            <div
-                class="card-header"
-                id="frontHeader">
+<div
+class="school-session"
+id="previewSession">
+2026 - 2027
+</div>
 
-                <img
-                    id="logoPreview"
-                    class="school-logo"
-                    alt="School Logo"
-                    style="display:none">
-
-                <div
-                    class="school-info">
-
-                    <div
-                        class="school-name"
-                        id="previewSchoolName">
-
-                        ABC PUBLIC SCHOOL
-
-                    </div>
-
-                    <div
-                        class="school-session"
-                        id="previewSession">
-
-                        2026 - 2027
-
-                    </div>
-
-                    <div
-                        class="school-contact"
-                        id="previewSchoolContact">
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div
-                class="front-body"
-                id="frontBody">
-
-                <div>
-
-                    <img
-                        id="studentPhoto"
-                        class="student-photo"
-                        alt="Student Photo"
-                        style="display:none">
-
-                    <div
-                        id="photoPlaceholder"
-                        class="student-placeholder">
-
-                        👤
-
-                    </div>
-
-                </div>
-
-
-                <div class="student-details">
-
-                    <div
-                        class="student-name"
-                        id="previewStudentName">
-
-                        Student Name
-
-                    </div>
-
-
-                    <div class="detail-row">
-
-                        <span class="detail-label">
-                            Class
-                        </span>
-
-                        <span
-                            class="detail-value"
-                            id="previewClass">
-                            -
-                        </span>
-
-                    </div>
-
-
-                    <div class="detail-row">
-
-                        <span class="detail-label">
-                            Section
-                        </span>
-
-                        <span
-                            class="detail-value"
-                            id="previewSection">
-                            -
-                        </span>
-
-                    </div>
-
-
-                    <div class="detail-row">
-
-                        <span class="detail-label">
-                            Roll No.
-                        </span>
-
-                        <span
-                            class="detail-value"
-                            id="previewRoll">
-                            -
-                        </span>
-
-                    </div>
-
-
-                    <div class="detail-row">
-
-                        <span class="detail-label">
-                            DOB
-                        </span>
-
-                        <span
-                            class="detail-value"
-                            id="previewDOB">
-                            -
-                        </span>
-
-                    </div>
-
-
-                    <div class="detail-row">
-
-                        <span class="detail-label">
-                            Blood
-                        </span>
-
-                        <span
-                            class="detail-value"
-                            id="previewBlood">
-                            -
-                        </span>
-
-                    </div>
-
-
-                    <div class="detail-row">
-
-                        <span class="detail-label">
-                            Contact
-                        </span>
-
-                        <span
-                            class="detail-value"
-                            id="previewStudentContact">
-                            -
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div
-                class="card-footer"
-                id="frontFooter">
-            </div>
-
-        </div>
-
-
-        <!-- BACK -->
-
-        <div
-            class="card-preview"
-            id="backCard"
-            style="display:none">
-
-            <div
-                class="back-card active">
-
-                <div
-                    class="back-top"
-                    id="backHeader">
-
-                    STUDENT IDENTITY CARD
-
-                </div>
-
-
-                <div
-                    class="back-body">
-
-                    <div
-                        class="back-address"
-                        id="previewAddress">
-
-                        School Address
-
-                    </div>
-
-
-                    <div class="rules">
-
-                        <strong>
-                            Important Instructions
-                        </strong>
-
-                        <br>
-
-                        • This card must be carried by the student while in school.
-
-                        <br>
-
-                        • If found, please return it to the school office.
-
-                        <br>
-
-                        • This card is the property of the school.
-
-                        <br>
-
-                        • The card should not be damaged or altered.
-
-                    </div>
-
-
-                    <div class="signature-row">
-
-                        <div>
-
-                            <div
-                                class="signature-line">
-                                Parent / Guardian
-                            </div>
-
-                        </div>
-
-
-                        <div>
-
-                            <div
-                                class="signature-line">
-                                Principal
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
+<div
+class="school-contact"
+id="previewSchoolContact">
+</div>
 
 </div>
 
 </div>
 
 
-<!-- ================= INFORMATION ================= -->
+<div
+class="front-body"
+id="frontBody">
+
+<div>
+
+<img
+id="studentPhoto"
+class="student-photo"
+alt="Student Photo"
+style="display:none">
+
+<div
+id="photoPlaceholder"
+class="student-placeholder">
+👤
+</div>
+
+</div>
+
+
+<div class="student-details">
+
+<div
+class="student-name"
+id="previewStudentName">
+Student Name
+</div>
+
+<div class="detail-row">
+<span class="detail-label">Class</span>
+<span class="detail-value" id="previewClass">-</span>
+</div>
+
+<div class="detail-row">
+<span class="detail-label">Section</span>
+<span class="detail-value" id="previewSection">-</span>
+</div>
+
+<div class="detail-row">
+<span class="detail-label">Roll No.</span>
+<span class="detail-value" id="previewRoll">-</span>
+</div>
+
+<div class="detail-row">
+<span class="detail-label">DOB</span>
+<span class="detail-value" id="previewDOB">-</span>
+</div>
+
+<div class="detail-row">
+<span class="detail-label">Blood</span>
+<span class="detail-value" id="previewBlood">-</span>
+</div>
+
+<div class="detail-row">
+<span class="detail-label">Contact</span>
+<span class="detail-value" id="previewStudentContact">-</span>
+</div>
+
+</div>
+
+</div>
+
+<div
+class="card-footer"
+id="frontFooter">
+</div>
+
+</div>
+
+
+<!-- BACK -->
+
+<div
+class="card-preview"
+id="backCard"
+style="display:none">
+
+<div class="back-card">
+
+<div
+class="back-top"
+id="backHeader">
+
+<span id="previewBackTitle">
+STUDENT IDENTITY CARD
+</span>
+
+</div>
+
+
+<div class="back-body">
+
+<div
+class="back-address"
+id="previewAddress">
+School Address
+</div>
+
+
+<div
+class="back-text"
+id="previewBackText">
+• This card must be carried by the student while in school.
+• If found, please return it to the school office.
+• This card is the property of the school.
+• The card should not be damaged or altered.
+</div>
+
+
+<div class="signature-row">
+
+<div>
+<div class="signature-line">
+Parent / Guardian
+</div>
+</div>
+
+<div>
+<div class="signature-line">
+Principal
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- INFORMATION -->
 
 <section class="info">
 
-    <h2>
-        School ID Card Maker
-    </h2>
+<h2>
+School ID Card Maker
+</h2>
 
-    <p>
-        Manjeet Digital Hub का School ID Card Maker
-        schools, coaching institutes और educational
-        organizations के लिए professional student ID
-        cards बनाने के लिए बनाया गया है।
-    </p>
-
-
-    <div class="faq">
-
-        <details open>
-
-            <summary>
-                इस tool का उपयोग कैसे करें?
-            </summary>
-
-            <p>
-                Template चुनें, school और student की
-                जानकारी भरें, logo और student photo
-                upload करें और live preview में card देखें।
-            </p>
-
-        </details>
+<p>
+Manjeet Digital Hub का School ID Card Maker
+schools, coaching institutes और educational
+organizations के लिए professional student ID
+cards बनाने के लिए बनाया गया है।
+</p>
 
 
-        <details>
+<div class="faq">
 
-            <summary>
-                क्या student photo upload कर सकते हैं?
-            </summary>
+<details open>
 
-            <p>
-                हाँ। JPG, PNG और अन्य सामान्य image formats
-                upload किए जा सकते हैं।
-            </p>
+<summary>
+इस tool का उपयोग कैसे करें?
+</summary>
 
-        </details>
+<p>
+Template चुनें, school और student की
+जानकारी भरें, logo और student photo
+upload करें और live preview में card देखें।
+</p>
 
-
-        <details>
-
-            <summary>
-                क्या card print किया जा सकता है?
-            </summary>
-
-            <p>
-                हाँ। Print button से browser print dialog
-                open करके card को paper या PDF में save
-                किया जा सकता है।
-            </p>
-
-        </details>
+</details>
 
 
-        <details>
+<details>
 
-            <summary>
-                क्या custom colors उपलब्ध हैं?
-            </summary>
+<summary>
+क्या back side का text बदल सकते हैं?
+</summary>
 
-            <p>
-                हाँ। Custom template select करने के बाद
-                header, footer, background और accent colors
-                बदल सकते हैं।
-            </p>
+<p>
+हाँ। Back Side Content section में heading और
+पूरी instructions बदलते ही back side preview
+automatically update हो जाएगा।
+</p>
 
-        </details>
+</details>
 
-    </div>
+
+<details>
+
+<summary>
+क्या Front और Back दोनों एक साथ print कर सकते हैं?
+</summary>
+
+<p>
+हाँ। Print Both Sides button पर click करने से
+front और back दोनों cards print-ready preview
+में दिखाई देंगे।
+</p>
+
+</details>
+
+
+<details>
+
+<summary>
+क्या student photo upload कर सकते हैं?
+</summary>
+
+<p>
+हाँ। JPG, PNG और अन्य सामान्य image formats
+upload किए जा सकते हैं।
+</p>
+
+</details>
+
+
+<details>
+
+<summary>
+क्या custom colors उपलब्ध हैं?
+</summary>
+
+<p>
+हाँ। Custom template select करने के बाद
+header, footer, background और accent colors
+बदल सकते हैं।
+</p>
+
+</details>
+
+</div>
 
 </section>
 
@@ -1655,16 +1597,16 @@ select{
 
 <footer class="footer">
 
-    © <span id="year"></span>
-    Manjeet Digital Hub —
-    Smart Digital Tools. Simple Solutions.
+© <span id="year"></span>
+Manjeet Digital Hub —
+Smart Digital Tools. Simple Solutions.
 
 </footer>
 
 
 <div
-    class="toast"
-    id="toast">
+class="toast"
+id="toast">
 </div>
 
 
@@ -1676,7 +1618,7 @@ select{
 ========================================= */
 
 
-/* ---------- HOME ---------- */
+/* HOME */
 
 function goHome(){
 
@@ -1686,13 +1628,13 @@ function goHome(){
 }
 
 
-/* ---------- YEAR ---------- */
+/* YEAR */
 
 document.getElementById("year").textContent =
     new Date().getFullYear();
 
 
-/* ---------- DATA ---------- */
+/* TEMPLATES */
 
 const templates = {
 
@@ -1747,8 +1689,10 @@ let logoData = "";
 
 let photoData = "";
 
+let currentSide = "front";
 
-/* ---------- ELEMENTS ---------- */
+
+/* ELEMENTS */
 
 const inputs = {
 
@@ -1783,12 +1727,18 @@ const inputs = {
         document.getElementById("bloodGroup"),
 
     studentContact:
-        document.getElementById("studentContact")
+        document.getElementById("studentContact"),
+
+    backTitle:
+        document.getElementById("backTitle"),
+
+    backText:
+        document.getElementById("backText")
 
 };
 
 
-/* ---------- TEMPLATE BUTTONS ---------- */
+/* TEMPLATE BUTTONS */
 
 document
 .querySelectorAll(".template-btn")
@@ -1821,7 +1771,7 @@ document
 });
 
 
-/* ---------- CUSTOM COLORS ---------- */
+/* CUSTOM COLORS */
 
 [
     "customHeader",
@@ -1841,7 +1791,7 @@ document
 });
 
 
-/* ---------- INPUT LISTENERS ---------- */
+/* INPUT LISTENERS */
 
 Object.values(inputs)
 .forEach(input => {
@@ -1859,7 +1809,7 @@ Object.values(inputs)
 });
 
 
-/* ---------- LOGO UPLOAD ---------- */
+/* LOGO */
 
 document
 .getElementById("logoInput")
@@ -1897,7 +1847,7 @@ document
 });
 
 
-/* ---------- PHOTO UPLOAD ---------- */
+/* PHOTO */
 
 document
 .getElementById("photoInput")
@@ -1940,7 +1890,7 @@ document
 });
 
 
-/* ---------- GET COLORS ---------- */
+/* COLORS */
 
 function getColors(){
 
@@ -1977,7 +1927,7 @@ function getColors(){
 }
 
 
-/* ---------- UPDATE CARD ---------- */
+/* UPDATE CARD */
 
 function updateCard(){
 
@@ -1985,7 +1935,7 @@ function updateCard(){
         getColors();
 
 
-    /* School */
+    /* SCHOOL */
 
     document.getElementById(
         "previewSchoolName"
@@ -2014,7 +1964,23 @@ function updateCard(){
         "School Address";
 
 
-    /* Student */
+    /* BACK SIDE */
+
+    document.getElementById(
+        "previewBackTitle"
+    ).textContent =
+        inputs.backTitle.value ||
+        "STUDENT IDENTITY CARD";
+
+
+    document.getElementById(
+        "previewBackText"
+    ).textContent =
+        inputs.backText.value ||
+        "Enter instructions";
+
+
+    /* STUDENT */
 
     document.getElementById(
         "previewStudentName"
@@ -2065,7 +2031,7 @@ function updateCard(){
         "-";
 
 
-    /* Colors */
+    /* COLORS */
 
     document.getElementById(
         "frontHeader"
@@ -2099,9 +2065,11 @@ function updateCard(){
 }
 
 
-/* ---------- SHOW SIDE ---------- */
+/* SHOW SIDE */
 
 function showSide(side){
+
+    currentSide = side;
 
     const front =
         document.getElementById(
@@ -2123,6 +2091,18 @@ function showSide(side){
             "backTab"
         );
 
+    const bothTab =
+        document.getElementById(
+            "bothTab"
+        );
+
+
+    frontTab.classList.remove("active");
+
+    backTab.classList.remove("active");
+
+    bothTab.classList.remove("active");
+
 
     if(side === "front"){
 
@@ -2136,11 +2116,9 @@ function showSide(side){
             "active"
         );
 
-        backTab.classList.remove(
-            "active"
-        );
+    }
 
-    }else{
+    else if(side === "back"){
 
         front.style.display =
             "none";
@@ -2152,7 +2130,25 @@ function showSide(side){
             "active"
         );
 
+    }
+
+    else{
+
+        front.style.display =
+            "block";
+
+        back.style.display =
+            "block";
+
         frontTab.classList.remove(
+            "active"
+        );
+
+        backTab.classList.remove(
+            "active"
+        );
+
+        bothTab.classList.add(
             "active"
         );
 
@@ -2161,7 +2157,7 @@ function showSide(side){
 }
 
 
-/* ---------- TOAST ---------- */
+/* TOAST */
 
 function toast(message){
 
@@ -2184,7 +2180,7 @@ function toast(message){
 }
 
 
-/* ---------- CANVAS DRAW ---------- */
+/* CANVAS */
 
 async function createCardCanvas(side){
 
@@ -2207,8 +2203,6 @@ async function createCardCanvas(side){
         getColors();
 
 
-    /* Background */
-
     ctx.fillStyle =
         colors.background;
 
@@ -2219,8 +2213,6 @@ async function createCardCanvas(side){
         canvas.height
     );
 
-
-    /* Header */
 
     ctx.fillStyle =
         colors.header;
@@ -2235,7 +2227,7 @@ async function createCardCanvas(side){
 
     if(side === "front"){
 
-        /* Logo */
+        /* LOGO */
 
         if(logoData){
 
@@ -2275,7 +2267,7 @@ async function createCardCanvas(side){
         }
 
 
-        /* School */
+        /* SCHOOL */
 
         ctx.fillStyle =
             "#ffffff";
@@ -2317,7 +2309,7 @@ async function createCardCanvas(side){
         );
 
 
-        /* Student photo */
+        /* PHOTO */
 
         if(photoData){
 
@@ -2338,7 +2330,9 @@ async function createCardCanvas(side){
 
             }catch(e){}
 
-        }else{
+        }
+
+        else{
 
             ctx.fillStyle =
                 "#e2e8f0";
@@ -2365,7 +2359,7 @@ async function createCardCanvas(side){
         }
 
 
-        /* Student */
+        /* STUDENT */
 
         ctx.fillStyle =
             "#172033";
@@ -2393,6 +2387,7 @@ async function createCardCanvas(side){
             255
         );
 
+
         drawDetail(
             ctx,
             "Section",
@@ -2400,6 +2395,7 @@ async function createCardCanvas(side){
             275,
             290
         );
+
 
         drawDetail(
             ctx,
@@ -2409,6 +2405,7 @@ async function createCardCanvas(side){
             325
         );
 
+
         drawDetail(
             ctx,
             "DOB",
@@ -2417,6 +2414,7 @@ async function createCardCanvas(side){
             360
         );
 
+
         drawDetail(
             ctx,
             "Blood Group",
@@ -2424,6 +2422,7 @@ async function createCardCanvas(side){
             275,
             395
         );
+
 
         drawDetail(
             ctx,
@@ -2434,7 +2433,7 @@ async function createCardCanvas(side){
         );
 
 
-        /* Footer */
+        /* FOOTER */
 
         ctx.fillStyle =
             colors.footer;
@@ -2446,9 +2445,12 @@ async function createCardCanvas(side){
             13
         );
 
-    }else{
+    }
 
-        /* Back */
+
+    else{
+
+        /* BACK TITLE */
 
         ctx.fillStyle =
             "#ffffff";
@@ -2457,11 +2459,21 @@ async function createCardCanvas(side){
             "900 30px Arial";
 
         ctx.fillText(
-            "STUDENT IDENTITY CARD",
+            fitText(
+                inputs.backTitle.value ||
+                "STUDENT IDENTITY CARD",
+                850,
+                30
+            ),
             45,
             65
         );
 
+
+        /* ADDRESS */
+
+        ctx.fillStyle =
+            "#475569";
 
         ctx.font =
             "18px Arial";
@@ -2477,39 +2489,43 @@ async function createCardCanvas(side){
         );
 
 
+        /* BACK TEXT */
+
         ctx.fillStyle =
             "#475569";
 
         ctx.font =
             "18px Arial";
 
-        const rules = [
-
-            "• This card must be carried by the student while in school.",
-
-            "• If found, please return it to the school office.",
-
-            "• This card is the property of the school.",
-
-            "• The card should not be damaged or altered."
-
-        ];
+        const lines =
+            String(
+                inputs.backText.value ||
+                ""
+            ).split("\n");
 
 
         let y = 190;
 
-        rules.forEach(rule => {
 
-            ctx.fillText(
-                rule,
-                55,
-                y
-            );
+        lines.forEach(line => {
 
-            y += 38;
+            const wrapped =
+                wrapText(
+                    ctx,
+                    line,
+                    55,
+                    y,
+                    900,
+                    28
+                );
+
+            y =
+                wrapped + 12;
 
         });
 
+
+        /* SIGNATURE */
 
         ctx.strokeStyle =
             "#64748b";
@@ -2560,12 +2576,15 @@ async function createCardCanvas(side){
             530
         );
 
+
         ctx.fillText(
             "Principal",
             750,
             530
         );
 
+
+        /* FOOTER */
 
         ctx.fillStyle =
             colors.footer;
@@ -2585,7 +2604,7 @@ async function createCardCanvas(side){
 }
 
 
-/* ---------- HELPERS ---------- */
+/* HELPERS */
 
 function loadImage(src){
 
@@ -2726,10 +2745,12 @@ function wrapText(
         y
     );
 
+    return y + lineHeight;
+
 }
 
 
-/* ---------- DOWNLOAD ---------- */
+/* DOWNLOAD */
 
 async function downloadFront(){
 
@@ -2807,7 +2828,7 @@ async function downloadBack(){
 }
 
 
-/* ---------- DOWNLOAD HELPER ---------- */
+/* DOWNLOAD HELPER */
 
 function downloadBlob(
     blob,
@@ -2845,16 +2866,246 @@ function downloadBlob(
 }
 
 
-/* ---------- PRINT ---------- */
+/* PRINT CURRENT */
 
-function printCards(){
+async function printCurrent(){
 
-    window.print();
+    try{
+
+        const side =
+            currentSide === "back"
+                ? "back"
+                : "front";
+
+        const canvas =
+            await createCardCanvas(
+                side
+            );
+
+        const image =
+            canvas.toDataURL(
+                "image/png"
+            );
+
+        openPrintWindow(
+            [image],
+            side === "front"
+                ? "School ID Front"
+                : "School ID Back"
+        );
+
+    }catch(error){
+
+        console.error(error);
+
+        toast(
+            "Print failed"
+        );
+
+    }
 
 }
 
 
-/* ---------- RESET ---------- */
+/* PRINT BOTH SIDES */
+
+async function printBothSides(){
+
+    try{
+
+        toast(
+            "Preparing Front + Back..."
+        );
+
+
+        const frontCanvas =
+            await createCardCanvas(
+                "front"
+            );
+
+
+        const backCanvas =
+            await createCardCanvas(
+                "back"
+            );
+
+
+        const frontImage =
+            frontCanvas.toDataURL(
+                "image/png"
+            );
+
+
+        const backImage =
+            backCanvas.toDataURL(
+                "image/png"
+            );
+
+
+        openPrintWindow(
+            [
+                frontImage,
+                backImage
+            ],
+            "School ID Card - Front & Back"
+        );
+
+
+    }catch(error){
+
+        console.error(error);
+
+        toast(
+            "Print failed"
+        );
+
+    }
+
+}
+
+
+/* PRINT WINDOW */
+
+function openPrintWindow(
+    images,
+    title
+){
+
+    const printWindow =
+        window.open(
+            "",
+            "_blank"
+        );
+
+
+    if(!printWindow){
+
+        toast(
+            "Please allow pop-ups for printing"
+        );
+
+        return;
+
+    }
+
+
+    const imageHTML =
+        images.map(
+            (image,index) => `
+                <div class="card ${index < images.length-1 ? "page-break" : ""}">
+                    <img src="${image}">
+                </div>
+            `
+        ).join("");
+
+
+    printWindow.document.open();
+
+
+    printWindow.document.write(`
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>${title}</title>
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    padding:20px;
+    background:#fff;
+    text-align:center;
+    font-family:Arial,sans-serif;
+}
+
+.card{
+    width:min(1011px,95vw);
+    margin:0 auto;
+}
+
+.card img{
+    width:100%;
+    height:auto;
+    display:block;
+    margin:0 auto;
+}
+
+.page-break{
+    page-break-after:always;
+    break-after:page;
+    margin-bottom:20px;
+}
+
+@media print{
+
+    body{
+        padding:0;
+    }
+
+    .card{
+        width:100%;
+        max-width:none;
+    }
+
+    .page-break{
+        page-break-after:always;
+        break-after:page;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+${imageHTML}
+
+<script>
+
+window.onload=function(){
+
+    setTimeout(function(){
+
+        window.print();
+
+    },500);
+
+};
+
+window.onafterprint=function(){
+
+    window.close();
+
+};
+
+<\/script>
+
+</body>
+
+</html>
+
+`);
+
+    printWindow.document.close();
+
+}
+
+
+/* RESET */
 
 function resetForm(){
 
@@ -2892,10 +3143,22 @@ function resetForm(){
         "";
 
 
+    inputs.backTitle.value =
+        "STUDENT IDENTITY CARD";
+
+
+    inputs.backText.value =
+`• This card must be carried by the student while in school.
+• If found, please return it to the school office.
+• This card is the property of the school.
+• The card should not be damaged or altered.`;
+
+
     document.getElementById(
         "logoInput"
     ).value =
         "";
+
 
     document.getElementById(
         "photoInput"
@@ -2967,9 +3230,11 @@ function resetForm(){
 }
 
 
-/* ---------- INITIAL ---------- */
+/* INITIAL */
 
 updateCard();
+
+showSide("front");
 
 </script>
 
