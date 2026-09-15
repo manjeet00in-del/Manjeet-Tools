@@ -1,4 +1,4 @@
-const CACHE_NAME = "manjeet-tools-v1";
+const CACHE_NAME = "manjeet-tools-v2";
 
 const FILES_TO_CACHE = [
   "./",
@@ -6,7 +6,8 @@ const FILES_TO_CACHE = [
   "./style.css",
   "./app.js",
   "./manifest.json",
-  "./icon.svg"
+  "./icon.svg",
+  "./tools/school-id-card-maker.html"
 ];
 
 self.addEventListener("install", event => {
