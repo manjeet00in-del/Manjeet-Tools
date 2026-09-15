@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Passport Photo Maker - Manjeet Digital Hub</title>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#172033}
+header{background:#173b72;color:#fff;padding:16px;text-align:center}header h1{font-size:22px;margin:0 0 4px}header p{margin:0;font-size:12px;opacity:.85}
+.wrap{max-width:1050px;margin:auto;padding:14px;display:grid;grid-template-columns:360px 1fr;gap:14px}
+.panel{background:#fff;border-radius:14px;padding:14px;box-shadow:0 3px 15px #00000012;margin-bottom:12px}
+h3{margin:0 0 12px;font-size:16px}.upload{display:block;border:2px dashed #8aa4c7;border-radius:12px;padding:22px;text-align:center;cursor:pointer;background:#f8fbff}.upload input{display:none}
+button,select,input[type=number]{font:inherit}.btn{border:0;border-radius:9px;padding:10px 12px;font-weight:700;cursor:pointer;background:#173b72;color:white}.btn.ai{background:#7c3aed}.btn.green{background:#16834b}.btn.gray{background:#64748b}.btn:disabled{opacity:.5}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.row{display:flex;gap:9px;align-items:center;margin:10px 0}.row label{font-size:13px;font-weight:700;min-width:82px}.row select,.row input[type=number]{width:100%;padding:9px;border:1px solid #ccd5e1;border-radius:8px}
+.bgchips{display:flex;gap:8px;flex-wrap:wrap}.chip{width:34px;height:34px;border:2px solid #cbd5e1;border-radius:50%;cursor:pointer}.chip.active{outline:3px solid #60a5fa}
+.status{font-size:12px;color:#37516f;margin-top:9px;min-height:16px}
+.editor{position:relative;background:#dbe4ef;border-radius:12px;overflow:hidden;touch-action:none;max-width:440px;margin:auto;aspect-ratio:35/45}
+.editor canvas{width:100%;height:100%;display:block}.guide{position:absolute;inset:8%;border:2px dashed #ffffffcc;pointer-events:none;border-radius:8px}
+.hint{text-align:center;font-size:11px;color:#64748b;margin-top:7px}
+.previewArea{text-align:center}.photoPreview{width:210px;aspect-ratio:35/45;object-fit:contain;background:#eee;border:1px solid #aaa}
+.sheet{background:white;padding:12px;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:760px;margin:10px auto}.sheet img{width:100%;border:1px solid #bbb}
+input[type=range]{width:100%}
+@media(max-width:760px){.wrap{grid-template-columns:1fr}.panel{margin-bottom:10px}.editor{max-width:360px}.sheet{grid-template-columns:repeat(3,1fr)}}
+@media print{body *{visibility:hidden}.sheet,.sheet *{visibility:visible}.sheet{position:absolute;left:0;top:0;width:100%;max-width:none;grid-template-columns:repeat(5,1fr)!important;gap:4mm;padding:8mm}header,.controlsPrint{display:none}}
+</style>
+</head>
+<body>
+<div id="landingScreen" style="min-height:100vh;background:linear-gradient(180deg,#f8fbff,#eef5ff);padding:34px 16px;box-sizing:border-box;font-family:Arial,sans-serif">
+  <div style="max-width:1050px;margin:auto;text-align:center">
+    <h1 style="font-size:clamp(30px,5vw,52px);line-height:1.08;margin:15px 0;color:#1d4ed8">
+      Passport Photo Maker & A4 Print Sheet
+    </h1>
+    <p style="max-width:780px;margin:0 auto 26px;color:#475569;font-size:17px;line-height:1.6">
+      Passport/PAN size photo बनाएं, background remove करें, photo adjust करें और Single या Multiple Persons की print sheet तैयार करें।
+    </p>
+
+    <button id="landingUpload" type="button"
+      style="width:100%;max-width:950px;min-height:235px;border:0;border-radius:22px;background:linear-gradient(135deg,#2563eb,#0ea5e9);color:white;cursor:pointer;box-shadow:0 12px 30px #2563eb33">
+      <div style="font-size:48px">☁️</div>
+      <div style="font-size:24px;font-weight:900;margin-top:8px">Click to upload photo</div>
+      <div style="font-size:14px;margin-top:7px;opacity:.92">JPG / PNG / phone camera photo</div>
+      <div style="display:inline-block;margin-top:18px;padding:8px 14px;border-radius:20px;background:#1e40af88;font-weight:700">
+        💡 Single और Multiple Person दोनों supported
+      </div>
+    </button>
+
+    <section style="padding:42px 0 20px">
+      <h2 style="color:#1d4ed8;margin-bottom:8px">How it works</h2>
+      <p style="color:#64748b;margin-top:0">Photo upload करने के बाद actual editor खुलेगा।</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;text-align:left" class="landingSteps">
+        <div style="background:white;padding:22px;border-radius:16px;box-shadow:0 5px 18px #0000000d"><b>1. 📷 Upload Photo</b><p style="color:#64748b;line-height:1.5">Phone या computer से photo चुनें।</p></div>
+        <div style="background:white;padding:22px;border-radius:16px;box-shadow:0 5px 18px #0000000d"><b>2. ✨ Edit & Remove BG</b><p style="color:#64748b;line-height:1.5">Background remove, size, color, zoom और position adjust करें।</p></div>
+        <div style="background:white;padding:22px;border-radius:16px;box-shadow:0 5px 18px #0000000d"><b>3. 🖨️ Queue & Print</b><p style="color:#64748b;line-height:1.5">Single photo या कई persons को Queue में जोड़कर final sheet बनाएं।</p></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div id="makerScreen" style="display:none">
+
+<header><h1>📸 Passport Photo Maker</h1><p>Manjeet Digital Hub • MediaPipe Background Removal</p></header>
+<div class="wrap">
+<div>
+ <div class="panel">
+  <h3>1. Upload Photo</h3>
+  <label class="upload"><input id="file" type="file" accept="image/*"><b>📷 Select Photo</b><br><small>JPG / PNG / phone camera photo</small></label>
+  <div class="actions"><button id="remove" class="btn ai" disabled>✨ Remove Background</button><button id="reset" class="btn gray">Reset</button></div>
+  <div id="status" class="status">पहले photo select करें।</div>
+ </div>
+ <div class="panel">
+  <h3>2. Photo Settings</h3>
+  <div class="row"><label>Size</label><select id="size">
+<option value="32,41.14">A4 6 Photos/Row (Equal Margins) - 3.2×4.114 cm</option>
+<option value="35,45" selected>India (Passport/PAN) - 3.5×4.5 cm</option>
+<option value="50.8,50.8">USA (Passport/Visa) - 2×2 inch</option>
+<option value="35,45">UK (Passport) - 3.5×4.5 cm</option>
+<option value="35,45">Schengen (Europe) - 3.5×4.5 cm</option>
+<option value="50,70">Canada (Passport) - 50×70 mm</option>
+<option value="35,45">Australia - 35×45 mm</option>
+<option value="35,45">Japan (Visa/Passport) - 35×45 mm</option>
+<option value="33,48">China (Visa) - 33×48 mm</option>
+<option value="35,45">Russia - 35×45 mm</option>
+<option value="40,60">UAE (Visa) - 4×6 cm</option>
+<option value="40,60">Saudi Arabia - 4×6 cm</option>
+<option value="35,45">Singapore - 35×45 mm</option>
+<option value="35,50">Malaysia - 35×50 mm</option>
+<option value="35,45">South Korea - 35×45 mm</option>
+<option value="50,70">Brazil - 5×7 cm</option>
+<option value="50,60">Turkey - 50×60 mm</option>
+<option value="custom">Custom Size (mm)</option>
+</select></div>
+<div id="customSize" style="display:none">
+ <div class="row"><label>Width mm</label><input id="customW" type="number" min="10" max="100" value="35"></div>
+ <div class="row"><label>Height mm</label><input id="customH" type="number" min="10" max="120" value="45"></div>
+</div>
+  <div class="row"><label>Background</label><div class="bgchips"><button class="chip active" data-bg="#ffffff" title="White" style="background:#fff"></button><button class="chip" data-bg="#dbeafe" title="Light Blue" style="background:#dbeafe"></button><button class="chip" data-bg="#bfdbfe" title="Blue" style="background:#bfdbfe"></button><button class="chip" data-bg="#fee2e2" title="Light Red" style="background:#fee2e2"></button></div></div>
+  <div class="row"><label>Zoom</label><input id="zoom" type="range" min="100" max="300" value="100"></div>
+  <div class="row"><label>X Position</label><input id="xpos" type="range" min="-200" max="200" value="0"></div>
+  <div class="row"><label>Y Position</label><input id="ypos" type="range" min="-250" max="250" value="0"></div>
+  <h3 style="margin-top:16px">🎚 Photo Enhance</h3>
+  <div class="row"><label>Brightness</label><input id="brightness" type="range" min="50" max="150" value="100"></div>
+  <div class="row"><label>Contrast</label><input id="contrast" type="range" min="50" max="150" value="100"></div>
+  <div class="row"><label>Saturation</label><input id="saturation" type="range" min="0" max="180" value="100"></div>
+  <div class="row"><label>Border</label><input id="border" type="range" min="0" max="50" value="0"></div>
+  <div class="actions"><button id="resetTune" class="btn gray">↻ Reset Enhance</button><button id="download" class="btn green" disabled>⬇ Download Photo</button></div>
+ </div>
+ <div class="panel controlsPrint">
+  <h3>3. Photo Sheet</h3>
+  <div class="row"><label>Copies</label><input id="copies" type="number" min="1" max="24" value="8"></div>
+  <div class="actions"><button id="makeSheet" class="btn" disabled>🖼 Make Sheet</button><button id="print" class="btn green" disabled>🖨 Print Sheet</button></div>
+ </div>
+</div>
+<div>
+ <div id="editor" class="editor" style="position:absolute;left:-99999px;top:-99999px;width:350px;height:450px"><canvas id="canvas" width="700" height="900"></canvas><div class="guide"></div></div>
+ 
+<div class="panel" id="queuePanel">
+ <h3>🖨️ Print Queue</h3>
+ <p class="hint">Photo edit करें → copies चुनें → Add to Queue → Next Person चुनें।</p>
+ <div class="actions" style="align-items:center">
+  <button type="button" id="qm" class="btn gray">−</button>
+  <input id="qc" type="number" min="1" max="50" value="4" style="width:65px;padding:10px;text-align:center">
+  <button type="button" id="qp" class="btn gray">+</button>
+  <button type="button" id="qa" class="btn green">➕ Add to Queue</button>
+  <button type="button" id="qn" class="btn">📷 Select Next Person</button>
+ </div>
+ <div id="ql" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"></div>
+ <div id="qi" style="font-weight:800;margin:10px 0">0 Person • 0 Photos</div>
+ <div class="actions">
+  <button type="button" id="qfinal" class="btn green">🖨️ Create Final Queue Sheet</button>
+  <button type="button" id="qclear" class="btn gray">Clear Queue</button>
+ </div>
+</div>
+<div class="panel previewArea">
+  <h3>Final Passport Photo</h3><img id="finalPreview" class="photoPreview" alt="Preview">
+  <div id="sheet" class="sheet" style="display:none"></div>
+ </div>
+</div>
+</div>
+<script>
+const file=document.getElementById('file'),canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d');
+const editor=document.getElementById('editor'),remove=document.getElementById('remove'),statusEl=document.getElementById('status');
+const zoom=document.getElementById('zoom'),xpos=document.getElementById('xpos'),ypos=document.getElementById('ypos'),sizeSel=document.getElementById('size');
+const finalPreview=document.getElementById('finalPreview'),download=document.getElementById('download'),makeSheet=document.getElementById('makeSheet'),printBtn=document.getElementById('print'),sheet=document.getElementById('sheet');
+const brightness=document.getElementById('brightness'),contrast=document.getElementById('contrast'),saturation=document.getElementById('saturation'),border=document.getElementById('border'),customSize=document.getElementById('customSize'),customW=document.getElementById('customW'),customH=document.getElementById('customH');
+let original=null,working=null,bg='#ffffff',drag=false,lastX=0,lastY=0,seg=null,busy=false;
+
+function loadImg(src,cb){const i=new Image();i.onload=()=>cb(i);i.src=src}
+file.onchange=e=>{const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f);loadImg(u,i=>{original=i;working=i;zoom.value=100;xpos.value=0;ypos.value=0;remove.disabled=false;download.disabled=false;makeSheet.disabled=false;statusEl.textContent='✅ Photo loaded. जरूरत हो तो Remove Background दबाएँ।';draw();URL.revokeObjectURL(u)})};
+
+function draw(){
+ ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle=bg;ctx.fillRect(0,0,canvas.width,canvas.height);if(!working)return;
+ ctx.filter=`brightness(${brightness.value}%) contrast(${contrast.value}%) saturate(${saturation.value}%)`;
+ const z=+zoom.value/100;let scale=Math.max(canvas.width/working.width,canvas.height/working.height)*z;
+ const w=working.width*scale,h=working.height*scale,x=(canvas.width-w)/2+(+xpos.value),y=(canvas.height-h)/2+(+ypos.value);
+ ctx.drawImage(working,x,y,w,h);ctx.filter='none';makeFinal();
+}
+function makeFinal(){
+ if(!working)return null;let mw,mh;if(sizeSel.value==='custom'){mw=+customW.value||35;mh=+customH.value||45}else{[mw,mh]=sizeSel.value.split(',').map(Number)}const ratio=mw/mh;
+ let sw=canvas.width,sh=canvas.height;if(sw/sh>ratio)sw=sh*ratio;else sh=sw/ratio;
+ const sx=(canvas.width-sw)/2,sy=(canvas.height-sh)/2,o=document.createElement('canvas');
+ o.width=Math.round(mw*20);o.height=Math.round(mh*20);const oc=o.getContext('2d');oc.drawImage(canvas,sx,sy,sw,sh,0,0,o.width,o.height);if(+border.value>0){oc.strokeStyle='#111';oc.lineWidth=+border.value;oc.strokeRect(0,0,o.width,o.height);}
+ const data=o.toDataURL('image/jpeg',.95);finalPreview.src=data;return data;
+}
+[zoom,xpos,ypos,sizeSel,brightness,contrast,saturation,border,customW,customH].forEach(el=>el.oninput=()=>{customSize.style.display=sizeSel.value==='custom'?'block':'none';draw()});
+document.getElementById('resetTune').onclick=()=>{brightness.value=100;contrast.value=100;saturation.value=100;border.value=0;draw()};
+document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');bg=b.dataset.bg;draw()});
+
+editor.addEventListener('pointerdown',e=>{if(!working)return;drag=true;lastX=e.clientX;lastY=e.clientY;editor.setPointerCapture(e.pointerId)});
+editor.addEventListener('pointermove',e=>{if(!drag)return;const r=editor.getBoundingClientRect();xpos.value=Math.max(-200,Math.min(200,+xpos.value+(e.clientX-lastX)*canvas.width/r.width));ypos.value=Math.max(-250,Math.min(250,+ypos.value+(e.clientY-lastY)*canvas.height/r.height));lastX=e.clientX;lastY=e.clientY;draw()});
+editor.addEventListener('pointerup',()=>drag=false);editor.addEventListener('pointercancel',()=>drag=false);
+
+function initSeg(){
+ if(seg)return true;if(typeof SelfieSegmentation==='undefined'){statusEl.textContent='❌ MediaPipe load नहीं हुआ। Internet check करें।';return false}
+ seg=new SelfieSegmentation({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${f}`});seg.setOptions({modelSelection:1});
+ seg.onResults(r=>{const o=document.createElement('canvas');o.width=r.image.width;o.height=r.image.height;const c=o.getContext('2d');c.globalCompositeOperation='copy';c.drawImage(r.segmentationMask,0,0,o.width,o.height);c.globalCompositeOperation='source-in';c.drawImage(r.image,0,0,o.width,o.height);c.globalCompositeOperation='source-over';loadImg(o.toDataURL('image/png'),i=>{working=i;busy=false;remove.disabled=false;remove.textContent='✨ Remove Background';statusEl.textContent='✅ Background removed. अब White/Blue background और position चुनें।';draw()})});return true
+}
+remove.onclick=async()=>{if(!original||busy||!initSeg())return;busy=true;remove.disabled=true;remove.textContent='⏳ Removing...';statusEl.textContent='⏳ Background remove हो रहा है...';try{await seg.send({image:original})}catch(e){console.error(e);busy=false;remove.disabled=false;remove.textContent='✨ Remove Background';statusEl.textContent='❌ Background removal failed. फिर try करें।'}};
+
+download.onclick=()=>{const a=document.createElement('a');a.href=makeFinal();a.download='passport-photo.jpg';a.click()};
+makeSheet.onclick=()=>{const d=makeFinal();if(!d)return;sheet.innerHTML='';let n=Math.max(1,Math.min(24,+document.getElementById('copies').value||8));for(let i=0;i<n;i++){const im=new Image();im.src=d;sheet.appendChild(im)}sheet.style.display='grid';printBtn.disabled=false;sheet.scrollIntoView({behavior:'smooth'})};
+printBtn.onclick=()=>window.print();
+document.getElementById('reset').onclick=()=>{file.value='';original=working=null;ctx.clearRect(0,0,canvas.width,canvas.height);finalPreview.removeAttribute('src');sheet.innerHTML='';sheet.style.display='none';remove.disabled=download.disabled=makeSheet.disabled=printBtn.disabled=true;zoom.value=100;xpos.value=0;ypos.value=0;statusEl.textContent='पहले photo select करें।'};
+
+// ---- Clean Print Queue (independent of MediaPipe/background-removal logic) ----
+const printQueue=[];
+const qc=document.getElementById('qc'), ql=document.getElementById('ql'), qi=document.getElementById('qi');
+document.getElementById('qm').onclick=()=>{qc.value=Math.max(1,(+qc.value||1)-1)};
+document.getElementById('qp').onclick=()=>{qc.value=Math.min(50,(+qc.value||1)+1)};
+
+function renderPrintQueue(){
+ ql.innerHTML=''; let total=0;
+ printQueue.forEach((item,index)=>{
+   total+=item.copies;
+   const card=document.createElement('div');
+   card.style.cssText='width:110px;padding:8px;background:#fff;border:1px solid #cbd5e1;border-radius:10px;text-align:center';
+   const img=document.createElement('img');
+   img.src=item.url; img.style.cssText='width:72px;height:92px;object-fit:cover;border:1px solid #334155';
+   const name=document.createElement('div');
+   name.textContent='Person '+(index+1); name.style.cssText='font-size:12px;font-weight:800;margin:4px 0';
+   const row=document.createElement('div'); row.style.cssText='display:flex;justify-content:center;align-items:center;gap:4px';
+   const m=document.createElement('button'),n=document.createElement('b'),p=document.createElement('button');
+   m.textContent='−';p.textContent='+';n.textContent=item.copies;
+   m.onclick=()=>{item.copies=Math.max(1,item.copies-1);renderPrintQueue()};
+   p.onclick=()=>{item.copies=Math.min(50,item.copies+1);renderPrintQueue()};
+   const del=document.createElement('button');del.textContent='🗑 Remove';del.style.cssText='margin-top:5px;border:0;background:#fee2e2;border-radius:6px;padding:4px';
+   del.onclick=()=>{printQueue.splice(index,1);renderPrintQueue()};
+   row.append(m,n,p);card.append(img,name,row,del);ql.appendChild(card);
+ });
+ qi.textContent=printQueue.length+' Person • '+total+' Photos';
+}
+
+document.getElementById('qa').onclick=()=>{
+ const url=makeFinal();
+ if(!url){alert('पहले photo upload करें');return}
+ printQueue.push({url:url,copies:Math.max(1,Math.min(50,+qc.value||4))});
+ renderPrintQueue();
+};
+
+document.getElementById('qn').onclick=()=>{file.value='';file.click()};
+
+document.getElementById('qclear').onclick=()=>{printQueue.length=0;renderPrintQueue()};
+
+document.getElementById('qfinal').onclick=()=>{
+ if(!printQueue.length){alert('Queue में पहले photo Add करें');return}
+ sheet.innerHTML='';
+ sheet.style.display='grid';
+ sheet.style.gridTemplateColumns='repeat(5,1fr)';
+ sheet.style.gap='6px';
+ printQueue.forEach(item=>{
+   for(let i=0;i<item.copies;i++){
+     const im=document.createElement('img');im.src=item.url;
+     im.style.cssText='width:100%;display:block;border:1px solid #222;box-sizing:border-box';
+     sheet.appendChild(im);
+   }
+ });
+ printBtn.disabled=false;
+ sheet.scrollIntoView({behavior:'smooth',block:'start'});
+};
+renderPrintQueue();
+</script>
+
+</div>
+
+<script>
+(function(){
+  var landing=document.getElementById('landingScreen');
+  var maker=document.getElementById('makerScreen');
+  var landingUpload=document.getElementById('landingUpload');
+  var originalFile=document.getElementById('file');
+
+  landingUpload.addEventListener('click',function(){
+    originalFile.value='';
+    originalFile.click();
+  });
+
+  originalFile.addEventListener('change',function(){
+    if(originalFile.files && originalFile.files.length){
+      landing.style.display='none';
+      maker.style.display='block';
+      window.scrollTo(0,0);
+    }
+  });
+})();
+</script>
+<style>
+@media(max-width:700px){
+ .landingSteps{grid-template-columns:1fr!important}
+}
+</style>
+</body></html>
