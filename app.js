@@ -781,6 +781,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function openTool(toolName) {
 
+    // School ID Card Maker has its own complete dedicated page.
+    if (toolName === "schoolid") {
+      window.location.href = "tools/school-id-card-maker.html";
+      return;
+    }
+
     const data = toolData[toolName];
 
     if (!data) {
