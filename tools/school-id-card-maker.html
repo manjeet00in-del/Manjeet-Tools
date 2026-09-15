@@ -1926,7 +1926,107 @@ document
     reader.readAsDataURL(file);
 
 });
-\n\n/* PHOTO CROP / RESIZE / AI BACKGROUND REMOVAL */\nconst editPhotoBtn = document.getElementById("editPhotoBtn");\nconst removeBgBtn = document.getElementById("removeBgBtn");\nconst photoEditor = document.getElementById("photoEditor");\nconst cropCanvas = document.getElementById("cropCanvas");\nconst cropCtx = cropCanvas.getContext("2d");\nconst photoZoom = document.getElementById("photoZoom");\nconst photoX = document.getElementById("photoX");\nconst photoY = document.getElementById("photoY");\nconst zoomValue = document.getElementById("zoomValue");\nconst aiStatus = document.getElementById("aiStatus");\nlet cropImage = null;\nlet photoBg = "transparent";\n\nfunction setStudentPhoto(data){\n    photoData = data;\n    const img = document.getElementById("studentPhoto");\n    img.src = photoData;\n    img.style.display = "block";\n    document.getElementById("photoPlaceholder").style.display = "none";\n    updateCard();\n}\n\nfunction drawCrop(){\n    if(!cropImage) return;\n    const cw=cropCanvas.width, ch=cropCanvas.height;\n    cropCtx.clearRect(0,0,cw,ch);\n    if(photoBg !== "transparent"){ cropCtx.fillStyle=photoBg; cropCtx.fillRect(0,0,cw,ch); }\n    const base=Math.max(cw/cropImage.naturalWidth,ch/cropImage.naturalHeight);\n    const scale=base*(Number(photoZoom.value)/100);\n    const w=cropImage.naturalWidth*scale, h=cropImage.naturalHeight*scale;\n    const maxX=Math.max(0,(w-cw)/2), maxY=Math.max(0,(h-ch)/2);\n    const dx=(cw-w)/2 + (Number(photoX.value)/100)*maxX;\n    const dy=(ch-h)/2 + (Number(photoY.value)/100)*maxY;\n    cropCtx.drawImage(cropImage,dx,dy,w,h);\n    zoomValue.textContent=photoZoom.value+"%";\n}\n\nfunction openPhotoEditor(){\n    if(!photoData){ alert("Please upload student photo first."); return; }\n    cropImage=new Image();\n    cropImage.onload=()=>{ photoZoom.value=100; photoX.value=0; photoY.value=0; drawCrop(); photoEditor.classList.add("open"); };\n    cropImage.src=photoData;\n}\neditPhotoBtn.addEventListener("click",openPhotoEditor);\n[photoZoom,photoX,photoY].forEach(el=>el.addEventListener("input",drawCrop));\ndocument.getElementById("cancelPhotoEdit").addEventListener("click",()=>photoEditor.classList.remove("open"));\ndocument.getElementById("savePhotoEdit").addEventListener("click",()=>{\n    setStudentPhoto(cropCanvas.toDataURL("image/png"));\n    photoEditor.classList.remove("open");\n});\n\ndocument.querySelectorAll("[data-bg]").forEach(btn=>btn.addEventListener("click",()=>{\n    photoBg=btn.dataset.bg;\n    if(photoData) openPhotoEditor();\n}));\n\nlet bgRemoverPromise=null;\nasync function getBgRemover(){\n    if(!bgRemoverPromise){\n        aiStatus.textContent="AI model loading first time… please wait.";\n        bgRemoverPromise=(async()=>{\n            const mod=await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.3");\n            mod.env.allowLocalModels=false;\n            return await mod.pipeline("background-removal","onnx-community/modnet-webnn",{dtype:"fp32"});\n        })();\n    }\n    return bgRemoverPromise;\n}\n\nremoveBgBtn.addEventListener("click",async()=>{\n    if(!photoData){ alert("Please upload student photo first."); return; }\n    const oldText=removeBgBtn.textContent;\n    removeBgBtn.disabled=true;\n    try{\n        aiStatus.textContent="AI is removing background… first use may take longer.";\n        const remover=await getBgRemover();\n        const out=await remover([photoData]);\n        const maskCanvas=out[0].toCanvas();\n        const src=new Image();\n        await new Promise((ok,fail)=>{src.onload=ok;src.onerror=fail;src.src=photoData;});\n        const c=document.createElement("canvas"); c.width=src.naturalWidth; c.height=src.naturalHeight;\n        const cx=c.getContext("2d"); cx.drawImage(src,0,0,c.width,c.height);\n        const m=document.createElement("canvas"); m.width=c.width; m.height=c.height;\n        const mx=m.getContext("2d"); mx.drawImage(maskCanvas,0,0,m.width,m.height);\n        const img=cx.getImageData(0,0,c.width,c.height);\n        const mask=mx.getImageData(0,0,m.width,m.height).data;\n        for(let i=0;i<img.data.length;i+=4){ img.data[i+3]=mask[i]; }\n        cx.clearRect(0,0,c.width,c.height); cx.putImageData(img,0,0);\n        setStudentPhoto(c.toDataURL("image/png"));\n        photoBg="transparent";\n        aiStatus.textContent="✓ Background removed. You can now Crop / Resize or choose a background color.";\n    }catch(err){\n        console.error(err);\n        aiStatus.textContent="AI could not load. Check internet and try again.";\n        alert("Background removal could not run on this browser. Please check internet and try again.");\n    }finally{ removeBgBtn.disabled=false; removeBgBtn.textContent=oldText; }\n});\n
+
+
+/* PHOTO CROP / RESIZE / AI BACKGROUND REMOVAL */
+const editPhotoBtn = document.getElementById("editPhotoBtn");
+const removeBgBtn = document.getElementById("removeBgBtn");
+const photoEditor = document.getElementById("photoEditor");
+const cropCanvas = document.getElementById("cropCanvas");
+const cropCtx = cropCanvas.getContext("2d");
+const photoZoom = document.getElementById("photoZoom");
+const photoX = document.getElementById("photoX");
+const photoY = document.getElementById("photoY");
+const zoomValue = document.getElementById("zoomValue");
+const aiStatus = document.getElementById("aiStatus");
+let cropImage = null;
+let photoBg = "transparent";
+
+function setStudentPhoto(data){
+    photoData = data;
+    const img = document.getElementById("studentPhoto");
+    img.src = photoData;
+    img.style.display = "block";
+    document.getElementById("photoPlaceholder").style.display = "none";
+    updateCard();
+}
+
+function drawCrop(){
+    if(!cropImage) return;
+    const cw=cropCanvas.width, ch=cropCanvas.height;
+    cropCtx.clearRect(0,0,cw,ch);
+    if(photoBg !== "transparent"){ cropCtx.fillStyle=photoBg; cropCtx.fillRect(0,0,cw,ch); }
+    const base=Math.max(cw/cropImage.naturalWidth,ch/cropImage.naturalHeight);
+    const scale=base*(Number(photoZoom.value)/100);
+    const w=cropImage.naturalWidth*scale, h=cropImage.naturalHeight*scale;
+    const maxX=Math.max(0,(w-cw)/2), maxY=Math.max(0,(h-ch)/2);
+    const dx=(cw-w)/2 + (Number(photoX.value)/100)*maxX;
+    const dy=(ch-h)/2 + (Number(photoY.value)/100)*maxY;
+    cropCtx.drawImage(cropImage,dx,dy,w,h);
+    zoomValue.textContent=photoZoom.value+"%";
+}
+
+function openPhotoEditor(){
+    if(!photoData){ alert("Please upload student photo first."); return; }
+    cropImage=new Image();
+    cropImage.onload=()=>{ photoZoom.value=100; photoX.value=0; photoY.value=0; drawCrop(); photoEditor.classList.add("open"); };
+    cropImage.src=photoData;
+}
+editPhotoBtn.addEventListener("click",openPhotoEditor);
+[photoZoom,photoX,photoY].forEach(el=>el.addEventListener("input",drawCrop));
+document.getElementById("cancelPhotoEdit").addEventListener("click",()=>photoEditor.classList.remove("open"));
+document.getElementById("savePhotoEdit").addEventListener("click",()=>{
+    setStudentPhoto(cropCanvas.toDataURL("image/png"));
+    photoEditor.classList.remove("open");
+});
+
+document.querySelectorAll("[data-bg]").forEach(btn=>btn.addEventListener("click",()=>{
+    photoBg=btn.dataset.bg;
+    if(photoData) openPhotoEditor();
+}));
+
+let bgRemoverPromise=null;
+async function getBgRemover(){
+    if(!bgRemoverPromise){
+        aiStatus.textContent="AI model loading first time… please wait.";
+        bgRemoverPromise=(async()=>{
+            const mod=await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.3");
+            mod.env.allowLocalModels=false;
+            return await mod.pipeline("background-removal","onnx-community/modnet-webnn",{dtype:"fp32"});
+        })();
+    }
+    return bgRemoverPromise;
+}
+
+removeBgBtn.addEventListener("click",async()=>{
+    if(!photoData){ alert("Please upload student photo first."); return; }
+    const oldText=removeBgBtn.textContent;
+    removeBgBtn.disabled=true;
+    try{
+        aiStatus.textContent="AI is removing background… first use may take longer.";
+        const remover=await getBgRemover();
+        const out=await remover([photoData]);
+        const maskCanvas=out[0].toCanvas();
+        const src=new Image();
+        await new Promise((ok,fail)=>{src.onload=ok;src.onerror=fail;src.src=photoData;});
+        const c=document.createElement("canvas"); c.width=src.naturalWidth; c.height=src.naturalHeight;
+        const cx=c.getContext("2d"); cx.drawImage(src,0,0,c.width,c.height);
+        const m=document.createElement("canvas"); m.width=c.width; m.height=c.height;
+        const mx=m.getContext("2d"); mx.drawImage(maskCanvas,0,0,m.width,m.height);
+        const img=cx.getImageData(0,0,c.width,c.height);
+        const mask=mx.getImageData(0,0,m.width,m.height).data;
+        for(let i=0;i<img.data.length;i+=4){ img.data[i+3]=mask[i]; }
+        cx.clearRect(0,0,c.width,c.height); cx.putImageData(img,0,0);
+        setStudentPhoto(c.toDataURL("image/png"));
+        photoBg="transparent";
+        aiStatus.textContent="✓ Background removed. You can now Crop / Resize or choose a background color.";
+    }catch(err){
+        console.error(err);
+        aiStatus.textContent="AI could not load. Check internet and try again.";
+        alert("Background removal could not run on this browser. Please check internet and try again.");
+    }finally{ removeBgBtn.disabled=false; removeBgBtn.textContent=oldText; }
+});
+
 
 /* COLORS */
 
@@ -2539,7 +2639,8 @@ async function createCardCanvas(side){
             String(
                 inputs.backText.value ||
                 ""
-            ).split("\n");
+            ).split("
+");
 
 
         let y = 190;
