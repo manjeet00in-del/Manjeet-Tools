@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Image Tools – Manjeet Digital Hub</title>
+<meta name="description" content="Resize, compress and convert images online in your browser.">
+<meta name="theme-color" content="#2563eb">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f7fb;color:#172033}
+button,input,select{font:inherit}.header{position:sticky;top:0;z-index:20;background:#fffffff2;border-bottom:1px solid #e2e8f0}
+.header-in{max-width:1050px;margin:auto;padding:11px 15px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:10px;align-items:center}.logo{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#2563eb,#4f46e5);color:white;display:grid;place-items:center;font-weight:900}
+.brand b{display:block}.brand small{color:#64748b}.back{border:0;border-radius:9px;padding:9px 12px;background:#eef4ff;color:#1d4ed8;font-weight:700;cursor:pointer}
+.wrap{width:min(100% - 22px,1050px);margin:auto}.hero{text-align:center;padding:28px 0 18px}.hero h1{margin:5px 0;font-size:clamp(27px,5vw,40px)}.hero p{margin:0;color:#64748b;font-size:13px}
+.grid{display:grid;grid-template-columns:360px 1fr;gap:16px;align-items:start}.panel{background:#fff;border:1px solid #e2e8f0;border-radius:15px;padding:15px;box-shadow:0 5px 20px #0f172a0d}
+.title{font-weight:900;margin-bottom:12px}.upload{display:block;border:2px dashed #bfdbfe;background:#f8fbff;border-radius:12px;padding:22px 10px;text-align:center;cursor:pointer}.upload input{position:absolute;opacity:0;width:1px;height:1px}.upload strong{display:block}.upload small{color:#64748b}
+.sec{border-top:1px solid #edf2f7;margin-top:14px;padding-top:13px}.sec h3{font-size:13px;margin:0 0 9px}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.field{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}.field label{font-size:11px;font-weight:700;color:#475569}.field input,.field select{width:100%;padding:9px;border:1px solid #dbe3ef;border-radius:8px;background:#fff}
+.check{display:flex;align-items:center;gap:7px;font-size:12px;margin:4px 0 8px}.check input{width:auto}
+.range{width:100%}.preset{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.preset button{border:1px solid #dbe3ef;background:#fff;border-radius:8px;padding:8px 4px;font-size:11px;cursor:pointer}.preset button.active{background:#eff6ff;border-color:#2563eb;color:#1d4ed8}
+.mainbtn{width:100%;border:0;background:#2563eb;color:#fff;border-radius:10px;padding:12px;font-weight:900;cursor:pointer;margin-top:10px}.mainbtn:disabled{opacity:.5;cursor:not-allowed}.reset{background:#eef4ff;color:#1d4ed8}
+.preview{min-height:440px;display:flex;flex-direction:column}.previewbox{min-height:300px;flex:1;border-radius:12px;background:#eef2f7;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:12px}.previewbox img{max-width:100%;max-height:430px;object-fit:contain}.empty{text-align:center;color:#64748b}.empty .ico{font-size:48px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}.stat{background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:8px;text-align:center}.stat small{display:block;color:#64748b;font-size:9px}.stat b{font-size:11px}
+.note{font-size:10px;color:#64748b;margin-top:9px}.status{font-size:11px;color:#475569;min-height:18px;margin-top:8px}.footer{text-align:center;color:#64748b;font-size:10px;padding:25px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.preview{order:-1;min-height:auto}.previewbox{min-height:230px}.stats{grid-template-columns:1fr 1fr}.brand small{display:none}}
+</style>
+</head>
+<body>
+<header class="header"><div class="header-in"><div class="brand"><div class="logo">MDH</div><div><b>Manjeet Digital Hub</b><small>Smart Digital Tools. Simple Solutions.</small></div></div><button class="back" onclick="location.href='../index.html'">← Back to Tools</button></div></header>
+<main class="wrap">
+<section class="hero"><div>🖼️ IMAGE TOOL</div><h1>Image Tools</h1><p>Resize + Compress + Convert — all in one place. Processing happens in your browser.</p></section>
+<div class="grid">
+<section class="panel controls">
+<div class="title">Edit Your Image</div>
+<label class="upload"><input id="file" type="file" accept="image/jpeg,image/png,image/webp,image/*"><div style="font-size:30px">📷</div><strong>Upload Image</strong><small>JPG / PNG / WEBP</small></label>
+
+<div class="sec"><h3>📐 Resize</h3>
+<label class="check"><input id="resizeOn" type="checkbox"> Enable Resize</label>
+<div class="row"><div class="field"><label>Width (px)</label><input id="width" type="number" min="1" placeholder="Width"></div><div class="field"><label>Height (px)</label><input id="height" type="number" min="1" placeholder="Height"></div></div>
+<label class="check"><input id="ratio" type="checkbox" checked> Maintain aspect ratio</label>
+</div>
+
+<div class="sec"><h3>🗜️ Compress</h3>
+<label class="check"><input id="compressOn" type="checkbox"> Enable Compression</label>
+<div class="field"><label>Quality: <b id="qv">85%</b></label><input class="range" id="quality" type="range" min="10" max="100" value="85"></div>
+<div class="field"><label>Target size (optional)</label><div class="preset"><button data-kb="50">50 KB</button><button data-kb="100">100 KB</button><button data-kb="200">200 KB</button><button data-kb="500">500 KB</button><button data-kb="1024">1 MB</button><button data-kb="0">Quality Only</button></div></div>
+<div class="field"><label>Custom target (KB)</label><input id="target" type="number" min="1" placeholder="e.g. 150"></div>
+</div>
+
+<div class="sec"><h3>🔄 Convert</h3>
+<label class="check"><input id="convertOn" type="checkbox"> Enable Convert</label>
+<div class="field"><label>Output format</label><select id="format"><option value="image/jpeg">JPG</option><option value="image/png">PNG</option><option value="image/webp">WEBP</option></select></div>
+</div>
+
+<button class="mainbtn" id="process" disabled>⚡ Process Image</button>
+<button class="mainbtn" id="download" disabled>📥 Download Image</button>
+<button class="mainbtn reset" id="reset">↻ Reset</button>
+<div class="status" id="status"></div><div class="note">No API key required. Your image is processed locally in the browser.</div>
+</section>
+
+<section class="panel preview"><div class="title">👀 Preview</div><div class="previewbox"><div class="empty" id="empty"><div class="ico">🖼️</div><b>Upload an image to start</b></div><img id="preview" alt="Preview" hidden></div>
+<div class="stats"><div class="stat"><small>Original Size</small><b id="os">—</b></div><div class="stat"><small>Original Dimensions</small><b id="od">—</b></div><div class="stat"><small>Output Size</small><b id="ns">—</b></div><div class="stat"><small>Output Dimensions</small><b id="nd">—</b></div></div></section>
+</div>
+</main><footer class="footer">© <span id="year"></span> Manjeet Digital Hub</footer>
+<script>
+const $=id=>document.getElementById(id),file=$("file"),preview=$("preview"),empty=$("empty"),processBtn=$("process"),downloadBtn=$("download");
+let img=null,originalFile=null,outputBlob=null,outputURL=null,aspect=1;
+$("year").textContent=new Date().getFullYear();
+function size(n){if(!Number.isFinite(n))return "—";return n<1024?n+" B":n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB"}
+function revoke(){if(outputURL){URL.revokeObjectURL(outputURL);outputURL=null}}
+file.addEventListener("change",()=>{const f=file.files[0];if(!f)return; if(!f.type.startsWith("image/")){alert("Please select an image.");return} originalFile=f;const u=URL.createObjectURL(f);const im=new Image();im.onload=()=>{img=im;aspect=im.naturalWidth/im.naturalHeight;$("width").value=im.naturalWidth;$("height").value=im.naturalHeight;$("os").textContent=size(f.size);$("od").textContent=im.naturalWidth+" × "+im.naturalHeight;preview.src=u;preview.hidden=false;empty.hidden=true;processBtn.disabled=false;$("status").textContent="Image ready.";};im.onerror=()=>alert("This image could not be opened.");im.src=u});
+$("quality").addEventListener("input",()=>$("qv").textContent=$("quality").value+"%");
+$("width").addEventListener("input",()=>{if($("ratio").checked&&img&&document.activeElement===$("width"))$("height").value=Math.max(1,Math.round(Number($("width").value)/aspect))});
+$("height").addEventListener("input",()=>{if($("ratio").checked&&img&&document.activeElement===$("height"))$("width").value=Math.max(1,Math.round(Number($("height").value)*aspect))});
+document.querySelectorAll("[data-kb]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-kb]").forEach(x=>x.classList.remove("active"));b.classList.add("active");const k=Number(b.dataset.kb);$("target").value=k||"";$("compressOn").checked=true});
+function canvasBlob(canvas,type,q){return new Promise((res,rej)=>canvas.toBlob(b=>b?res(b):rej(new Error("Browser could not create output image.")),type,q))}
+async function encodeTarget(canvas,type,targetKB,startQ){
+ if(type==="image/png"||!targetKB)return canvasBlob(canvas,type,type==="image/png"?undefined:startQ);
+ const max=targetKB*1024;let lo=.08,hi=Math.max(.1,startQ),best=null;
+ for(let i=0;i<8;i++){let q=(lo+hi)/2,b=await canvasBlob(canvas,type,q);if(b.size<=max){best=b;lo=q}else hi=q}
+ return best||canvasBlob(canvas,type,.08)
+}
+processBtn.onclick=async()=>{if(!img)return;processBtn.disabled=true;$("status").textContent="Processing…";
+ try{
+  let w=img.naturalWidth,h=img.naturalHeight;
+  if($("resizeOn").checked){w=Math.max(1,parseInt($("width").value)||w);h=Math.max(1,parseInt($("height").value)||h)}
+  const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");
+  let type=$("convertOn").checked?$("format").value:(originalFile.type==="image/png"?"image/png":originalFile.type==="image/webp"?"image/webp":"image/jpeg");
+  if(type==="image/jpeg"){x.fillStyle="#fff";x.fillRect(0,0,w,h)}
+  x.imageSmoothingEnabled=true;x.imageSmoothingQuality="high";x.drawImage(img,0,0,w,h);
+  const q=$("compressOn").checked?Number($("quality").value)/100:.95;
+  const targetKB=$("compressOn").checked?(Number($("target").value)||0):0;
+  outputBlob=await encodeTarget(c,type,targetKB,q);revoke();outputURL=URL.createObjectURL(outputBlob);preview.src=outputURL;
+  $("ns").textContent=size(outputBlob.size);$("nd").textContent=w+" × "+h;downloadBtn.disabled=false;$("status").textContent="✓ Image processed successfully.";
+ }catch(e){console.error(e);$("status").textContent="Could not process this image.";alert(e.message||"Processing failed");}
+ finally{processBtn.disabled=false}
+};
+downloadBtn.onclick=()=>{if(!outputBlob)return;const ext=outputBlob.type==="image/png"?"png":outputBlob.type==="image/webp"?"webp":"jpg";const a=document.createElement("a");a.href=outputURL;a.download="mdh-image."+ext;document.body.appendChild(a);a.click();a.remove()};
+$("reset").onclick=()=>{revoke();file.value="";img=null;originalFile=null;outputBlob=null;preview.hidden=true;preview.removeAttribute("src");empty.hidden=false;processBtn.disabled=true;downloadBtn.disabled=true;["os","od","ns","nd"].forEach(id=>$(id).textContent="—");$("resizeOn").checked=false;$("compressOn").checked=false;$("convertOn").checked=false;$("quality").value=85;$("qv").textContent="85%";$("target").value="";$("width").value="";$("height").value="";document.querySelectorAll("[data-kb]").forEach(x=>x.classList.remove("active"));$("status").textContent=""};
+</script></body></html>
