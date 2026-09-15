@@ -811,7 +811,7 @@ textarea{
 /* PHOTO EDITOR */
 .photo-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
 .photo-action-btn{border:0;border-radius:10px;padding:11px 8px;font-weight:700;background:#eef4ff;color:#1d4ed8;cursor:pointer}
-.photo-action-btn.ai{background:#ecfdf5;color:#047857}
+.photo-action-btn.ai{background:#ecfdf5;color:#047857}.photo-action-btn:disabled{opacity:.58;cursor:not-allowed}
 .photo-editor-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:9999;padding:18px;overflow:auto}
 .photo-editor-overlay.open{display:flex;align-items:center;justify-content:center}
 .photo-editor-box{width:min(94vw,430px);background:#fff;border-radius:18px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
@@ -1147,7 +1147,7 @@ Passport-size photo recommended
 
 <div class="photo-actions">
 <button type="button" class="photo-action-btn" id="editPhotoBtn">✂️ Crop / Resize</button>
-<button type="button" class="photo-action-btn ai" id="removeBgBtn">✨ Remove BG (AI)</button>
+<button type="button" class="photo-action-btn ai" id="removeBgBtn" disabled title="Coming Soon">✨ AI BG Removal — Coming Soon</button>
 </div>
 <div class="bg-colors" id="photoBgControls">
 <span style="font-size:12px;font-weight:700">Photo BG:</span>
@@ -1157,7 +1157,7 @@ Passport-size photo recommended
 <button type="button" class="bg-chip" data-bg="#fee2e2" title="Light Red" style="background:#fee2e2"></button>
 <button type="button" class="photo-action-btn" data-bg="transparent" style="padding:8px 10px">Transparent</button>
 </div>
-<div class="ai-status" id="aiStatus"></div>
+<div class="ai-status" id="aiStatus">AI Background Removal फिलहाल Coming Soon है। बाकी photo tools काम करेंगे।</div>
 
 </div>
 
@@ -2071,150 +2071,13 @@ document.querySelectorAll("[data-bg]").forEach(btn=>btn.addEventListener("click"
     if(photoData)openPhotoEditor();
 }));
 
-/* CROSS-BROWSER IN-BROWSER AI BACKGROUND REMOVAL
-   WebGPU when available; automatic WASM/CPU fallback.
-   No API key; the photo is processed on the user's device. */
-let hfModulePromise=null;
-let bgSegmenter=null;
-let bgDevice=null;
-
-async function getHF(){
-    if(!hfModulePromise){
-        hfModulePromise=import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1");
-    }
-    const hf=await hfModulePromise;
-    hf.env.allowLocalModels=false;
-    hf.env.useBrowserCache=true;
-    return hf;
-}
-
-async function buildBgPipeline(device){
-    const hf=await getHF();
-    return hf.pipeline("image-segmentation","briaai/RMBG-1.4",{
-        device,
-        dtype:"fp32",
-        progress_callback:(p)=>{
-            if(p && p.total>0){
-                const pc=Math.max(0,Math.min(100,Math.round((p.loaded||0)/p.total*100)));
-                aiStatus.textContent="AI model loading… "+pc+"%";
-            }else if(p && p.status){
-                aiStatus.textContent="AI: "+p.status+"…";
-            }
-        }
+/* AI BACKGROUND REMOVAL — COMING SOON
+   Disabled for now so the rest of the School ID Maker stays stable. */
+if(removeBgBtn){
+    removeBgBtn.addEventListener("click",()=>{
+        aiStatus.textContent="AI Background Removal — Coming Soon";
     });
 }
-
-async function getBgSegmenter(){
-    if(bgSegmenter)return bgSegmenter;
-    const canGPU=typeof navigator!=="undefined" && !!navigator.gpu;
-    if(canGPU){
-        try{
-            aiStatus.textContent="Starting AI with WebGPU…";
-            bgSegmenter=await buildBgPipeline("webgpu");
-            bgDevice="webgpu";
-            return bgSegmenter;
-        }catch(e){
-            console.warn("WebGPU unavailable/failed; falling back to WASM",e);
-            bgSegmenter=null;
-        }
-    }
-    aiStatus.textContent="Starting compatible AI (WASM/CPU)… first load may take time.";
-    bgSegmenter=await buildBgPipeline("wasm");
-    bgDevice="wasm";
-    return bgSegmenter;
-}
-
-function maskFromSegmentation(output){
-    const first=Array.isArray(output)?output[0]:output;
-    if(!first)throw new Error("AI returned no result");
-    const m=first.mask||first;
-    if(!m || !m.data || !m.width || !m.height)throw new Error("Unknown AI mask format");
-    return m;
-}
-
-async function photoDataToCanvas(dataUrl){
-    return new Promise((resolve,reject)=>{
-        const img=new Image();
-        img.onload=()=>{
-            const c=document.createElement("canvas");
-            c.width=img.naturalWidth;c.height=img.naturalHeight;
-            const x=c.getContext("2d",{willReadFrequently:true});
-            x.drawImage(img,0,0);
-            resolve(c);
-        };
-        img.onerror=()=>reject(new Error("Photo could not be decoded"));
-        img.src=dataUrl;
-    });
-}
-
-function applyMaskToOriginal(originalCanvas,mask){
-    const mw=mask.width,mh=mask.height,channels=mask.channels||1,data=mask.data;
-    const small=document.createElement("canvas");small.width=mw;small.height=mh;
-    const sx=small.getContext("2d");
-    const id=sx.createImageData(mw,mh);
-    for(let p=0;p<mw*mh;p++){
-        let a;
-        if(channels===1)a=data[p];
-        else if(channels===4)a=data[p*4+3];
-        else a=data[p*channels];
-        const j=p*4;id.data[j]=255;id.data[j+1]=255;id.data[j+2]=255;id.data[j+3]=a;
-    }
-    sx.putImageData(id,0,0);
-
-    const maskFull=document.createElement("canvas");
-    maskFull.width=originalCanvas.width;maskFull.height=originalCanvas.height;
-    const mx=maskFull.getContext("2d",{willReadFrequently:true});
-    mx.imageSmoothingEnabled=true;mx.imageSmoothingQuality="high";
-    mx.drawImage(small,0,0,maskFull.width,maskFull.height);
-
-    const ox=originalCanvas.getContext("2d",{willReadFrequently:true});
-    const original=ox.getImageData(0,0,originalCanvas.width,originalCanvas.height);
-    const alpha=mx.getImageData(0,0,maskFull.width,maskFull.height).data;
-    for(let i=0;i<original.data.length;i+=4) original.data[i+3]=alpha[i+3];
-
-    const out=document.createElement("canvas");out.width=originalCanvas.width;out.height=originalCanvas.height;
-    out.getContext("2d").putImageData(original,0,0);
-    return out;
-}
-
-removeBgBtn.addEventListener("click",async()=>{
-    if(!photoData){alert("Please upload student photo first.");return;}
-    const oldText=removeBgBtn.textContent;
-    removeBgBtn.disabled=true;
-    removeBgBtn.textContent="⏳ Removing BG…";
-    try{
-        aiStatus.textContent="Preparing photo…";
-        const hf=await getHF();
-        const originalCanvas=await photoDataToCanvas(photoData);
-        const pixels=originalCanvas.getContext("2d",{willReadFrequently:true}).getImageData(0,0,originalCanvas.width,originalCanvas.height);
-        const raw=new hf.RawImage(pixels.data,originalCanvas.width,originalCanvas.height,4);
-        let segmenter=await getBgSegmenter();
-        aiStatus.textContent="AI is removing background ("+(bgDevice==="webgpu"?"GPU":"compatible CPU")+")…";
-        let output;
-        try{
-            output=await segmenter(raw);
-        }catch(e){
-            if(bgDevice==="webgpu"){
-                console.warn("WebGPU inference failed; retrying with WASM",e);
-                bgSegmenter=await buildBgPipeline("wasm");bgDevice="wasm";segmenter=bgSegmenter;
-                aiStatus.textContent="GPU failed — retrying with compatible CPU mode…";
-                output=await segmenter(raw);
-            }else throw e;
-        }
-        const mask=maskFromSegmentation(output);
-        const resultCanvas=applyMaskToOriginal(originalCanvas,mask);
-        setStudentPhoto(resultCanvas.toDataURL("image/png"));
-        photoBg="transparent";
-        aiStatus.textContent="✓ Background removed on this device ("+(bgDevice==="webgpu"?"WebGPU":"WASM/CPU")+").";
-    }catch(err){
-        console.error(err);
-        aiStatus.textContent="AI could not start. First model download is large; check internet/storage and retry.";
-        alert("Background removal could not run. Please keep this tab open, use a stable internet connection and try again. The first AI model download is large.");
-        bgSegmenter=null;bgDevice=null;hfModulePromise=null;
-    }finally{
-        removeBgBtn.disabled=false;removeBgBtn.textContent=oldText;
-    }
-});
 
 /* COLORS */
 
