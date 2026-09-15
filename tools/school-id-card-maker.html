@@ -816,7 +816,7 @@ textarea{
 .photo-editor-overlay.open{display:flex;align-items:center;justify-content:center}
 .photo-editor-box{width:min(94vw,430px);background:#fff;border-radius:18px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
 .photo-editor-box h3{margin:0 0 12px}.crop-stage{width:100%;aspect-ratio:3/4;background:#e5e7eb;border-radius:12px;overflow:hidden;position:relative;touch-action:none}
-.crop-stage canvas{width:100%;height:100%;display:block}.editor-row{margin-top:12px}.editor-row label{display:flex;justify-content:space-between;font-size:13px;font-weight:700}.editor-row input[type=range]{width:100%}
+.crop-stage canvas{width:100%;height:100%;display:block}.crop-box{position:absolute;left:12%;top:10%;width:76%;height:78%;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,.42);box-sizing:border-box;touch-action:none;cursor:move}.crop-box:before,.crop-box:after{content:"";position:absolute;inset:33.33% 0;border-top:1px solid rgba(255,255,255,.55);border-bottom:1px solid rgba(255,255,255,.55);pointer-events:none}.crop-grid-v{position:absolute;inset:0 33.33%;border-left:1px solid rgba(255,255,255,.55);border-right:1px solid rgba(255,255,255,.55);pointer-events:none}.crop-handle{position:absolute;width:24px;height:24px;background:#fff;border:3px solid #2563eb;border-radius:50%;z-index:3;touch-action:none}.crop-handle.tl{left:-12px;top:-12px}.crop-handle.tr{right:-12px;top:-12px}.crop-handle.bl{left:-12px;bottom:-12px}.crop-handle.br{right:-12px;bottom:-12px}.editor-row{margin-top:12px}.editor-row label{display:flex;justify-content:space-between;font-size:13px;font-weight:700}.editor-row input[type=range]{width:100%}
 .editor-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.editor-buttons button{padding:12px;border:0;border-radius:10px;font-weight:800;cursor:pointer}.editor-cancel{background:#e5e7eb}.editor-save{background:#2563eb;color:#fff}
 .bg-colors{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}.bg-chip{width:34px;height:34px;border-radius:50%;border:2px solid #cbd5e1;cursor:pointer}.ai-status{font-size:12px;margin-top:8px;color:#475569;min-height:18px}
 
@@ -1165,7 +1165,7 @@ Passport-size photo recommended
 <div class="photo-editor-overlay" id="photoEditor">
   <div class="photo-editor-box">
     <h3>✂️ Crop & Resize Photo</h3>
-    <div class="crop-stage" id="cropStage"><canvas id="cropCanvas" width="600" height="800"></canvas></div>
+    <div class="crop-stage" id="cropStage"><canvas id="cropCanvas" width="600" height="800"></canvas><div class="crop-box" id="cropBox"><span class="crop-grid-v"></span><span class="crop-handle tl" data-handle="tl"></span><span class="crop-handle tr" data-handle="tr"></span><span class="crop-handle bl" data-handle="bl"></span><span class="crop-handle br" data-handle="br"></span></div></div><div style="font-size:12px;color:#64748b;margin-top:8px">Crop box ko drag karein. Corners ko kheench kar crop size badlein/ghatayein.</div>
     <div class="editor-row"><label><span>Zoom</span><span id="zoomValue">100%</span></label><input id="photoZoom" type="range" min="100" max="300" value="100"></div>
     <div class="editor-row"><label><span>Left ↔ Right</span></label><input id="photoX" type="range" min="-100" max="100" value="0"></div>
     <div class="editor-row"><label><span>Up ↕ Down</span></label><input id="photoY" type="range" min="-100" max="100" value="0"></div>
@@ -1939,6 +1939,9 @@ const photoX = document.getElementById("photoX");
 const photoY = document.getElementById("photoY");
 const zoomValue = document.getElementById("zoomValue");
 const aiStatus = document.getElementById("aiStatus");
+const cropStage = document.getElementById("cropStage");
+const cropBox = document.getElementById("cropBox");
+let cropRect={x:.12,y:.10,w:.76,h:.78};
 let cropImage = null;
 let photoBg = "transparent";
 
@@ -1969,14 +1972,50 @@ function drawCrop(){
 function openPhotoEditor(){
     if(!photoData){ alert("Please upload student photo first."); return; }
     cropImage=new Image();
-    cropImage.onload=()=>{ photoZoom.value=100; photoX.value=0; photoY.value=0; drawCrop(); photoEditor.classList.add("open"); };
+    cropImage.onload=()=>{ photoZoom.value=100; photoX.value=0; photoY.value=0; cropRect={x:.12,y:.10,w:.76,h:.78}; syncCropBox(); drawCrop(); photoEditor.classList.add("open"); };
     cropImage.src=photoData;
 }
 editPhotoBtn.addEventListener("click",openPhotoEditor);
 [photoZoom,photoX,photoY].forEach(el=>el.addEventListener("input",drawCrop));
 document.getElementById("cancelPhotoEdit").addEventListener("click",()=>photoEditor.classList.remove("open"));
+function syncCropBox(){
+    cropBox.style.left=(cropRect.x*100)+"%"; cropBox.style.top=(cropRect.y*100)+"%";
+    cropBox.style.width=(cropRect.w*100)+"%"; cropBox.style.height=(cropRect.h*100)+"%";
+}
+function clampCrop(){
+    cropRect.w=Math.max(.18,Math.min(cropRect.w,1-cropRect.x));
+    cropRect.h=Math.max(.18,Math.min(cropRect.h,1-cropRect.y));
+    cropRect.x=Math.max(0,Math.min(cropRect.x,1-cropRect.w));
+    cropRect.y=Math.max(0,Math.min(cropRect.y,1-cropRect.h)); syncCropBox();
+}
+let cropDrag=null;
+cropBox.addEventListener("pointerdown",e=>{
+    e.preventDefault(); const r=cropStage.getBoundingClientRect();
+    cropDrag={handle:e.target.dataset.handle||"move",sx:e.clientX,sy:e.clientY,start:{...cropRect},rw:r.width,rh:r.height};
+    cropBox.setPointerCapture(e.pointerId);
+});
+cropBox.addEventListener("pointermove",e=>{
+    if(!cropDrag)return; e.preventDefault();
+    const dx=(e.clientX-cropDrag.sx)/cropDrag.rw, dy=(e.clientY-cropDrag.sy)/cropDrag.rh, a=cropDrag.start;
+    if(cropDrag.handle==="move"){ cropRect.x=a.x+dx; cropRect.y=a.y+dy; }
+    else {
+      if(cropDrag.handle.includes("l")){cropRect.x=a.x+dx;cropRect.w=a.w-dx;}
+      if(cropDrag.handle.includes("r")){cropRect.w=a.w+dx;}
+      if(cropDrag.handle.includes("t")){cropRect.y=a.y+dy;cropRect.h=a.h-dy;}
+      if(cropDrag.handle.includes("b")){cropRect.h=a.h+dy;}
+    }
+    clampCrop();
+});
+cropBox.addEventListener("pointerup",()=>cropDrag=null);
+cropBox.addEventListener("pointercancel",()=>cropDrag=null);
+syncCropBox();
+
 document.getElementById("savePhotoEdit").addEventListener("click",()=>{
-    setStudentPhoto(cropCanvas.toDataURL("image/png"));
+    const sx=Math.round(cropRect.x*cropCanvas.width), sy=Math.round(cropRect.y*cropCanvas.height);
+    const sw=Math.max(1,Math.round(cropRect.w*cropCanvas.width)), sh=Math.max(1,Math.round(cropRect.h*cropCanvas.height));
+    const out=document.createElement("canvas"); out.width=sw; out.height=sh;
+    out.getContext("2d").drawImage(cropCanvas,sx,sy,sw,sh,0,0,sw,sh);
+    setStudentPhoto(out.toDataURL("image/png"));
     photoEditor.classList.remove("open");
 });
 
@@ -1986,13 +2025,14 @@ document.querySelectorAll("[data-bg]").forEach(btn=>btn.addEventListener("click"
 }));
 
 let bgRemoverPromise=null;
+let transformersMod=null;
 async function getBgRemover(){
     if(!bgRemoverPromise){
         aiStatus.textContent="AI model loading first time… please wait.";
         bgRemoverPromise=(async()=>{
-            const mod=await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.3");
-            mod.env.allowLocalModels=false;
-            return await mod.pipeline("background-removal","onnx-community/modnet-webnn",{dtype:"fp32"});
+            transformersMod=await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.3");
+            transformersMod.env.allowLocalModels=false;
+            return await transformersMod.pipeline("background-removal","onnx-community/modnet-webnn",{dtype:"fp32"});
         })();
     }
     return bgRemoverPromise;
@@ -2006,18 +2046,13 @@ removeBgBtn.addEventListener("click",async()=>{
         aiStatus.textContent="AI is removing background… first use may take longer.";
         const remover=await getBgRemover();
         const out=await remover([photoData]);
-        const maskCanvas=out[0].toCanvas();
-        const src=new Image();
-        await new Promise((ok,fail)=>{src.onload=ok;src.onerror=fail;src.src=photoData;});
-        const c=document.createElement("canvas"); c.width=src.naturalWidth; c.height=src.naturalHeight;
-        const cx=c.getContext("2d"); cx.drawImage(src,0,0,c.width,c.height);
-        const m=document.createElement("canvas"); m.width=c.width; m.height=c.height;
-        const mx=m.getContext("2d"); mx.drawImage(maskCanvas,0,0,m.width,m.height);
-        const img=cx.getImageData(0,0,c.width,c.height);
-        const mask=mx.getImageData(0,0,m.width,m.height).data;
-        for(let i=0;i<img.data.length;i+=4){ img.data[i+3]=mask[i]; }
-        cx.clearRect(0,0,c.width,c.height); cx.putImageData(img,0,0);
-        setStudentPhoto(c.toDataURL("image/png"));
+        // The model output is an alpha matte. Apply it as alpha to the ORIGINAL image
+        // so face, hair and clothes keep their original RGB colours.
+        const original=await transformersMod.RawImage.fromURL(photoData);
+        const mask=await out[0].clone().grayscale().resize(original.width,original.height);
+        original.rgba().putAlpha(mask);
+        const resultCanvas=original.toCanvas();
+        setStudentPhoto(resultCanvas.toDataURL("image/png"));
         photoBg="transparent";
         aiStatus.textContent="✓ Background removed. You can now Crop / Resize or choose a background color.";
     }catch(err){
