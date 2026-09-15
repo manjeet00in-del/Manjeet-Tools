@@ -807,6 +807,19 @@ textarea{
 
 }
 
+
+/* PHOTO EDITOR */
+.photo-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.photo-action-btn{border:0;border-radius:10px;padding:11px 8px;font-weight:700;background:#eef4ff;color:#1d4ed8;cursor:pointer}
+.photo-action-btn.ai{background:#ecfdf5;color:#047857}
+.photo-editor-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:9999;padding:18px;overflow:auto}
+.photo-editor-overlay.open{display:flex;align-items:center;justify-content:center}
+.photo-editor-box{width:min(94vw,430px);background:#fff;border-radius:18px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.photo-editor-box h3{margin:0 0 12px}.crop-stage{width:100%;aspect-ratio:3/4;background:#e5e7eb;border-radius:12px;overflow:hidden;position:relative;touch-action:none}
+.crop-stage canvas{width:100%;height:100%;display:block}.editor-row{margin-top:12px}.editor-row label{display:flex;justify-content:space-between;font-size:13px;font-weight:700}.editor-row input[type=range]{width:100%}
+.editor-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.editor-buttons button{padding:12px;border:0;border-radius:10px;font-weight:800;cursor:pointer}.editor-cancel{background:#e5e7eb}.editor-save{background:#2563eb;color:#fff}
+.bg-colors{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}.bg-chip{width:34px;height:34px;border-radius:50%;border:2px solid #cbd5e1;cursor:pointer}.ai-status{font-size:12px;margin-top:8px;color:#475569;min-height:18px}
+
 </style>
 </head>
 
@@ -1132,8 +1145,33 @@ Passport-size photo recommended
 
 </label>
 
+<div class="photo-actions">
+<button type="button" class="photo-action-btn" id="editPhotoBtn">✂️ Crop / Resize</button>
+<button type="button" class="photo-action-btn ai" id="removeBgBtn">✨ Remove BG (AI)</button>
+</div>
+<div class="bg-colors" id="photoBgControls">
+<span style="font-size:12px;font-weight:700">Photo BG:</span>
+<button type="button" class="bg-chip" data-bg="#ffffff" title="White" style="background:#fff"></button>
+<button type="button" class="bg-chip" data-bg="#dbeafe" title="Light Blue" style="background:#dbeafe"></button>
+<button type="button" class="bg-chip" data-bg="#bfdbfe" title="Blue" style="background:#bfdbfe"></button>
+<button type="button" class="bg-chip" data-bg="#fee2e2" title="Light Red" style="background:#fee2e2"></button>
+<button type="button" class="photo-action-btn" data-bg="transparent" style="padding:8px 10px">Transparent</button>
+</div>
+<div class="ai-status" id="aiStatus"></div>
+
 </div>
 
+<!-- PHOTO EDITOR MODAL -->
+<div class="photo-editor-overlay" id="photoEditor">
+  <div class="photo-editor-box">
+    <h3>✂️ Crop & Resize Photo</h3>
+    <div class="crop-stage" id="cropStage"><canvas id="cropCanvas" width="600" height="800"></canvas></div>
+    <div class="editor-row"><label><span>Zoom</span><span id="zoomValue">100%</span></label><input id="photoZoom" type="range" min="100" max="300" value="100"></div>
+    <div class="editor-row"><label><span>Left ↔ Right</span></label><input id="photoX" type="range" min="-100" max="100" value="0"></div>
+    <div class="editor-row"><label><span>Up ↕ Down</span></label><input id="photoY" type="range" min="-100" max="100" value="0"></div>
+    <div class="editor-buttons"><button type="button" class="editor-cancel" id="cancelPhotoEdit">Cancel</button><button type="button" class="editor-save" id="savePhotoEdit">Apply Photo</button></div>
+  </div>
+</div>
 
 <!-- BACK SIDE TEXT -->
 
@@ -1888,7 +1926,7 @@ document
     reader.readAsDataURL(file);
 
 });
-
+\n\n/* PHOTO CROP / RESIZE / AI BACKGROUND REMOVAL */\nconst editPhotoBtn = document.getElementById("editPhotoBtn");\nconst removeBgBtn = document.getElementById("removeBgBtn");\nconst photoEditor = document.getElementById("photoEditor");\nconst cropCanvas = document.getElementById("cropCanvas");\nconst cropCtx = cropCanvas.getContext("2d");\nconst photoZoom = document.getElementById("photoZoom");\nconst photoX = document.getElementById("photoX");\nconst photoY = document.getElementById("photoY");\nconst zoomValue = document.getElementById("zoomValue");\nconst aiStatus = document.getElementById("aiStatus");\nlet cropImage = null;\nlet photoBg = "transparent";\n\nfunction setStudentPhoto(data){\n    photoData = data;\n    const img = document.getElementById("studentPhoto");\n    img.src = photoData;\n    img.style.display = "block";\n    document.getElementById("photoPlaceholder").style.display = "none";\n    updateCard();\n}\n\nfunction drawCrop(){\n    if(!cropImage) return;\n    const cw=cropCanvas.width, ch=cropCanvas.height;\n    cropCtx.clearRect(0,0,cw,ch);\n    if(photoBg !== "transparent"){ cropCtx.fillStyle=photoBg; cropCtx.fillRect(0,0,cw,ch); }\n    const base=Math.max(cw/cropImage.naturalWidth,ch/cropImage.naturalHeight);\n    const scale=base*(Number(photoZoom.value)/100);\n    const w=cropImage.naturalWidth*scale, h=cropImage.naturalHeight*scale;\n    const maxX=Math.max(0,(w-cw)/2), maxY=Math.max(0,(h-ch)/2);\n    const dx=(cw-w)/2 + (Number(photoX.value)/100)*maxX;\n    const dy=(ch-h)/2 + (Number(photoY.value)/100)*maxY;\n    cropCtx.drawImage(cropImage,dx,dy,w,h);\n    zoomValue.textContent=photoZoom.value+"%";\n}\n\nfunction openPhotoEditor(){\n    if(!photoData){ alert("Please upload student photo first."); return; }\n    cropImage=new Image();\n    cropImage.onload=()=>{ photoZoom.value=100; photoX.value=0; photoY.value=0; drawCrop(); photoEditor.classList.add("open"); };\n    cropImage.src=photoData;\n}\neditPhotoBtn.addEventListener("click",openPhotoEditor);\n[photoZoom,photoX,photoY].forEach(el=>el.addEventListener("input",drawCrop));\ndocument.getElementById("cancelPhotoEdit").addEventListener("click",()=>photoEditor.classList.remove("open"));\ndocument.getElementById("savePhotoEdit").addEventListener("click",()=>{\n    setStudentPhoto(cropCanvas.toDataURL("image/png"));\n    photoEditor.classList.remove("open");\n});\n\ndocument.querySelectorAll("[data-bg]").forEach(btn=>btn.addEventListener("click",()=>{\n    photoBg=btn.dataset.bg;\n    if(photoData) openPhotoEditor();\n}));\n\nlet bgRemoverPromise=null;\nasync function getBgRemover(){\n    if(!bgRemoverPromise){\n        aiStatus.textContent="AI model loading first time… please wait.";\n        bgRemoverPromise=(async()=>{\n            const mod=await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.3");\n            mod.env.allowLocalModels=false;\n            return await mod.pipeline("background-removal","onnx-community/modnet-webnn",{dtype:"fp32"});\n        })();\n    }\n    return bgRemoverPromise;\n}\n\nremoveBgBtn.addEventListener("click",async()=>{\n    if(!photoData){ alert("Please upload student photo first."); return; }\n    const oldText=removeBgBtn.textContent;\n    removeBgBtn.disabled=true;\n    try{\n        aiStatus.textContent="AI is removing background… first use may take longer.";\n        const remover=await getBgRemover();\n        const out=await remover([photoData]);\n        const maskCanvas=out[0].toCanvas();\n        const src=new Image();\n        await new Promise((ok,fail)=>{src.onload=ok;src.onerror=fail;src.src=photoData;});\n        const c=document.createElement("canvas"); c.width=src.naturalWidth; c.height=src.naturalHeight;\n        const cx=c.getContext("2d"); cx.drawImage(src,0,0,c.width,c.height);\n        const m=document.createElement("canvas"); m.width=c.width; m.height=c.height;\n        const mx=m.getContext("2d"); mx.drawImage(maskCanvas,0,0,m.width,m.height);\n        const img=cx.getImageData(0,0,c.width,c.height);\n        const mask=mx.getImageData(0,0,m.width,m.height).data;\n        for(let i=0;i<img.data.length;i+=4){ img.data[i+3]=mask[i]; }\n        cx.clearRect(0,0,c.width,c.height); cx.putImageData(img,0,0);\n        setStudentPhoto(c.toDataURL("image/png"));\n        photoBg="transparent";\n        aiStatus.textContent="✓ Background removed. You can now Crop / Resize or choose a background color.";\n    }catch(err){\n        console.error(err);\n        aiStatus.textContent="AI could not load. Check internet and try again.";\n        alert("Background removal could not run on this browser. Please check internet and try again.");\n    }finally{ removeBgBtn.disabled=false; removeBgBtn.textContent=oldText; }\n});\n
 
 /* COLORS */
 
