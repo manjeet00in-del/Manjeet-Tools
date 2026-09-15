@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Employee ID Card Maker - Manjeet Digital Hub</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f7fc;color:#14213d}
+header{background:#0d47a1;color:#fff;padding:16px;text-align:center}header h1{margin:0;font-size:22px}header p{margin:5px 0 0;font-size:13px}
+.wrap{max-width:1200px;margin:auto;padding:14px}.grid{display:grid;grid-template-columns:360px 1fr;gap:16px}
+.panel{background:#fff;border-radius:16px;padding:15px;box-shadow:0 4px 18px #0001}.panel h2{font-size:17px;margin:4px 0 12px}
+label{font-size:12px;font-weight:700;display:block;margin:9px 0 4px}input,select,textarea,button{width:100%;padding:10px;border:1px solid #ccd6e3;border-radius:9px;font:inherit}
+textarea{resize:vertical;min-height:55px}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button{border:0;background:#0d47a1;color:white;font-weight:700;cursor:pointer;margin-top:8px}.secondary{background:#455a64}.green{background:#15803d}.danger{background:#b91c1c}
+.templates{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.tpl{padding:8px 3px;font-size:11px;background:#eef4ff;color:#123;border:2px solid transparent}.tpl.active{border-color:#0d47a1;background:#dceaff}
+.stage{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;align-items:flex-start;padding:8px}
+.card{position:relative;overflow:hidden;background:#fff;box-shadow:0 4px 20px #0003;color:#14213d;flex:none}
+.card.portrait{width:324px;height:510px}.card.landscape{width:510px;height:324px}
+.design{position:absolute;inset:0}.content{position:absolute;inset:0;padding:24px;text-align:center;display:flex;flex-direction:column;align-items:center}
+.landscape .content{padding:24px 28px;text-align:left;align-items:flex-start}
+.company{font-size:18px;font-weight:800;max-width:85%;z-index:2}.logo{width:54px;height:54px;object-fit:contain;margin-bottom:6px;z-index:2}
+.photo{width:126px;height:146px;object-fit:cover;border-radius:10px;border:4px solid white;box-shadow:0 2px 8px #0003;margin:16px 0 10px;z-index:2;background:#ddd}
+.landscape .photo{position:absolute;width:130px;height:154px;left:28px;top:88px;margin:0}
+.empName{font-size:23px;font-weight:900;z-index:2}.role{font-size:14px;font-weight:700;margin:3px 0 11px;z-index:2}
+.details{font-size:12px;line-height:1.7;z-index:2}.landscape .empName,.landscape .role,.landscape .details{margin-left:155px}.landscape .empName{margin-top:32px}
+.photo{object-position:50% 50%}.editable{cursor:move;touch-action:none;user-select:none}.editable.selected{outline:2px dashed #2563eb;outline-offset:2px}
+.qr{position:absolute;width:68px;height:68px;right:18px;bottom:18px;background:#fff;padding:4px;z-index:3}
+.backcontent{position:absolute;inset:0;padding:30px;z-index:2}.backcontent h3{text-align:center;margin:4px 0 20px}.backcontent p{font-size:12px;line-height:1.55}.sign{border-top:1px solid currentColor;width:120px;text-align:center;font-size:10px;margin-top:28px}
+.t1 .design{background:linear-gradient(155deg,#0755c9 0 27%,#fff 27% 100%)}.t1 .company{color:#fff}.t2 .design{background:linear-gradient(180deg,#111827 0 18%,#fff 18% 85%,#d5a52e 85%)}.t2 .company{color:#fff}
+.t3 .design{background:linear-gradient(145deg,#6b1028 0 31%,#fff 31%)}.t3 .company{color:#fff}.t4 .design{background:linear-gradient(160deg,#fff 0 72%,#0b6e99 72%)}.t4 .company{color:#075985}
+.t5 .design{background:linear-gradient(135deg,#101827 0 36%,#f8fafc 36%)}.t5 .company{color:#fff}.t6 .design{background:linear-gradient(135deg,#6d28d9,#2563eb 32%,#fff 32%)}.t6 .company{color:#fff}
+.t7 .design{background:linear-gradient(180deg,#047857 0 24%,#fff 24% 92%,#047857 92%)}.t7 .company{color:#fff}.t8 .design{background:linear-gradient(135deg,#0f172a 0 72%,#d4af37 72%)}.t8{color:#fff}.t8 .photo{border-color:#d4af37}
+.t9 .design{background:linear-gradient(155deg,#e8f2ff 0 50%,#fff 50%);border-top:12px solid #2563eb}.t10 .design{background:linear-gradient(145deg,#fff 0 72%,#ef5b2a 72%);border-top:12px solid #ef5b2a}
+.note{font-size:12px;color:#607080;margin-top:10px}.busy{opacity:.6;pointer-events:none}
+.galleryTitle{margin:4px 0 12px}.templateGallery{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+.previewTpl{height:105px;border-radius:10px;overflow:hidden;position:relative;border:3px solid transparent;cursor:pointer;box-shadow:0 2px 8px #0002}
+.previewTpl.active{border-color:#0d47a1}.previewTpl span{position:absolute;left:6px;right:6px;bottom:5px;background:#ffffffe8;border-radius:5px;padding:4px;text-align:center;font-size:10px;font-weight:bold;color:#14213d}
+.previewTpl:before{content:"";position:absolute;width:30px;height:35px;border-radius:5px;background:#ddd;left:12px;top:20px;border:2px solid white}
+.previewTpl:after{content:"EMPLOYEE ID";position:absolute;left:50px;top:25px;font-size:9px;font-weight:bold}
+.previewTpl.t1{background:linear-gradient(155deg,#0755c9 0 30%,#fff 30%)}
+.previewTpl.t2{background:linear-gradient(180deg,#111827 0 22%,#fff 22% 82%,#d5a52e 82%)}
+.previewTpl.t3{background:linear-gradient(145deg,#6b1028 0 33%,#fff 33%)}
+.previewTpl.t4{background:linear-gradient(160deg,#fff 0 70%,#0b6e99 70%)}
+.previewTpl.t5{background:linear-gradient(135deg,#101827 0 38%,#f8fafc 38%)}
+.previewTpl.t6{background:linear-gradient(135deg,#6d28d9,#2563eb 34%,#fff 34%)}
+.previewTpl.t7{background:linear-gradient(180deg,#047857 0 25%,#fff 25% 90%,#047857 90%)}
+.previewTpl.t8{background:linear-gradient(135deg,#0f172a 0 72%,#d4af37 72%)}
+.previewTpl.t9{background:linear-gradient(155deg,#e8f2ff 0 50%,#fff 50%);border-top-color:#2563eb}
+.previewTpl.t10{background:linear-gradient(145deg,#fff 0 72%,#ef5b2a 72%);border-top-color:#ef5b2a}
+.downloads{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(max-width:800px){.templateGallery{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.templates{grid-template-columns:repeat(2,1fr)}.stage{transform-origin:top center}.downloads{grid-template-columns:1fr}}
+@media(max-width:550px){.card.landscape{transform:scale(.68);margin:-50px -82px}.card.portrait{transform:scale(.88);margin:-30px -18px}}
+</style>
+</head><body>
+<header><h1>Employee ID Card Maker</h1><p>Manjeet Digital Hub • Front & Back • 10 Professional Templates</p></header>
+<div class="wrap">
+<div class="panel" style="margin-bottom:16px"><h2 class="galleryTitle">Choose a Template</h2><div class="templateGallery" id="templateGallery"></div><p class="note">Template par click karein — neeche editor khulkar wahi design select ho jayega.</p></div>
+<div class="grid">
+<div class="panel">
+<h2>Employee Details</h2>
+<div class="row"><div><label>Orientation</label><select id="orientation"><option value="portrait">Vertical / Portrait</option><option value="landscape">Horizontal / Landscape</option></select></div><div><label>Employee ID</label><input id="empid" value="EMP-001"></div></div>
+<label>Company Name</label><input id="company" value="YOUR COMPANY">
+<div class="row"><div><label>Company Logo</label><input id="logoFile" type="file" accept="image/*"></div><div><label>Employee Photo</label><input id="photoFile" type="file" accept="image/*"></div></div>
+<div class="row"><button type="button" id="removeBg" class="secondary">Remove Photo Background</button><button type="button" id="restorePhoto" class="secondary">Restore Original</button></div>
+<div class="row"><div><label>Photo Zoom</label><input id="photoZoom" type="range" min="1" max="2.5" step=".05" value="1"></div><div><label>Photo Background</label><input id="photoBg" type="color" value="#e5e7eb"></div></div>
+<div class="row"><div><label>Photo X Position</label><input id="photoX" type="range" min="0" max="100" value="50"></div><div><label>Photo Y Position</label><input id="photoY" type="range" min="0" max="100" value="50"></div></div>
+<div class="row"><div><label>QR Code</label><select id="qrMode"><option value="on">Show QR</option><option value="off">Hide QR</option></select></div><div><label>QR Content</label><select id="qrContent"><option value="details">Employee Details</option><option value="id">Employee ID Only</option><option value="custom">Custom Text</option></select></div></div>
+<label>Custom QR Text</label><input id="qrCustom" placeholder="Website / verification text">
+<label>Employee Name</label><input id="name" value="John Doe">
+<div class="row"><div><label>Designation</label><input id="designation" value="Manager"></div><div><label>Department</label><input id="department" value="Operations"></div></div>
+<div class="row"><div><label>Phone</label><input id="phone" value="+91 98765 43210"></div><div><label>Blood Group</label><input id="blood" value="O+"></div></div>
+<div class="row"><div><label>Joining Date</label><input id="joining" value="01-01-2026"></div><div><label>DOB</label><input id="dob" value="01-01-1995"></div></div>
+<label>Address</label><textarea id="address">Lucknow, Uttar Pradesh</textarea>
+<label>Emergency Contact</label><input id="emergency" value="+91 98765 43210">
+<h2 style="margin-top:18px">Design Editor</h2>
+<div class="row"><div><label>Edit Element</label><select id="editElement">
+<option value="company">Company Name</option><option value="name">Employee Name</option><option value="role">Designation / Department</option><option value="details">Employee Details</option><option value="photo">Photo</option><option value="logo">Logo</option><option value="qr">QR Code</option>
+</select></div><div><label>Text Color</label><input id="textColor" type="color" value="#14213d"></div></div>
+<div class="row"><div><label>Text Size</label><input id="textSize" type="range" min="8" max="38" value="18"></div><div><label>Element Size</label><input id="elementSize" type="range" min="50" max="180" value="100"></div></div>
+<button type="button" id="resetLayout" class="secondary">Reset Selected Template Layout</button>
+<p class="note">Preview me Company, Name, Role, Details, Photo, Logo ya QR ko mouse/finger se drag karke place badal sakte hain.</p>
+<label>Templates</label><div class="templates" id="templates"></div>
+<p class="note">Template change karne par employee details automatically same rahengi.</p>
+</div>
+<div class="panel"><h2>Live Preview</h2><div class="stage"><div><div id="front" class="card portrait t1"></div><p style="text-align:center"><b>Front</b></p></div><div><div id="back" class="card portrait t1"></div><p style="text-align:center"><b>Back</b></p></div></div>
+<div class="downloads"><button class="green" onclick="downloadCard('front','employee-id-front.png')">Download Front</button><button class="green" onclick="downloadCard('back','employee-id-back.png')">Download Back</button><button onclick="printCards()">Print Front + Back</button></div>
+</div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);let template=1,photo='',originalPhoto='',logo='',segBusy=false;
+let custom={}; let selected='company';
+function keyFor(el){return $('orientation').value+'-'+template+'-'+el}
+function posFor(el){return custom[keyFor(el)]||null}
+function setCustom(el,obj){custom[keyFor(el)]=Object.assign({},custom[keyFor(el)]||{},obj)}
+
+const names=['Corporate Blue','Executive Gold','Maroon Pro','Clean Cyan','Dark Edge','Modern Gradient','Green Office','Black Gold','Soft Blue','Orange Accent'];
+const gal=$('templateGallery');
+names.forEach((n,i)=>{
+ let d=document.createElement('div');d.className='previewTpl t'+(i+1)+(i===0?' active':'');
+ d.innerHTML='<span>'+(i+1)+'. '+n+'</span>';
+ d.onclick=()=>{
+   template=i+1;
+   document.querySelectorAll('.previewTpl').forEach(x=>x.classList.remove('active'));d.classList.add('active');
+   document.querySelectorAll('.tpl').forEach((x,j)=>x.classList.toggle('active',j===i));
+   render();
+   document.querySelector('.grid').scrollIntoView({behavior:'smooth',block:'start'});
+ };
+ gal.appendChild(d);
+});
+const box=$('templates');names.forEach((n,i)=>{let b=document.createElement('button');b.className='tpl'+(i===0?' active':'');b.textContent=(i+1)+'. '+n;b.onclick=()=>{template=i+1;document.querySelectorAll('.tpl').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.previewTpl').forEach((x,j)=>x.classList.toggle('active',j===i));render()};box.appendChild(b)});
+function fileData(inp,cb){let f=inp.files[0];if(!f)return;let r=new FileReader;r.onload=()=>cb(r.result);r.readAsDataURL(f)}
+$('photoFile').onchange=()=>fileData($('photoFile'),x=>{photo=x;originalPhoto=x;render()});$('logoFile').onchange=()=>fileData($('logoFile'),x=>{logo=x;render()});
+document.querySelectorAll('input,select,textarea').forEach(e=>{if(!['file'].includes(e.type))e.addEventListener('input',render)});
+function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function render(){
+ let o=$('orientation').value,c='card '+o+' t'+template;
+ $('front').className=c;$('back').className=c;
+ let nm=esc($('name').value),eid=esc($('empid').value),co=esc($('company').value),des=esc($('designation').value),dep=esc($('department').value),ph=esc($('phone').value),bl=esc($('blood').value),jn=esc($('joining').value),dob=esc($('dob').value),ad=esc($('address').value),em=esc($('emergency').value);
+ $('front').innerHTML=`<div class="design"></div><div class="content">${logo?`<img data-el="logo" class="logo editable" src="${logo}">`:''}<div data-el="company" class="company editable">${co}</div>${photo?`<img data-el="photo" class="photo editable" src="${photo}" style="transform:scale(${$('photoZoom').value});object-position:${$('photoX').value}% ${$('photoY').value}%;background:${$('photoBg').value}">`:`<div data-el="photo" class="photo editable" style="background:${$('photoBg').value}"></div>`}<div data-el="name" class="empName editable">${nm}</div><div data-el="role" class="role editable">${des} • ${dep}</div><div data-el="details" class="details editable"><b>ID:</b> ${eid}<br><b>Phone:</b> ${ph}<br><b>Blood:</b> ${bl}<br><b>Joining:</b> ${jn}</div><div data-el="qr" class="qr editable" id="qr"></div></div>`;
+ $('back').innerHTML=`<div class="design"></div><div class="backcontent"><h3>${co}</h3><p><b>Employee:</b> ${nm}<br><b>Employee ID:</b> ${eid}<br><b>DOB:</b> ${dob}<br><b>Blood Group:</b> ${bl}<br><b>Emergency:</b> ${em}</p><p><b>Address</b><br>${ad}</p><p>This card is the property of ${co}. If found, please return it to the company.</p><div class="sign">Authorized Signature</div></div>`;
+ setTimeout(()=>{
+   let q=$('qr'); if(!q)return;
+   if($('qrMode').value==='off'){q.style.display='none';return}
+   q.style.display='block'; q.innerHTML='';
+   let mode=$('qrContent').value;
+   let txt=mode==='id'?$('empid').value:(mode==='custom'?($('qrCustom').value||$('empid').value):`Employee: ${$('name').value}\nID: ${$('empid').value}\nCompany: ${$('company').value}\nPhone: ${$('phone').value}`);
+   try{
+     if(window.QRCode){
+       new QRCode(q,{text:txt,width:120,height:120,correctLevel:QRCode.CorrectLevel.M});
+     }
+   }catch(e){console.error('QR error',e)}
+   applyEdits(); enableDrag();
+ },120)
+ applyEdits(); enableDrag();
+}
+async function downloadCard(id,name){let el=$(id);let canvas=await html2canvas(el,{scale:3,useCORS:true,backgroundColor:null});let a=document.createElement('a');a.download=name;a.href=canvas.toDataURL('image/png');a.click()}
+async function printCards(){
+ const btns=document.querySelectorAll('.downloads button');btns.forEach(b=>b.disabled=true);
+ try{
+   const fc=await html2canvas($('front'),{scale:3,useCORS:true,backgroundColor:'#ffffff'});
+   const bc=await html2canvas($('back'),{scale:3,useCORS:true,backgroundColor:'#ffffff'});
+   const fu=fc.toDataURL('image/png'),bu=bc.toDataURL('image/png');
+   const o=$('orientation').value;
+   const size=o==='portrait'?'54mm 85.6mm':'85.6mm 54mm';
+   const w=window.open('','_blank');
+   w.document.write(`<!doctype html><html><head><title>Employee ID Print</title><style>
+   @page{size:A4;margin:12mm}*{box-sizing:border-box}body{font-family:Arial;margin:0}
+   .sheet{display:flex;gap:10mm;align-items:flex-start;flex-wrap:wrap}
+   .item{text-align:center}.item img{width:${o==='portrait'?'54mm':'85.6mm'};height:${o==='portrait'?'85.6mm':'54mm'};object-fit:fill;display:block}
+   .lbl{font-size:10px;margin-top:3mm}@media print{.lbl{display:none}}
+   </style></head><body><div class="sheet"><div class="item"><img src="${fu}"><div class="lbl">Front</div></div><div class="item"><img src="${bu}"><div class="lbl">Back</div></div></div>
+   <script>window.onload=function(){setTimeout(function(){window.print()},250)}<\/script></body></html>`);
+   w.document.close();
+ }finally{btns.forEach(b=>b.disabled=false)}
+}
+
+
+function applyEdits(){
+ document.querySelectorAll('#front [data-el]').forEach(el=>{
+   const k=el.dataset.el,p=posFor(k);
+   el.classList.toggle('selected',k===selected);
+   if(p){
+     el.style.position='absolute'; el.style.left=p.x+'px'; el.style.top=p.y+'px';
+     el.style.right='auto'; el.style.bottom='auto'; el.style.margin='0';
+     if(p.color && ['company','name','role','details'].includes(k)) el.style.color=p.color;
+     if(p.font && ['company','name','role','details'].includes(k)) el.style.fontSize=p.font+'px';
+     if(p.size){
+       if(k==='qr'){el.style.width=p.size+'px';el.style.height=p.size+'px';let im=el.querySelector('img');if(im){im.style.width='100%';im.style.height='100%'}}
+       if(k==='photo'){el.style.width=p.size+'px';el.style.height=Math.round(p.size*1.16)+'px'}
+       if(k==='logo'){el.style.width=p.size+'px';el.style.height=p.size+'px'}
+     }
+   }
+ });
+}
+function enableDrag(){
+ document.querySelectorAll('#front [data-el]').forEach(el=>{
+   el.onpointerdown=function(ev){
+     ev.preventDefault();selected=el.dataset.el;$('editElement').value=selected;applyEdits();
+     const card=$('front'),cr=card.getBoundingClientRect(),er=el.getBoundingClientRect();
+     const offX=ev.clientX-er.left,offY=ev.clientY-er.top;
+     el.setPointerCapture&&el.setPointerCapture(ev.pointerId);
+     const move=e=>{
+       let x=(e.clientX-cr.left-offX)*(card.offsetWidth/cr.width);
+       let y=(e.clientY-cr.top-offY)*(card.offsetHeight/cr.height);
+       x=Math.max(0,Math.min(card.offsetWidth-el.offsetWidth,x));
+       y=Math.max(0,Math.min(card.offsetHeight-el.offsetHeight,y));
+       setCustom(selected,{x:x,y:y});applyEdits();
+     };
+     const up=()=>{el.onpointermove=null;el.onpointerup=null};
+     el.onpointermove=move;el.onpointerup=up;
+   }
+ });
+}
+$('editElement').onchange=()=>{selected=$('editElement').value;applyEdits()};
+$('textColor').oninput=()=>{selected=$('editElement').value;if(['company','name','role','details'].includes(selected)){setCustom(selected,{color:$('textColor').value});applyEdits()}};
+$('textSize').oninput=()=>{selected=$('editElement').value;if(['company','name','role','details'].includes(selected)){setCustom(selected,{font:+$('textSize').value});applyEdits()}};
+$('elementSize').oninput=()=>{
+ selected=$('editElement').value;
+ let v=+$('elementSize').value;
+ if(selected==='photo') setCustom(selected,{size:v});
+ else if(selected==='logo') setCustom(selected,{size:Math.max(35,Math.round(v*.65))});
+ else if(selected==='qr') setCustom(selected,{size:Math.max(50,Math.round(v*.75))});
+ applyEdits()
+};
+$('resetLayout').onclick=()=>{Object.keys(custom).filter(k=>k.startsWith($('orientation').value+'-'+template+'-')).forEach(k=>delete custom[k]);render()};
+
+// Employee photo background removal - same MediaPipe approach used by the working School ID tool.
+const selfieSegmentation = new SelfieSegmentation({
+ locateFile:(file)=>`https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`
+});
+selfieSegmentation.setOptions({modelSelection:1});
+let segResolve=null;
+selfieSegmentation.onResults(results=>{
+ if(!segResolve)return;
+ const img=results.image, mask=results.segmentationMask;
+ const c=document.createElement('canvas');c.width=img.width;c.height=img.height;
+ const x=c.getContext('2d');
+ x.clearRect(0,0,c.width,c.height);
+ x.drawImage(mask,0,0,c.width,c.height);
+ x.globalCompositeOperation='source-in';
+ x.drawImage(img,0,0,c.width,c.height);
+ x.globalCompositeOperation='source-over';
+ const done=segResolve;segResolve=null;done(c.toDataURL('image/png'));
+});
+$('removeBg').onclick=async()=>{
+ if(!photo||segBusy){alert('Pehle employee photo upload karein.');return}
+ segBusy=true;$('removeBg').textContent='Removing...';$('removeBg').classList.add('busy');
+ try{
+   const im=new Image();im.src=photo;await new Promise((res,rej)=>{im.onload=res;im.onerror=rej});
+   const result=new Promise(res=>segResolve=res);
+   await selfieSegmentation.send({image:im});
+   photo=await result;render();
+ }catch(e){console.error(e);alert('Background remove nahi hua. Internet check karke dobara try karein.')}
+ finally{segBusy=false;$('removeBg').textContent='Remove Photo Background';$('removeBg').classList.remove('busy')}
+};
+$('restorePhoto').onclick=()=>{if(originalPhoto){photo=originalPhoto;render()}};
+
+render();
+</script>
+<style>@media print{header,.panel:first-child,.downloads,.panel>h2,.stage p{display:none!important}.grid{display:block}.panel{box-shadow:none;padding:0}.stage{display:flex!important;gap:10mm;transform:none!important}.card{transform:none!important;margin:0!important;box-shadow:none!important}}</style>
+</body></html>
