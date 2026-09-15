@@ -1165,7 +1165,7 @@ Passport-size photo recommended
 <div class="photo-editor-overlay" id="photoEditor">
   <div class="photo-editor-box">
     <h3>✂️ Crop & Resize Photo</h3>
-    <div class="crop-stage" id="cropStage"><canvas id="cropCanvas" width="600" height="800"></canvas><div class="crop-box" id="cropBox"><span class="crop-grid-v"></span><span class="crop-handle tl" data-handle="tl"></span><span class="crop-handle tr" data-handle="tr"></span><span class="crop-handle bl" data-handle="bl"></span><span class="crop-handle br" data-handle="br"></span></div></div><div style="font-size:12px;color:#64748b;margin-top:8px">Crop box ko drag karein. Corners ko kheench kar crop size badlein/ghatayein.</div>
+    <div class="crop-stage" id="cropStage"><canvas id="cropCanvas" width="600" height="800"></canvas><div class="crop-box" id="cropBox"><span class="crop-grid-v"></span><span class="crop-handle tl" data-handle="tl"></span><span class="crop-handle tr" data-handle="tr"></span><span class="crop-handle bl" data-handle="bl"></span><span class="crop-handle br" data-handle="br"></span></div></div><div style="font-size:12px;color:#64748b;margin-top:8px">Photo ko finger se drag karein, 2 fingers se pinch zoom karein. Crop box ko move karein aur corners ko kheench kar size badlein/ghatayein.</div>
     <div class="editor-row"><label><span>Zoom</span><span id="zoomValue">100%</span></label><input id="photoZoom" type="range" min="100" max="300" value="100"></div>
     <div class="editor-row"><label><span>Left ↔ Right</span></label><input id="photoX" type="range" min="-100" max="100" value="0"></div>
     <div class="editor-row"><label><span>Up ↕ Down</span></label><input id="photoY" type="range" min="-100" max="100" value="0"></div>
@@ -1942,67 +1942,84 @@ const aiStatus = document.getElementById("aiStatus");
 const cropStage = document.getElementById("cropStage");
 const cropBox = document.getElementById("cropBox");
 let cropRect={x:.12,y:.10,w:.76,h:.78};
-let cropImage = null;
-let photoBg = "transparent";
+let cropImage=null;
+let photoBg="transparent";
+let imagePan={x:0,y:0};
+let activePointers=new Map();
+let pinchStart=null;
 
 function setStudentPhoto(data){
-    photoData = data;
-    const img = document.getElementById("studentPhoto");
-    img.src = photoData;
-    img.style.display = "block";
-    document.getElementById("photoPlaceholder").style.display = "none";
+    photoData=data;
+    const img=document.getElementById("studentPhoto");
+    img.src=photoData;
+    img.style.display="block";
+    document.getElementById("photoPlaceholder").style.display="none";
     updateCard();
 }
 
 function drawCrop(){
-    if(!cropImage) return;
-    const cw=cropCanvas.width, ch=cropCanvas.height;
+    if(!cropImage)return;
+    const cw=cropCanvas.width,ch=cropCanvas.height;
     cropCtx.clearRect(0,0,cw,ch);
-    if(photoBg !== "transparent"){ cropCtx.fillStyle=photoBg; cropCtx.fillRect(0,0,cw,ch); }
+    if(photoBg!=="transparent"){
+        cropCtx.fillStyle=photoBg;
+        cropCtx.fillRect(0,0,cw,ch);
+    }
     const base=Math.max(cw/cropImage.naturalWidth,ch/cropImage.naturalHeight);
     const scale=base*(Number(photoZoom.value)/100);
-    const w=cropImage.naturalWidth*scale, h=cropImage.naturalHeight*scale;
-    const maxX=Math.max(0,(w-cw)/2), maxY=Math.max(0,(h-ch)/2);
-    const dx=(cw-w)/2 + (Number(photoX.value)/100)*maxX;
-    const dy=(ch-h)/2 + (Number(photoY.value)/100)*maxY;
+    const w=cropImage.naturalWidth*scale,h=cropImage.naturalHeight*scale;
+    const sliderX=(Number(photoX.value)/100)*Math.max(cw*.45,(w-cw)/2);
+    const sliderY=(Number(photoY.value)/100)*Math.max(ch*.45,(h-ch)/2);
+    const dx=(cw-w)/2+sliderX+imagePan.x;
+    const dy=(ch-h)/2+sliderY+imagePan.y;
     cropCtx.drawImage(cropImage,dx,dy,w,h);
     zoomValue.textContent=photoZoom.value+"%";
 }
 
 function openPhotoEditor(){
-    if(!photoData){ alert("Please upload student photo first."); return; }
+    if(!photoData){alert("Please upload student photo first.");return;}
     cropImage=new Image();
-    cropImage.onload=()=>{ photoZoom.value=100; photoX.value=0; photoY.value=0; cropRect={x:.12,y:.10,w:.76,h:.78}; syncCropBox(); drawCrop(); photoEditor.classList.add("open"); };
+    cropImage.onload=()=>{
+        photoZoom.value=100; photoX.value=0; photoY.value=0; imagePan={x:0,y:0};
+        cropRect={x:.12,y:.10,w:.76,h:.78};
+        syncCropBox(); drawCrop(); photoEditor.classList.add("open");
+    };
     cropImage.src=photoData;
 }
 editPhotoBtn.addEventListener("click",openPhotoEditor);
 [photoZoom,photoX,photoY].forEach(el=>el.addEventListener("input",drawCrop));
 document.getElementById("cancelPhotoEdit").addEventListener("click",()=>photoEditor.classList.remove("open"));
+
 function syncCropBox(){
-    cropBox.style.left=(cropRect.x*100)+"%"; cropBox.style.top=(cropRect.y*100)+"%";
-    cropBox.style.width=(cropRect.w*100)+"%"; cropBox.style.height=(cropRect.h*100)+"%";
+    cropBox.style.left=(cropRect.x*100)+"%";
+    cropBox.style.top=(cropRect.y*100)+"%";
+    cropBox.style.width=(cropRect.w*100)+"%";
+    cropBox.style.height=(cropRect.h*100)+"%";
 }
 function clampCrop(){
-    cropRect.w=Math.max(.18,Math.min(cropRect.w,1-cropRect.x));
-    cropRect.h=Math.max(.18,Math.min(cropRect.h,1-cropRect.y));
+    const min=.16;
+    cropRect.w=Math.max(min,Math.min(cropRect.w,1-cropRect.x));
+    cropRect.h=Math.max(min,Math.min(cropRect.h,1-cropRect.y));
     cropRect.x=Math.max(0,Math.min(cropRect.x,1-cropRect.w));
-    cropRect.y=Math.max(0,Math.min(cropRect.y,1-cropRect.h)); syncCropBox();
+    cropRect.y=Math.max(0,Math.min(cropRect.y,1-cropRect.h));
+    syncCropBox();
 }
 let cropDrag=null;
 cropBox.addEventListener("pointerdown",e=>{
-    e.preventDefault(); const r=cropStage.getBoundingClientRect();
+    e.preventDefault();e.stopPropagation();
+    const r=cropStage.getBoundingClientRect();
     cropDrag={handle:e.target.dataset.handle||"move",sx:e.clientX,sy:e.clientY,start:{...cropRect},rw:r.width,rh:r.height};
     cropBox.setPointerCapture(e.pointerId);
 });
 cropBox.addEventListener("pointermove",e=>{
-    if(!cropDrag)return; e.preventDefault();
-    const dx=(e.clientX-cropDrag.sx)/cropDrag.rw, dy=(e.clientY-cropDrag.sy)/cropDrag.rh, a=cropDrag.start;
-    if(cropDrag.handle==="move"){ cropRect.x=a.x+dx; cropRect.y=a.y+dy; }
-    else {
-      if(cropDrag.handle.includes("l")){cropRect.x=a.x+dx;cropRect.w=a.w-dx;}
-      if(cropDrag.handle.includes("r")){cropRect.w=a.w+dx;}
-      if(cropDrag.handle.includes("t")){cropRect.y=a.y+dy;cropRect.h=a.h-dy;}
-      if(cropDrag.handle.includes("b")){cropRect.h=a.h+dy;}
+    if(!cropDrag)return;e.preventDefault();
+    const dx=(e.clientX-cropDrag.sx)/cropDrag.rw,dy=(e.clientY-cropDrag.sy)/cropDrag.rh,a=cropDrag.start;
+    if(cropDrag.handle==="move"){cropRect.x=a.x+dx;cropRect.y=a.y+dy;}
+    else{
+        if(cropDrag.handle.includes("l")){cropRect.x=a.x+dx;cropRect.w=a.w-dx;}
+        if(cropDrag.handle.includes("r"))cropRect.w=a.w+dx;
+        if(cropDrag.handle.includes("t")){cropRect.y=a.y+dy;cropRect.h=a.h-dy;}
+        if(cropDrag.handle.includes("b"))cropRect.h=a.h+dy;
     }
     clampCrop();
 });
@@ -2010,10 +2027,40 @@ cropBox.addEventListener("pointerup",()=>cropDrag=null);
 cropBox.addEventListener("pointercancel",()=>cropDrag=null);
 syncCropBox();
 
+/* Finger drag the PHOTO itself; two fingers pinch to zoom. */
+cropStage.addEventListener("pointerdown",e=>{
+    if(e.target.closest(".crop-box"))return;
+    e.preventDefault();
+    cropStage.setPointerCapture(e.pointerId);
+    activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY,px:e.clientX,py:e.clientY});
+    if(activePointers.size===2){
+        const pts=[...activePointers.values()];
+        pinchStart={dist:Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y),zoom:Number(photoZoom.value)};
+    }
+});
+cropStage.addEventListener("pointermove",e=>{
+    const pt=activePointers.get(e.pointerId); if(!pt)return;
+    e.preventDefault(); pt.x=e.clientX;pt.y=e.clientY;
+    if(activePointers.size===1){
+        const rect=cropStage.getBoundingClientRect();
+        imagePan.x+=(e.clientX-pt.px)*(cropCanvas.width/rect.width);
+        imagePan.y+=(e.clientY-pt.py)*(cropCanvas.height/rect.height);
+        pt.px=e.clientX;pt.py=e.clientY;drawCrop();
+    }else if(activePointers.size===2&&pinchStart){
+        const pts=[...activePointers.values()];
+        const d=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);
+        photoZoom.value=Math.max(100,Math.min(300,Math.round(pinchStart.zoom*d/pinchStart.dist)));
+        drawCrop();
+    }
+});
+function endStagePointer(e){activePointers.delete(e.pointerId);if(activePointers.size<2)pinchStart=null;}
+cropStage.addEventListener("pointerup",endStagePointer);
+cropStage.addEventListener("pointercancel",endStagePointer);
+
 document.getElementById("savePhotoEdit").addEventListener("click",()=>{
-    const sx=Math.round(cropRect.x*cropCanvas.width), sy=Math.round(cropRect.y*cropCanvas.height);
-    const sw=Math.max(1,Math.round(cropRect.w*cropCanvas.width)), sh=Math.max(1,Math.round(cropRect.h*cropCanvas.height));
-    const out=document.createElement("canvas"); out.width=sw; out.height=sh;
+    const sx=Math.round(cropRect.x*cropCanvas.width),sy=Math.round(cropRect.y*cropCanvas.height);
+    const sw=Math.max(1,Math.round(cropRect.w*cropCanvas.width)),sh=Math.max(1,Math.round(cropRect.h*cropCanvas.height));
+    const out=document.createElement("canvas");out.width=sw;out.height=sh;
     out.getContext("2d").drawImage(cropCanvas,sx,sy,sw,sh,0,0,sw,sh);
     setStudentPhoto(out.toDataURL("image/png"));
     photoEditor.classList.remove("open");
@@ -2021,47 +2068,57 @@ document.getElementById("savePhotoEdit").addEventListener("click",()=>{
 
 document.querySelectorAll("[data-bg]").forEach(btn=>btn.addEventListener("click",()=>{
     photoBg=btn.dataset.bg;
-    if(photoData) openPhotoEditor();
+    if(photoData)openPhotoEditor();
 }));
 
-let bgRemoverPromise=null;
-let transformersMod=null;
-async function getBgRemover(){
-    if(!bgRemoverPromise){
-        aiStatus.textContent="AI model loading first time… please wait.";
-        bgRemoverPromise=(async()=>{
-            transformersMod=await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.3");
-            transformersMod.env.allowLocalModels=false;
-            return await transformersMod.pipeline("background-removal","onnx-community/modnet-webnn",{dtype:"fp32"});
-        })();
+/* Mobile-friendly in-browser AI. No API key and no photo upload to a server. */
+let imglyModulePromise=null;
+async function getImglyModule(){
+    if(!imglyModulePromise){
+        imglyModulePromise=import("https://esm.sh/@imgly/background-removal@1.7.0?bundle");
     }
-    return bgRemoverPromise;
+    return imglyModulePromise;
 }
 
 removeBgBtn.addEventListener("click",async()=>{
-    if(!photoData){ alert("Please upload student photo first."); return; }
+    if(!photoData){alert("Please upload student photo first.");return;}
     const oldText=removeBgBtn.textContent;
     removeBgBtn.disabled=true;
     try{
-        aiStatus.textContent="AI is removing background… first use may take longer.";
-        const remover=await getBgRemover();
-        const out=await remover([photoData]);
-        // The model output is an alpha matte. Apply it as alpha to the ORIGINAL image
-        // so face, hair and clothes keep their original RGB colours.
-        const original=await transformersMod.RawImage.fromURL(photoData);
-        const mask=await out[0].clone().grayscale().resize(original.width,original.height);
-        original.rgba().putAlpha(mask);
-        const resultCanvas=original.toCanvas();
-        setStudentPhoto(resultCanvas.toDataURL("image/png"));
-        photoBg="transparent";
-        aiStatus.textContent="✓ Background removed. You can now Crop / Resize or choose a background color.";
+        aiStatus.textContent="AI model loading… first time can take 30–90 seconds.";
+        const mod=await getImglyModule();
+        const removeBackground=mod.removeBackground||mod.default;
+        if(typeof removeBackground!=="function")throw new Error("Background remover not available");
+        const sourceBlob=await (await fetch(photoData)).blob();
+        const resultBlob=await removeBackground(sourceBlob,{
+            model:"small",
+            publicPath:"https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/",
+            output:{format:"image/png",quality:1},
+            progress:(key,current,total)=>{
+                if(total>0) aiStatus.textContent="AI loading/processing… "+Math.round(current/total*100)+"%";
+            }
+        });
+        const resultUrl=URL.createObjectURL(resultBlob);
+        const img=new Image();
+        img.onload=()=>{
+            const c=document.createElement("canvas");c.width=img.naturalWidth;c.height=img.naturalHeight;
+            c.getContext("2d").drawImage(img,0,0);
+            setStudentPhoto(c.toDataURL("image/png"));
+            URL.revokeObjectURL(resultUrl);
+            photoBg="transparent";
+            aiStatus.textContent="✓ Background removed. Original face/clothes colours preserved.";
+        };
+        img.onerror=()=>{URL.revokeObjectURL(resultUrl);throw new Error("Could not decode result");};
+        img.src=resultUrl;
     }catch(err){
         console.error(err);
-        aiStatus.textContent="AI could not load. Check internet and try again.";
-        alert("Background removal could not run on this browser. Please check internet and try again.");
-    }finally{ removeBgBtn.disabled=false; removeBgBtn.textContent=oldText; }
+        aiStatus.textContent="AI could not run on this device/browser. Try Chrome/Safari with a stable internet connection.";
+        alert("Background removal could not run. First-time AI download is large; please check internet and try once more.");
+        imglyModulePromise=null;
+    }finally{
+        removeBgBtn.disabled=false;removeBgBtn.textContent=oldText;
+    }
 });
-
 
 /* COLORS */
 
