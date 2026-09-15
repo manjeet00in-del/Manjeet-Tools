@@ -2071,50 +2071,146 @@ document.querySelectorAll("[data-bg]").forEach(btn=>btn.addEventListener("click"
     if(photoData)openPhotoEditor();
 }));
 
-/* Mobile-friendly in-browser AI. No API key and no photo upload to a server. */
-let imglyModulePromise=null;
-async function getImglyModule(){
-    if(!imglyModulePromise){
-        imglyModulePromise=import("https://esm.sh/@imgly/background-removal@1.7.0?bundle");
+/* CROSS-BROWSER IN-BROWSER AI BACKGROUND REMOVAL
+   WebGPU when available; automatic WASM/CPU fallback.
+   No API key; the photo is processed on the user's device. */
+let hfModulePromise=null;
+let bgSegmenter=null;
+let bgDevice=null;
+
+async function getHF(){
+    if(!hfModulePromise){
+        hfModulePromise=import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1");
     }
-    return imglyModulePromise;
+    const hf=await hfModulePromise;
+    hf.env.allowLocalModels=false;
+    hf.env.useBrowserCache=true;
+    return hf;
+}
+
+async function buildBgPipeline(device){
+    const hf=await getHF();
+    return hf.pipeline("image-segmentation","briaai/RMBG-1.4",{
+        device,
+        dtype:"fp32",
+        progress_callback:(p)=>{
+            if(p && p.total>0){
+                const pc=Math.max(0,Math.min(100,Math.round((p.loaded||0)/p.total*100)));
+                aiStatus.textContent="AI model loading… "+pc+"%";
+            }else if(p && p.status){
+                aiStatus.textContent="AI: "+p.status+"…";
+            }
+        }
+    });
+}
+
+async function getBgSegmenter(){
+    if(bgSegmenter)return bgSegmenter;
+    const canGPU=typeof navigator!=="undefined" && !!navigator.gpu;
+    if(canGPU){
+        try{
+            aiStatus.textContent="Starting AI with WebGPU…";
+            bgSegmenter=await buildBgPipeline("webgpu");
+            bgDevice="webgpu";
+            return bgSegmenter;
+        }catch(e){
+            console.warn("WebGPU unavailable/failed; falling back to WASM",e);
+            bgSegmenter=null;
+        }
+    }
+    aiStatus.textContent="Starting compatible AI (WASM/CPU)… first load may take time.";
+    bgSegmenter=await buildBgPipeline("wasm");
+    bgDevice="wasm";
+    return bgSegmenter;
+}
+
+function maskFromSegmentation(output){
+    const first=Array.isArray(output)?output[0]:output;
+    if(!first)throw new Error("AI returned no result");
+    const m=first.mask||first;
+    if(!m || !m.data || !m.width || !m.height)throw new Error("Unknown AI mask format");
+    return m;
+}
+
+async function photoDataToCanvas(dataUrl){
+    return new Promise((resolve,reject)=>{
+        const img=new Image();
+        img.onload=()=>{
+            const c=document.createElement("canvas");
+            c.width=img.naturalWidth;c.height=img.naturalHeight;
+            const x=c.getContext("2d",{willReadFrequently:true});
+            x.drawImage(img,0,0);
+            resolve(c);
+        };
+        img.onerror=()=>reject(new Error("Photo could not be decoded"));
+        img.src=dataUrl;
+    });
+}
+
+function applyMaskToOriginal(originalCanvas,mask){
+    const mw=mask.width,mh=mask.height,channels=mask.channels||1,data=mask.data;
+    const small=document.createElement("canvas");small.width=mw;small.height=mh;
+    const sx=small.getContext("2d");
+    const id=sx.createImageData(mw,mh);
+    for(let p=0;p<mw*mh;p++){
+        let a;
+        if(channels===1)a=data[p];
+        else if(channels===4)a=data[p*4+3];
+        else a=data[p*channels];
+        const j=p*4;id.data[j]=255;id.data[j+1]=255;id.data[j+2]=255;id.data[j+3]=a;
+    }
+    sx.putImageData(id,0,0);
+
+    const maskFull=document.createElement("canvas");
+    maskFull.width=originalCanvas.width;maskFull.height=originalCanvas.height;
+    const mx=maskFull.getContext("2d",{willReadFrequently:true});
+    mx.imageSmoothingEnabled=true;mx.imageSmoothingQuality="high";
+    mx.drawImage(small,0,0,maskFull.width,maskFull.height);
+
+    const ox=originalCanvas.getContext("2d",{willReadFrequently:true});
+    const original=ox.getImageData(0,0,originalCanvas.width,originalCanvas.height);
+    const alpha=mx.getImageData(0,0,maskFull.width,maskFull.height).data;
+    for(let i=0;i<original.data.length;i+=4) original.data[i+3]=alpha[i+3];
+
+    const out=document.createElement("canvas");out.width=originalCanvas.width;out.height=originalCanvas.height;
+    out.getContext("2d").putImageData(original,0,0);
+    return out;
 }
 
 removeBgBtn.addEventListener("click",async()=>{
     if(!photoData){alert("Please upload student photo first.");return;}
     const oldText=removeBgBtn.textContent;
     removeBgBtn.disabled=true;
+    removeBgBtn.textContent="⏳ Removing BG…";
     try{
-        aiStatus.textContent="AI model loading… first time can take 30–90 seconds.";
-        const mod=await getImglyModule();
-        const removeBackground=mod.removeBackground||mod.default;
-        if(typeof removeBackground!=="function")throw new Error("Background remover not available");
-        const sourceBlob=await (await fetch(photoData)).blob();
-        const resultBlob=await removeBackground(sourceBlob,{
-            model:"small",
-            publicPath:"https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/",
-            output:{format:"image/png",quality:1},
-            progress:(key,current,total)=>{
-                if(total>0) aiStatus.textContent="AI loading/processing… "+Math.round(current/total*100)+"%";
-            }
-        });
-        const resultUrl=URL.createObjectURL(resultBlob);
-        const img=new Image();
-        img.onload=()=>{
-            const c=document.createElement("canvas");c.width=img.naturalWidth;c.height=img.naturalHeight;
-            c.getContext("2d").drawImage(img,0,0);
-            setStudentPhoto(c.toDataURL("image/png"));
-            URL.revokeObjectURL(resultUrl);
-            photoBg="transparent";
-            aiStatus.textContent="✓ Background removed. Original face/clothes colours preserved.";
-        };
-        img.onerror=()=>{URL.revokeObjectURL(resultUrl);throw new Error("Could not decode result");};
-        img.src=resultUrl;
+        aiStatus.textContent="Preparing photo…";
+        const hf=await getHF();
+        const originalCanvas=await photoDataToCanvas(photoData);
+        const pixels=originalCanvas.getContext("2d",{willReadFrequently:true}).getImageData(0,0,originalCanvas.width,originalCanvas.height);
+        const raw=new hf.RawImage(pixels.data,originalCanvas.width,originalCanvas.height,4);
+        let segmenter=await getBgSegmenter();
+        aiStatus.textContent="AI is removing background ("+(bgDevice==="webgpu"?"GPU":"compatible CPU")+")…";
+        let output;
+        try{
+            output=await segmenter(raw);
+        }catch(e){
+            if(bgDevice==="webgpu"){
+                console.warn("WebGPU inference failed; retrying with WASM",e);
+                bgSegmenter=await buildBgPipeline("wasm");bgDevice="wasm";segmenter=bgSegmenter;
+                aiStatus.textContent="GPU failed — retrying with compatible CPU mode…";
+                output=await segmenter(raw);
+            }else throw e;
+        }
+        const mask=maskFromSegmentation(output);
+        const resultCanvas=applyMaskToOriginal(originalCanvas,mask);
+        setStudentPhoto(resultCanvas.toDataURL("image/png"));
+        photoBg="transparent";
+        aiStatus.textContent="✓ Background removed on this device ("+(bgDevice==="webgpu"?"WebGPU":"WASM/CPU")+").";
     }catch(err){
         console.error(err);
-        aiStatus.textContent="AI could not run on this device/browser. Try Chrome/Safari with a stable internet connection.";
-        alert("Background removal could not run. First-time AI download is large; please check internet and try once more.");
-        imglyModulePromise=null;
+        aiStatus.textContent="AI could not start. First model download is large; check internet/storage and retry.";
+        alert("Background removal could not run. Please keep this tab open, use a stable internet connection and try again. The first AI model download is large.");
+        bgSegmenter=null;bgDevice=null;hfModulePromise=null;
     }finally{
         removeBgBtn.disabled=false;removeBgBtn.textContent=oldText;
     }
