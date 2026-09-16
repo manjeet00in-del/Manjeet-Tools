@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Document Scanner - Manjeet Digital Hub</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f7fc;color:#172033}
+header{background:#173b72;color:#fff;padding:15px;text-align:center}header h1{font-size:21px;margin:0 0 3px}header p{font-size:12px;margin:0;opacity:.85}
+.wrap{max-width:1050px;margin:auto;padding:14px;display:grid;grid-template-columns:360px 1fr;gap:14px}
+.panel{background:#fff;border-radius:14px;padding:14px;box-shadow:0 3px 15px #0001;margin-bottom:12px}
+h3{font-size:16px;margin:0 0 11px}.upload{display:block;border:2px dashed #8aa4c7;border-radius:12px;padding:20px;text-align:center;background:#f8fbff;cursor:pointer}.upload input{display:none}
+.btn{border:0;border-radius:9px;padding:10px 12px;font-weight:700;background:#173b72;color:#fff;cursor:pointer}.green{background:#16834b}.gray{background:#64748b}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}.actions .btn{flex:1}
+.row{display:flex;gap:9px;align-items:center;margin:11px 0}.row label{font-size:13px;font-weight:700;min-width:90px}.row select{width:100%;padding:9px;border:1px solid #ccd5e1;border-radius:8px}input[type=range]{width:100%}
+.stage{background:#dbe4ef;border-radius:12px;min-height:470px;display:flex;align-items:center;justify-content:center;padding:10px;overflow:auto}
+.cw{position:relative;display:inline-block;touch-action:none;transform-origin:top left}.cw canvas{display:block;background:#fff}
+.crop{position:absolute;border:2px dashed #1976d2;background:#1976d216;touch-action:none;cursor:move;user-select:none;-webkit-user-select:none}.handle{position:absolute;width:30px;height:30px;border-radius:50%;background:#1976d2;border:3px solid white;touch-action:none}
+.tl{left:-12px;top:-12px}.tr{right:-12px;top:-12px}.bl{left:-12px;bottom:-12px}.br{right:-12px;bottom:-12px}.hide{display:none}.hint{font-size:11px;color:#64748b;line-height:1.4}
+.mobilePreview{display:none}.mobilePreview canvas{max-width:100%;max-height:125px;display:block;margin:auto;background:#fff}
+@media(max-width:760px){
+ .wrap{grid-template-columns:1fr;padding-top:8px}.stage{min-height:360px}.desktopStage{display:none}
+ .mobilePreview{display:block;position:sticky;top:0;z-index:50;background:#f3f7fcf5;margin:0 -14px 10px;padding:7px 12px;border-bottom:1px solid #d7e0eb;backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+ .mobilePreview h3{font-size:12px;text-align:center;margin:0 0 5px}.mobilePreview canvas{height:118px;width:auto}
+}
+@media print{body *{visibility:hidden!important}#printPage,#printPage *{visibility:visible!important}#printPage{display:flex!important;position:absolute;inset:0;width:100%;height:100%;align-items:center;justify-content:center;background:#fff}#printPage img{max-width:190mm;max-height:277mm}}
+</style></head>
+<body>
+<header><h1>📑 Document Scanner</h1><p>Manjeet Digital Hub • Crop • Enhance • B&W • PDF</p></header>
+<div class="wrap">
+<div>
+ <div class="mobilePreview"><h3>Live Document Preview</h3><canvas id="mobileCanvas"></canvas></div>
+ <div class="panel">
+  <h3>1. Upload / Camera</h3>
+  <label class="upload"><input id="file" type="file" accept="image/*"><b>📷 Select Document Photo</b><br><small>Gallery या Camera से photo चुनें</small></label>
+  <div class="actions"><button class="btn gray" id="left">↶ Rotate</button><button class="btn gray" id="right">Rotate ↷</button></div>
+ </div>
+ <div class="panel">
+  <h3>2. Crop & Enhance</h3>
+  <div class="row"><label>Brightness</label><input id="brightness" type="range" min="50" max="170" value="100"></div>
+  <div class="row"><label>Contrast</label><input id="contrast" type="range" min="50" max="220" value="100"></div>
+  <div class="row"><label>Mode</label><select id="mode"><option value="color">Color</option><option value="clean">Clean Document</option><option value="gray">Grayscale</option><option value="bw">Black & White</option></select></div>
+  <div class="actions"><button class="btn gray" id="resetCrop">Full Page Crop</button><button class="btn" id="applyCrop">Apply Crop</button></div>
+  <button class="btn gray" id="resetAll" style="width:100%;margin-top:8px">↻ Reset All</button>
+  <p class="hint">Photo load होते ही scanner document को automatically detect करेगा। Manual edit: blue box के अंदर finger drag करके crop area move करें और blue corners को finger से drag करके resize करें।</p>
+ </div>
+ <div class="panel">
+  <h3>3. Download / Print</h3>
+  <div class="actions"><button class="btn green" id="jpg">⬇ JPG</button><button class="btn green" id="png">⬇ PNG</button></div>
+  <button class="btn green" id="pdf" style="width:100%;margin-top:8px">🖨 A4 PDF / Print</button>
+ </div>
+</div>
+<div>
+ <div class="panel desktopStage"><h3>Document Preview & Crop</h3><div class="stage"><div id="cw" class="cw"><canvas id="canvas"></canvas><div id="crop" class="crop hide"><i class="handle tl" data-h="tl"></i><i class="handle tr" data-h="tr"></i><i class="handle bl" data-h="bl"></i><i class="handle br" data-h="br"></i></div></div></div></div>
+</div>
+</div>
+<div id="printPage" style="display:none"><img id="printImg"></div>
+<script>
+const $=id=>document.getElementById(id),can=$('canvas'),ctx=can.getContext('2d'),mc=$('mobileCanvas'),mctx=mc.getContext('2d');
+let original=null,img=null,angle=0,cr={x:0,y:0,w:0,h:0},drag=null;
+function filters(){
+ let m=$('mode').value,b=+$('brightness').value,c=+$('contrast').value;
+ if(m==='clean'){b=Math.max(b,112);c=Math.max(c,125)}
+ let x=`brightness(${b}%) contrast(${c}%)`;
+ if(m==='gray')x+=' grayscale(1)';
+ if(m==='bw')x+=' grayscale(1) contrast(2.2)';
+ return x
+}
+function loadFile(f){if(!f)return;let r=new FileReader();r.onload=()=>{let i=new Image();i.onload=()=>{original=i;img=i;angle=0;draw();setTimeout(autoDetect,80)};i.src=r.result};r.readAsDataURL(f)}
+$('file').onchange=e=>loadFile(e.target.files[0]);
+
+function fitEditor(){
+ if(!img)return;
+ const cw=$('cw'),stage=cw.parentElement;
+ // Reset before measuring available space.
+ cw.style.transform='none';cw.style.marginRight='0px';cw.style.marginBottom='0px';
+ let aw=Math.max(1,stage.clientWidth-20);
+ let ah=Math.max(320,window.innerHeight*.68);
+ let scale=Math.min(1,aw/can.width,ah/can.height);
+ cw.style.transform=`scale(${scale})`;
+ cw.style.marginRight=(can.width*(scale-1))+'px';
+ cw.style.marginBottom=(can.height*(scale-1))+'px';
+}
+window.addEventListener('resize',fitEditor);
+
+function draw(){
+ if(!img)return;
+ let swap=Math.abs(angle%180)===90,w=swap?img.naturalHeight:img.naturalWidth,h=swap?img.naturalWidth:img.naturalHeight;
+ let s=Math.min(1,1000/Math.max(w,h));can.width=Math.round(w*s);can.height=Math.round(h*s);
+ ctx.clearRect(0,0,can.width,can.height);ctx.save();ctx.filter=filters();ctx.translate(can.width/2,can.height/2);ctx.rotate(angle*Math.PI/180);
+ ctx.drawImage(img,-img.naturalWidth*s/2,-img.naturalHeight*s/2,img.naturalWidth*s,img.naturalHeight*s);ctx.restore();
+ $('cw').style.width=can.width+'px';$('cw').style.height=can.height+'px';fitEditor();updateMobile()
+}
+function updateMobile(){
+ if(!img)return;let fc=finalCanvas();if(!fc)return;
+ let scale=Math.min(1,280/fc.width);mc.width=Math.max(1,Math.round(fc.width*scale));mc.height=Math.max(1,Math.round(fc.height*scale));
+ mctx.clearRect(0,0,mc.width,mc.height);mctx.drawImage(fc,0,0,mc.width,mc.height)
+}
+function resetCrop(){if(!img)return;$('crop').classList.remove('hide');cr={x:0,y:0,w:can.width,h:can.height};positionCrop();updateMobile()}
+function positionCrop(){let e=$('crop');e.style.left=cr.x+'px';e.style.top=cr.y+'px';e.style.width=cr.w+'px';e.style.height=cr.h+'px'}
+$('resetCrop').onclick=resetCrop;
+$('left').onclick=()=>{if(img){angle-=90;draw();resetCrop()}};
+$('right').onclick=()=>{if(img){angle+=90;draw();resetCrop()}};
+['brightness','contrast','mode'].forEach(id=>$(id).oninput=()=>{draw();positionCrop()});
+$('crop').onpointerdown=e=>{if(!img)return;e.preventDefault();drag={h:e.target.dataset.h||'move',sx:e.clientX,sy:e.clientY,o:{...cr}};$('crop').setPointerCapture(e.pointerId)};
+$('crop').onpointermove=e=>{
+ if(!drag)return;let R=can.getBoundingClientRect(),dx=(e.clientX-drag.sx)*can.width/R.width,dy=(e.clientY-drag.sy)*can.height/R.height,o=drag.o,n={...o},min=45;
+ if(drag.h==='move'){n.x=o.x+dx;n.y=o.y+dy}else{
+  if(drag.h.includes('r'))n.w=o.w+dx;if(drag.h.includes('b'))n.h=o.h+dy;
+  if(drag.h.includes('l')){n.x=o.x+dx;n.w=o.w-dx}if(drag.h.includes('t')){n.y=o.y+dy;n.h=o.h-dy}
+ }
+ n.w=Math.max(min,n.w);n.h=Math.max(min,n.h);n.x=Math.max(0,Math.min(can.width-min,n.x));n.y=Math.max(0,Math.min(can.height-min,n.y));n.w=Math.min(can.width-n.x,n.w);n.h=Math.min(can.height-n.y,n.h);cr=n;positionCrop();updateMobile()
+};
+
+$('crop').onpointerup=$('crop').onpointercancel=()=>drag=null;
+
+/* Finger-drag fallback for touch browsers:
+   drag inside box = move crop, drag blue corner = resize. */
+let touchDrag=null;
+$('crop').addEventListener('touchstart',e=>{
+ if(!img||!e.touches.length)return;
+ e.preventDefault();
+ let t=e.touches[0];
+ touchDrag={h:e.target.dataset.h||'move',sx:t.clientX,sy:t.clientY,o:{...cr}};
+},{passive:false});
+$('crop').addEventListener('touchmove',e=>{
+ if(!touchDrag||!e.touches.length)return;
+ e.preventDefault();
+ let t=e.touches[0],R=can.getBoundingClientRect();
+ let dx=(t.clientX-touchDrag.sx)*can.width/R.width;
+ let dy=(t.clientY-touchDrag.sy)*can.height/R.height;
+ let o=touchDrag.o,n={...o},min=45,h=touchDrag.h;
+ if(h==='move'){n.x=o.x+dx;n.y=o.y+dy}
+ else{
+   if(h.includes('r'))n.w=o.w+dx;
+   if(h.includes('b'))n.h=o.h+dy;
+   if(h.includes('l')){n.x=o.x+dx;n.w=o.w-dx}
+   if(h.includes('t')){n.y=o.y+dy;n.h=o.h-dy}
+ }
+ n.w=Math.max(min,n.w);n.h=Math.max(min,n.h);
+ n.x=Math.max(0,Math.min(can.width-min,n.x));
+ n.y=Math.max(0,Math.min(can.height-min,n.y));
+ n.w=Math.min(can.width-n.x,n.w);n.h=Math.min(can.height-n.y,n.h);
+ cr=n;positionCrop();updateMobile();
+},{passive:false});
+$('crop').addEventListener('touchend',()=>touchDrag=null,{passive:true});
+$('crop').addEventListener('touchcancel',()=>touchDrag=null,{passive:true});
+
+function finalCanvas(){
+ if(!img||!cr.w||!cr.h)return null;
+ let x=Math.max(0,Math.floor(cr.x)),y=Math.max(0,Math.floor(cr.y));
+ let w=Math.min(can.width-x,Math.ceil(cr.w)),h=Math.min(can.height-y,Math.ceil(cr.h));
+ if(w<1||h<1)return null;
+ let o=document.createElement('canvas');o.width=w;o.height=h;
+ o.getContext('2d').drawImage(can,x,y,w,h,0,0,w,h);return o
+}
+
+/* Local auto document detection: detects light/contrasting page edges.
+   No upload/API is used; it runs entirely in the browser. */
+function autoDetect(){
+ if(!img)return alert('पहले document photo upload करें।');
+ const W=can.width,H=can.height;
+ const tw=Math.min(420,W),th=Math.max(1,Math.round(H*tw/W));
+ const t=document.createElement('canvas');t.width=tw;t.height=th;
+ const tc=t.getContext('2d',{willReadFrequently:true});tc.drawImage(can,0,0,tw,th);
+ const d=tc.getImageData(0,0,tw,th).data;
+ const lum=(x,y)=>{let i=(y*tw+x)*4;return .299*d[i]+.587*d[i+1]+.114*d[i+2]};
+ // Estimate background brightness from a border band.
+ let bg=0,n=0,band=Math.max(2,Math.round(Math.min(tw,th)*.035));
+ for(let y=0;y<th;y+=2)for(let x=0;x<tw;x+=2)
+   if(x<band||x>=tw-band||y<band||y>=th-band){bg+=lum(x,y);n++}
+ bg/=Math.max(1,n);
+ // Score rows/columns for pixels differing from border background.
+ let cols=new Array(tw).fill(0),rows=new Array(th).fill(0);
+ for(let y=0;y<th;y+=2)for(let x=0;x<tw;x+=2){
+   let L=lum(x,y),diff=Math.abs(L-bg);
+   // Document pages are commonly brighter than surroundings, but difference also handles white backgrounds.
+   if(diff>22 || (L>bg+14)){cols[x]++;rows[y]++}
+ }
+ // Smooth sparse scores.
+ function smooth(a,r=5){return a.map((_,i)=>{let z=0,c=0;for(let j=Math.max(0,i-r);j<=Math.min(a.length-1,i+r);j++){z+=a[j];c++}return z/c})}
+ cols=smooth(cols);rows=smooth(rows);
+ const cmax=Math.max(...cols),rmax=Math.max(...rows);
+ let xs=[],ys=[];
+ cols.forEach((v,i)=>{if(v>cmax*.16)xs.push(i)});
+ rows.forEach((v,i)=>{if(v>rmax*.16)ys.push(i)});
+ if(!xs.length||!ys.length){resetCrop();return alert('Document edge साफ detect नहीं हुई। Full Page Crop लगाया है; blue corners से adjust करें।')}
+ let l=Math.min(...xs),r=Math.max(...xs),top=Math.min(...ys),bot=Math.max(...ys);
+ // Small safety margin prevents cutting document edges.
+ let mx=Math.round(tw*.018),my=Math.round(th*.018);
+ l=Math.max(0,l-mx);r=Math.min(tw-1,r+mx);top=Math.max(0,top-my);bot=Math.min(th-1,bot+my);
+ // Reject implausibly tiny detections.
+ if((r-l)<tw*.35||(bot-top)<th*.35){resetCrop();return alert('Document edge साफ detect नहीं हुई। Full Page Crop लगाया है; blue corners से adjust करें।')}
+ cr={x:l/tw*W,y:top/th*H,w:(r-l+1)/tw*W,h:(bot-top+1)/th*H};
+ positionCrop();updateMobile();
+}
+
+$('applyCrop').onclick=()=>{let o=finalCanvas();if(!o)return alert('पहले document photo upload करें।');let i=new Image();i.onload=()=>{img=i;angle=0;draw();resetCrop()};i.src=o.toDataURL('image/png')};
+$('resetAll').onclick=()=>{if(!original)return;img=original;angle=0;$('brightness').value=100;$('contrast').value=100;$('mode').value='color';draw();resetCrop()};
+function download(type,ext){let o=finalCanvas();if(!o)return alert('पहले document photo upload करें।');let a=document.createElement('a');a.download='manjeet-document.'+ext;a.href=o.toDataURL(type,.95);a.click()}
+$('jpg').onclick=()=>download('image/jpeg','jpg');$('png').onclick=()=>download('image/png','png');
+$('pdf').onclick=()=>{
+ let o=finalCanvas();if(!o)return alert('पहले document photo upload करें।');
+ $('printImg').src=o.toDataURL('image/jpeg',.96);$('printPage').style.display='flex';setTimeout(()=>{window.print();setTimeout(()=>$('printPage').style.display='none',500)},250)
+};
+</script></body></html>
