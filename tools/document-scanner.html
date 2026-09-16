@@ -22,7 +22,23 @@ h3{font-size:16px;margin:0 0 11px}.upload{display:block;border:2px dashed #8aa4c
  .mobilePreview h3{font-size:12px;text-align:center;margin:0 0 5px}.mobilePreview canvas{height:118px;width:auto}
 }
 @media print{body *{visibility:hidden!important}#printPage,#printPage *{visibility:visible!important}#printPage{display:flex!important;position:absolute;inset:0;width:100%;height:100%;align-items:center;justify-content:center;background:#fff}#printPage img{max-width:190mm;max-height:277mm}}
-</style></head>
+
+.pageList{display:flex;flex-direction:column;gap:8px;margin:8px 0}
+.pageItem{display:grid;grid-template-columns:58px 1fr auto;gap:8px;align-items:center;border:1px solid #dbe3ee;border-radius:10px;padding:6px;background:#f8fbff}
+.pageItem img{width:58px;height:72px;object-fit:contain;background:#fff;border:1px solid #e2e8f0;border-radius:6px}
+.pageItem b{font-size:12px}.pageBtns{display:grid;grid-template-columns:repeat(2,30px);gap:4px}
+.pageBtns button{border:0;border-radius:6px;min-height:30px;background:#e7eef8;cursor:pointer}
+@media print{
+ body{background:#fff!important}
+ body>*:not(#printPages){display:none!important}
+ #printPages{display:block!important;position:static!important}
+ #printPages .printDocPage{display:flex!important;width:210mm;height:297mm;align-items:center;justify-content:center;page-break-after:always;break-after:page;background:#fff}
+ #printPages .printDocPage:last-child{page-break-after:auto;break-after:auto}
+ #printPages img{display:block!important;max-width:190mm;max-height:277mm;width:auto;height:auto;object-fit:contain}
+}
+
+</style><script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+</head>
 <body>
 <header><h1>📑 Document Scanner</h1><p>Manjeet Digital Hub • Crop • Enhance • B&W • PDF</p></header>
 <div class="wrap">
@@ -43,16 +59,27 @@ h3{font-size:16px;margin:0 0 11px}.upload{display:block;border:2px dashed #8aa4c
   <p class="hint">Photo load होते ही scanner document को automatically detect करेगा। Manual edit: blue box के अंदर finger drag करके crop area move करें और blue corners को finger से drag करके resize करें।</p>
  </div>
  <div class="panel">
-  <h3>3. Download / Print</h3>
-  <div class="actions"><button class="btn green" id="jpg">⬇ JPG</button><button class="btn green" id="png">⬇ PNG</button></div>
-  <button class="btn green" id="pdf" style="width:100%;margin-top:8px">🖨 A4 PDF / Print</button>
+  <h3>3. Multi-Page Documents</h3>
+  <button class="btn" id="addPage" style="width:100%">➕ Add Current Scan as Page</button>
+  <div id="pageCount" class="hint" style="margin:8px 0">0 pages added</div>
+  <div id="pageList" class="pageList"></div>
+  <div class="actions">
+    <button class="btn green" id="pdf">📄 Export PDF</button>
+    <button class="btn green" id="printAll">🖨 Print All</button>
+  </div>
+  <div class="actions">
+    <button class="btn green" id="jpg">⬇ JPG Images</button>
+    <button class="btn green" id="png">⬇ PNG Images</button>
+  </div>
+  <button class="btn gray" id="clearPages" style="width:100%;margin-top:8px">Clear All Pages</button>
+  <p class="hint">हर scan को “Add Current Scan as Page” से जोड़ें। फिर सभी pages को एक PDF, JPG/PNG images या Print में निकालें।</p>
  </div>
 </div>
 <div>
  <div class="panel desktopStage"><h3>Document Preview & Crop</h3><div class="stage"><div id="cw" class="cw"><canvas id="canvas"></canvas><div id="crop" class="crop hide"><i class="handle tl" data-h="tl"></i><i class="handle tr" data-h="tr"></i><i class="handle bl" data-h="bl"></i><i class="handle br" data-h="br"></i></div></div></div></div>
 </div>
 </div>
-<div id="printPage" style="display:none"><img id="printImg"></div>
+<div id="printPages" style="display:none"></div>
 <script>
 const $=id=>document.getElementById(id),can=$('canvas'),ctx=can.getContext('2d'),mc=$('mobileCanvas'),mctx=mc.getContext('2d');
 let original=null,img=null,angle=0,cr={x:0,y:0,w:0,h:0},drag=null;
@@ -195,10 +222,81 @@ function autoDetect(){
 
 $('applyCrop').onclick=()=>{let o=finalCanvas();if(!o)return alert('पहले document photo upload करें।');let i=new Image();i.onload=()=>{img=i;angle=0;draw();resetCrop()};i.src=o.toDataURL('image/png')};
 $('resetAll').onclick=()=>{if(!original)return;img=original;angle=0;$('brightness').value=100;$('contrast').value=100;$('mode').value='color';draw();resetCrop()};
-function download(type,ext){let o=finalCanvas();if(!o)return alert('पहले document photo upload करें।');let a=document.createElement('a');a.download='manjeet-document.'+ext;a.href=o.toDataURL(type,.95);a.click()}
-$('jpg').onclick=()=>download('image/jpeg','jpg');$('png').onclick=()=>download('image/png','png');
-$('pdf').onclick=()=>{
- let o=finalCanvas();if(!o)return alert('पहले document photo upload करें।');
- $('printImg').src=o.toDataURL('image/jpeg',.96);$('printPage').style.display='flex';setTimeout(()=>{window.print();setTimeout(()=>$('printPage').style.display='none',500)},250)
+let pages=[];
+
+function currentPageData(){
+ let o=finalCanvas();
+ if(!o)return null;
+ return {
+   jpg:o.toDataURL('image/jpeg',.96),
+   png:o.toDataURL('image/png'),
+   width:o.width,height:o.height
+ };
+}
+function renderPages(){
+ const list=$('pageList'),count=$('pageCount');
+ count.textContent=pages.length+' page'+(pages.length===1?'':'s')+' added';
+ list.innerHTML='';
+ pages.forEach((p,i)=>{
+   let row=document.createElement('div');row.className='pageItem';
+   row.innerHTML=`<img src="${p.jpg}"><div><b>Page ${i+1}</b><div class="hint">${p.width} × ${p.height}px</div></div>
+   <div class="pageBtns"><button title="Move up" data-a="up">↑</button><button title="Move down" data-a="down">↓</button><button title="Delete" data-a="del">✕</button></div>`;
+   row.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+     let a=b.dataset.a;
+     if(a==='del')pages.splice(i,1);
+     if(a==='up'&&i>0)[pages[i-1],pages[i]]=[pages[i],pages[i-1]];
+     if(a==='down'&&i<pages.length-1)[pages[i+1],pages[i]]=[pages[i],pages[i+1]];
+     renderPages();
+   });
+   list.appendChild(row);
+ });
+}
+$('addPage').onclick=()=>{
+ let p=currentPageData();
+ if(!p)return alert('पहले document photo upload करें।');
+ pages.push(p);renderPages();
+ // Ready for next person/page without deleting the saved page.
+ $('file').value='';
+ alert('Page '+pages.length+' added. अब अगला document/photo select कर सकते हैं।');
 };
+$('clearPages').onclick=()=>{pages=[];renderPages()};
+
+function exportPages(type){
+ if(!pages.length)return alert('पहले कम से कम 1 page Add करें।');
+ pages.forEach((p,i)=>{
+   let a=document.createElement('a');
+   a.download=`manjeet-document-page-${i+1}.${type}`;
+   a.href=type==='png'?p.png:p.jpg;
+   document.body.appendChild(a);
+   setTimeout(()=>{a.click();a.remove()},i*250);
+ });
+}
+$('jpg').onclick=()=>exportPages('jpg');
+$('png').onclick=()=>exportPages('png');
+
+$('pdf').onclick=()=>{
+ if(!pages.length)return alert('पहले कम से कम 1 page Add करें।');
+ if(!window.jspdf||!window.jspdf.jsPDF)return alert('PDF library load नहीं हुई। Internet connection check करके फिर try करें।');
+ const {jsPDF}=window.jspdf;
+ let pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+ pages.forEach((p,i)=>{
+   if(i)pdf.addPage('a4','portrait');
+   const maxW=190,maxH=277,ratio=p.width/p.height;
+   let w=maxW,h=w/ratio;if(h>maxH){h=maxH;w=h*ratio}
+   pdf.addImage(p.jpg,'JPEG',(210-w)/2,(297-h)/2,w,h,undefined,'FAST');
+ });
+ pdf.save('manjeet-scanned-documents.pdf');
+};
+
+$('printAll').onclick=()=>{
+ if(!pages.length)return alert('पहले कम से कम 1 page Add करें।');
+ const box=$('printPages');box.innerHTML='';
+ pages.forEach(p=>{
+   let d=document.createElement('div');d.className='printDocPage';
+   let im=document.createElement('img');im.src=p.jpg;d.appendChild(im);box.appendChild(d);
+ });
+ box.style.display='block';
+ setTimeout(()=>{window.print();setTimeout(()=>box.style.display='none',600)},250);
+};
+renderPages();
 </script></body></html>
