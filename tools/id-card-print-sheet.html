@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>ID Card Print Sheet - Manjeet Digital Hub</title>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box}html,body{margin:0;max-width:100%;overflow-x:hidden;font-family:Arial,sans-serif;background:#f4f7fb;color:#172033}
+header{position:sticky;top:0;z-index:40;background:#0f172a;color:white;padding:12px 14px;box-shadow:0 2px 10px #0002}
+header b{font-size:17px}header small{display:block;color:#cbd5e1;margin-top:3px}
+.wrap{max-width:1180px;margin:auto;padding:12px;display:grid;grid-template-columns:370px 1fr;gap:12px}
+.panel,.previewPanel{background:white;border:1px solid #e2e8f0;border-radius:14px;padding:12px;margin-bottom:10px;box-shadow:0 2px 8px #0f172a0b}
+h3{font-size:14px;margin:0 0 10px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+label{font-size:11px;font-weight:700;display:block;margin:7px 0 4px}input,select,button{width:100%;min-width:0;min-height:40px;border:1px solid #cbd5e1;border-radius:9px;padding:7px;background:#fff}
+.btn{border:0;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}.btn.alt{background:#eaf1ff;color:#1d4ed8}.btn.dark{background:#172033}.btn.danger{background:#fee2e2;color:#b91c1c}
+.upload{position:relative;display:block;border:2px dashed #93c5fd;background:#f8fbff;padding:14px 8px;text-align:center;border-radius:11px;cursor:pointer}.upload input{position:absolute;opacity:0;width:1px;height:1px}.upload b{display:block;font-size:12px}.upload small{font-size:10px;color:#64748b}
+.note{font-size:10px;color:#64748b;background:#f8fafc;border-radius:8px;padding:8px;line-height:1.45;margin-top:8px}
+.check{display:flex;align-items:center;gap:7px;font-size:12px;margin-top:8px}.check input{width:auto;min-height:0}
+.previewWrap{position:sticky;top:70px}.tabs{display:flex;gap:7px;margin-bottom:8px}.tabs button.active{background:#172033;color:#fff}
+.paperOuter{width:100%;display:flex;justify-content:center;background:#dbe2ea;border-radius:12px;padding:10px;overflow:auto}
+.paper{position:relative;background:#fff;box-shadow:0 2px 12px #0003;transform-origin:top left;flex:none}
+.card{position:absolute;overflow:hidden;background:#fff;display:flex;align-items:center;justify-content:center}
+.card img{width:100%;height:100%;object-fit:fill;display:block}
+.cut{position:absolute;background:#111;opacity:.65}
+.emptyCard{font-size:8px;color:#94a3b8;text-align:center}
+.queueItem{display:grid;grid-template-columns:42px 42px 1fr 34px 34px 34px;gap:5px;align-items:center;border:1px solid #e2e8f0;border-radius:9px;padding:6px;margin-top:6px;background:#fff}
+.queueItem img{width:42px;height:28px;object-fit:cover;border-radius:4px;border:1px solid #ddd}.queueItem .qname{font-size:10px;min-width:0;overflow:hidden}.queueItem button{min-height:30px;padding:2px;font-size:12px}.queueEmpty{font-size:10px;color:#64748b;text-align:center;padding:8px;background:#f8fafc;border-radius:8px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.stat{background:#eff6ff;border-radius:8px;padding:7px;text-align:center}.stat span{font-size:9px;color:#64748b;display:block}.stat b{font-size:11px}
+@media(max-width:760px){
+ .wrap{display:flex;flex-direction:column;padding:8px}.previewWrap{order:-1;position:sticky;top:67px;z-index:25;background:#f4f7fb;padding-bottom:5px}.controls{order:1}
+ .previewPanel{padding:7px;margin-bottom:6px}.previewPanel h3{margin-bottom:5px}.paperOuter{padding:5px;max-height:38vh}
+ .grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+</style>
+</head>
+<body>
+<header><b>🪪 ID Card Print Sheet</b><small>Manjeet Digital Hub • A4 ID Card Printing</small></header>
+<div class="wrap">
+<div class="controls">
+ <div class="panel">
+  <h3>1. Add Person ID to Queue</h3>
+  <label>Person Name / Label</label>
+  <input id="personName" type="text" placeholder="e.g. Manjeet">
+  <div class="grid2" style="margin-top:8px">
+   <label class="upload">🪪<b>Front Image</b><small>Required</small><input id="frontFile" type="file" accept="image/*"></label>
+   <label class="upload">🔄<b>Back Image</b><small>Optional</small><input id="backFile" type="file" accept="image/*"></label>
+  </div>
+  <label>Copies for this person</label>
+  <input id="personCopies" type="number" min="1" max="20" value="1">
+  <button id="addPerson" class="btn" style="margin-top:8px">➕ Add Person to Queue</button>
+  <div id="queue" style="margin-top:9px"></div>
+  <div class="note">Har person ka Front + Back add karein. Queue ke sabhi different ID cards ek hi A4 sheet me arrange honge.</div>
+ </div>
+ <div class="panel">
+  <h3>2. Card Size & Layout</h3>
+  <label>Standard / Custom Size</label>
+  <select id="sizePreset"><option value="85.6,54">CR80 Standard — 85.6 × 54 mm</option><option value="54,85.6">CR80 Portrait — 54 × 85.6 mm</option><option value="custom">Custom Size</option></select>
+  <div class="grid2"><div><label>Width (mm)</label><input id="cardW" type="number" step=".1" value="85.6"></div><div><label>Height (mm)</label><input id="cardH" type="number" step=".1" value="54"></div></div>
+  <div class="grid2"><div><label>Total Queued IDs</label><input id="copies" type="number" value="0" readonly></div><div><label>Gap (mm)</label><input id="gap" type="number" min="0" max="15" step=".5" value="4"></div></div>
+  <div class="grid2"><div><label>Page Margin (mm)</label><input id="margin" type="number" min="0" max="30" step=".5" value="10"></div><div><label>Image Fit</label><select id="fit"><option value="fill">Exact Card Size</option><option value="contain">Fit Inside</option><option value="cover">Crop to Fill</option></select></div></div>
+  <div class="check"><input id="cutMarks" type="checkbox" checked> Show cut marks</div>
+ </div>
+ <div class="panel">
+  <h3>3. Back Side / Duplex Alignment</h3>
+  <label>Back Print Alignment</label>
+  <select id="backAlign"><option value="same">Same Position</option><option value="mirrorX">Mirror Left ↔ Right</option><option value="mirrorY">Mirror Top ↕ Bottom</option><option value="mirrorXY">Mirror Both</option></select>
+  <div class="note">Duplex printer/printer feed ke hisaab se back alignment select karein. Pehle normal paper par test print karna best rahega.</div>
+ </div>
+ <div class="panel">
+  <h3>4. Export / Print</h3>
+  <div class="grid2"><button id="frontPDF" class="btn">Front PDF</button><button id="backPDF" class="btn alt">Back PDF</button></div>
+  <div class="grid2" style="margin-top:8px"><button id="printFront" class="btn dark">🖨️ Print Front</button><button id="printBack" class="btn dark">🖨️ Print Back</button></div>
+  <button id="printBoth" class="btn" style="margin-top:8px">🖨️ Print Front + Back Pages</button>
+  <button id="reset" class="btn danger" style="margin-top:8px">Reset</button>
+ </div>
+</div>
+
+<div class="previewWrap">
+ <div class="previewPanel">
+  <h3>A4 Live Preview</h3>
+  <div class="tabs"><button id="frontTab" class="btn alt active">Front Sheet</button><button id="backTab" class="btn alt">Back Sheet</button></div>
+  <div class="paperOuter"><div id="paper" class="paper"></div></div>
+  <div class="stats"><div class="stat"><span>Fits on A4</span><b id="capacity">0</b></div><div class="stat"><span>Rows × Columns</span><b id="gridInfo">0 × 0</b></div><div class="stat"><span>Showing</span><b id="showing">Front</b></div></div>
+ </div>
+</div>
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id)},queue=[],tempFront="",tempBack="",side="front",PW=210,PH=297;
+function readFile(inp,cb){var f=inp.files[0];if(!f){cb("");return}var r=new FileReader();r.onload=function(){cb(r.result)};r.readAsDataURL(f)}
+$("frontFile").onchange=function(){readFile(this,function(v){tempFront=v})};
+$("backFile").onchange=function(){readFile(this,function(v){tempBack=v})};
+
+function expanded(){
+ var a=[];queue.forEach(function(q){for(var i=0;i<q.copies;i++)a.push({front:q.front,back:q.back,name:q.name})});return a;
+}
+function renderQueue(){
+ var q=$("queue");q.innerHTML="";
+ if(!queue.length)q.innerHTML='<div class="queueEmpty">Queue empty — add first person.</div>';
+ queue.forEach(function(it,i){
+  var d=document.createElement("div");d.className="queueItem";
+  d.innerHTML='<img src="'+it.front+'"><img src="'+(it.back||it.front)+'"><div class="qname"><b>'+esc(it.name||("Person "+(i+1)))+'</b><br>'+it.copies+' cop'+(it.copies>1?'ies':'y')+'</div><button class="btn alt" data-a="up">↑</button><button class="btn alt" data-a="down">↓</button><button class="btn danger" data-a="del">×</button>';
+  d.querySelector('[data-a=up]').onclick=function(){if(i>0){var x=queue.splice(i,1)[0];queue.splice(i-1,0,x);renderQueue();render()}};
+  d.querySelector('[data-a=down]').onclick=function(){if(i<queue.length-1){var x=queue.splice(i,1)[0];queue.splice(i+1,0,x);renderQueue();render()}};
+  d.querySelector('[data-a=del]').onclick=function(){queue.splice(i,1);renderQueue();render()};
+  q.appendChild(d);
+ });
+ $("copies").value=expanded().length;
+}
+function esc(t){var d=document.createElement("div");d.textContent=t;return d.innerHTML}
+$("addPerson").onclick=function(){
+ if(!tempFront)return alert("Front ID image select karein.");
+ queue.push({name:$("personName").value.trim()||("Person "+(queue.length+1)),front:tempFront,back:tempBack,copies:Math.max(1,Math.min(20,+$("personCopies").value||1))});
+ $("personName").value="";$("personCopies").value=1;$("frontFile").value="";$("backFile").value="";tempFront=tempBack="";
+ renderQueue();render();
+};
+
+function vals(){
+ var w=Math.max(10,+$("cardW").value||85.6),h=Math.max(10,+$("cardH").value||54),g=Math.max(0,+$("gap").value||0),m=Math.max(0,+$("margin").value||0);
+ var cols=Math.max(1,Math.floor((PW-2*m+g)/(w+g))),rows=Math.max(1,Math.floor((PH-2*m+g)/(h+g)));
+ return {w:w,h:h,g:g,m:m,cols:cols,rows:rows,cap:cols*rows};
+}
+function positionFor(i,v,isBack){
+ var col=i%v.cols,row=Math.floor(i/v.cols),x=v.m+col*(v.w+v.g),y=v.m+row*(v.h+v.g),a=$("backAlign").value;
+ if(isBack){if(a==="mirrorX"||a==="mirrorXY")x=PW-v.m-v.w-col*(v.w+v.g);if(a==="mirrorY"||a==="mirrorXY")y=PH-v.m-v.h-row*(v.h+v.g)}
+ return{x:x,y:y};
+}
+function addCut(p,x,y,w,h,scale){
+ if(!$("cutMarks").checked)return;var L=3,T=.22,items=[[x-L,y,L,T],[x,y-L,T,L],[x+w,y-L,T,L],[x+w,y,L,T],[x-L,y+h,L,T],[x,y+h,T,L],[x+w,y+h,T,L],[x+w,y+h,L,T]];
+ items.forEach(function(a){var d=document.createElement("div");d.className="cut";d.style.left=(a[0]*scale)+"px";d.style.top=(a[1]*scale)+"px";d.style.width=(a[2]*scale)+"px";d.style.height=(a[3]*scale)+"px";p.appendChild(d)});
+}
+function render(){
+ var v=vals(),p=$("paper"),outer=p.parentNode,avail=Math.min(650,outer.clientWidth-10),scale=Math.max(.5,avail/PW),ids=expanded(),count=Math.min(ids.length,v.cap),isBack=side==="back";
+ p.innerHTML="";p.style.width=(PW*scale)+"px";p.style.height=(PH*scale)+"px";
+ for(var i=0;i<count;i++){
+  var pos=positionFor(i,v,isBack),src=isBack?ids[i].back:ids[i].front,d=document.createElement("div");d.className="card";d.style.left=(pos.x*scale)+"px";d.style.top=(pos.y*scale)+"px";d.style.width=(v.w*scale)+"px";d.style.height=(v.h*scale)+"px";
+  if(src){var im=document.createElement("img");im.src=src;im.style.objectFit=$("fit").value;d.appendChild(im)}
+  else{d.innerHTML='<div class="emptyCard">NO BACK<br>'+esc(ids[i].name)+'</div>';d.style.border="1px dashed #cbd5e1"}
+  p.appendChild(d);addCut(p,pos.x,pos.y,v.w,v.h,scale);
+ }
+ $("capacity").textContent=v.cap+" cards";$("gridInfo").textContent=v.rows+" × "+v.cols;$("showing").textContent=isBack?"Back":"Front";
+}
+["cardW","cardH","gap","margin","fit","cutMarks","backAlign"].forEach(function(id){$(id).oninput=render;$(id).onchange=render});
+$("sizePreset").onchange=function(){if(this.value!=="custom"){var a=this.value.split(",");$("cardW").value=a[0];$("cardH").value=a[1]}render()};
+$("frontTab").onclick=function(){side="front";this.className="btn alt active";$("backTab").className="btn alt";render()};
+$("backTab").onclick=function(){side="back";this.className="btn alt active";$("frontTab").className="btn alt";render()};
+
+function loadImg(src){return new Promise(function(resolve){if(!src)return resolve(null);var im=new Image();im.onload=function(){resolve(im)};im.onerror=function(){resolve(null)};im.src=src})}
+function drawFit(x,img,X,Y,W,H,fit){
+ if(!img)return;
+ if(fit==="fill"){x.drawImage(img,X,Y,W,H);return}
+ var ir=img.width/img.height,tr=W/H,sw=img.width,sh=img.height,sx=0,sy=0,dw=W,dh=H,dx=X,dy=Y;
+ if(fit==="contain"){if(ir>tr){dh=W/ir;dy=Y+(H-dh)/2}else{dw=H*ir;dx=X+(W-dw)/2}}
+ else{if(ir>tr){sw=img.height*tr;sx=(img.width-sw)/2}else{sh=img.width/tr;sy=(img.height-sh)/2}}
+ x.drawImage(img,sx,sy,sw,sh,dx,dy,dw,dh);
+}
+function makeCanvas(which){
+ var v=vals(),S=4,c=document.createElement("canvas");c.width=PW*S;c.height=PH*S;var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);
+ var ids=expanded().slice(0,v.cap),sources=ids.map(function(it){return which==="back"?it.back:it.front});
+ return Promise.all(sources.map(loadImg)).then(function(imgs){
+  imgs.forEach(function(img,i){var q=positionFor(i,v,which==="back"),X=q.x*S,Y=q.y*S,W=v.w*S,H=v.h*S;drawFit(x,img,X,Y,W,H,$("fit").value);
+   if($("cutMarks").checked){x.save();x.strokeStyle="#333";x.lineWidth=.18*S;var L=3*S;x.beginPath();x.moveTo(X-L,Y);x.lineTo(X,Y);x.moveTo(X,Y-L);x.lineTo(X,Y);x.moveTo(X+W,Y-L);x.lineTo(X+W,Y);x.moveTo(X+W,Y);x.lineTo(X+W+L,Y);x.moveTo(X-L,Y+H);x.lineTo(X,Y+H);x.moveTo(X,Y+H);x.lineTo(X,Y+H+L);x.moveTo(X+W,Y+H);x.lineTo(X+W+L,Y+H);x.moveTo(X+W,Y+H);x.lineTo(X+W,Y+H+L);x.stroke();x.restore()}
+  });return c;
+ });
+}
+function ensureQueue(){if(!queue.length){alert("Queue me ID cards add karein.");return false}return true}
+function pdf(which){if(!ensureQueue())return;makeCanvas(which).then(function(c){var jsPDF=window.jspdf.jsPDF,p=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});p.addImage(c.toDataURL("image/jpeg",.96),"JPEG",0,0,210,297);p.save("id-card-"+which+"-sheet.pdf")})}
+$("frontPDF").onclick=function(){pdf("front")};$("backPDF").onclick=function(){pdf("back")};
+function printCanvases(whiches){
+ if(!ensureQueue())return;Promise.all(whiches.map(makeCanvas)).then(function(cs){var w=window.open("","_blank");if(!w)return alert("Please allow pop-ups.");var h='<html><head><title>ID Card Print</title><style>@page{size:A4 portrait;margin:0}html,body{margin:0}.page{width:210mm;height:297mm;page-break-after:always}.page:last-child{page-break-after:auto}.page img{width:210mm;height:297mm;display:block}</style></head><body>';cs.forEach(function(c){h+='<div class="page"><img src="'+c.toDataURL("image/png")+'"></div>'});h+='</body></html>';w.document.write(h);w.document.close();setTimeout(function(){w.focus();w.print()},700)})
+}
+$("printFront").onclick=function(){printCanvases(["front"])};$("printBack").onclick=function(){printCanvases(["back"])};$("printBoth").onclick=function(){printCanvases(["front","back"])};
+$("reset").onclick=function(){queue=[];tempFront=tempBack="";$("personName").value="";$("frontFile").value="";$("backFile").value="";$("sizePreset").value="85.6,54";$("cardW").value="85.6";$("cardH").value="54";$("gap").value=4;$("margin").value=10;$("fit").value="fill";$("cutMarks").checked=true;$("backAlign").value="same";side="front";renderQueue();render()};
+window.addEventListener("resize",render);renderQueue();render();
+})();
+</script>
+</body>
+</html>
