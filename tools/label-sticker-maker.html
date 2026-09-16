@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Label / Sticker Maker - Manjeet Digital Hub</title>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box}html,body{margin:0;max-width:100%;overflow-x:hidden;font-family:Arial,sans-serif;background:#f4f7fb;color:#172033}
+header{position:sticky;top:0;z-index:50;background:#0f172a;color:#fff;padding:12px 14px;box-shadow:0 2px 10px #0002}
+header b{font-size:17px}header small{display:block;color:#cbd5e1;margin-top:3px}
+.wrap{max-width:1180px;margin:auto;padding:12px;display:grid;grid-template-columns:380px 1fr;gap:12px}
+.panel,.previewPanel{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:12px;margin-bottom:10px;box-shadow:0 2px 8px #0f172a0b}
+h3{font-size:14px;margin:0 0 9px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+label{display:block;font-size:11px;font-weight:700;margin:7px 0 4px}input,textarea,select,button{width:100%;min-width:0;border:1px solid #cbd5e1;border-radius:9px;padding:8px;background:#fff;font-size:12px}
+textarea{min-height:58px;resize:vertical}.btn{min-height:39px;border:0;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}.btn.alt{background:#eaf1ff;color:#1d4ed8}.btn.dark{background:#172033}.btn.danger{background:#fee2e2;color:#b91c1c}
+.upload{position:relative;display:block;border:2px dashed #93c5fd;background:#f8fbff;padding:12px 8px;text-align:center;border-radius:10px;cursor:pointer}.upload input{position:absolute;opacity:0;width:1px;height:1px}.upload b{display:block;font-size:11px}.upload small{font-size:9px;color:#64748b}
+.check{display:flex;align-items:center;gap:7px;font-size:11px;margin-top:8px}.check input{width:auto}
+.note{font-size:10px;line-height:1.45;color:#64748b;background:#f8fafc;border-radius:8px;padding:8px;margin-top:8px}
+.previewWrap{position:sticky;top:70px}.previewBox{display:flex;justify-content:center;align-items:center;min-height:220px;background:#e8edf3;border-radius:12px;padding:12px;overflow:auto}
+.labelPreview{position:relative;overflow:hidden;background:#fff;border:1px solid #bbb;box-shadow:0 2px 8px #0002;flex:none}
+.lpLogo{position:absolute;object-fit:contain}.lpTitle,.lpSub,.lpPrice,.lpExtra{position:absolute;text-align:center;white-space:pre-wrap;overflow:hidden;word-break:break-word}.lpTitle{font-weight:800}.lpPrice{font-weight:900}.lpBorder{position:absolute;inset:0;pointer-events:none}
+.paperOuter{display:flex;justify-content:center;background:#dbe2ea;border-radius:12px;padding:8px;overflow:auto;max-height:48vh}.paper{position:relative;background:#fff;box-shadow:0 2px 12px #0003;flex:none}.sheetLabel{position:absolute;overflow:hidden;display:flex;align-items:center;justify-content:center}.sheetLabel img{width:100%;height:100%;display:block}.cut{position:absolute;background:#111;opacity:.55}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:7px}.stat{background:#eff6ff;border-radius:8px;padding:7px;text-align:center}.stat span{font-size:9px;color:#64748b;display:block}.stat b{font-size:11px}
+.tabs{display:flex;gap:7px;margin-bottom:7px}.tabs button.active{background:#172033;color:#fff}
+@media(max-width:760px){
+ .wrap{display:flex;flex-direction:column;padding:8px}.previewWrap{order:-1;position:sticky;top:67px;z-index:25;background:#f4f7fb;padding-bottom:5px}.controls{order:1}
+ .previewPanel{padding:7px;margin-bottom:6px}.previewBox{min-height:130px;max-height:31vh;padding:6px}.paperOuter{max-height:34vh;padding:5px}
+ .grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+</style>
+</head>
+<body>
+<header><b>🏷️ Label / Sticker Maker</b><small>Manjeet Digital Hub • Design, A4 Sheet, PDF & Print</small></header>
+<div class="wrap">
+<div class="controls">
+ <div class="panel">
+  <h3>1. Sticker Content</h3>
+  <label>Main Text / Product Name</label><input id="title" value="MANJEET STORE">
+  <label>Subtitle / Description</label><textarea id="subtitle">Premium Quality Product</textarea>
+  <div class="grid2"><div><label>Price / Highlight</label><input id="price" value="₹99"></div><div><label>Extra Text</label><input id="extra" value="Thank You"></div></div>
+  <label class="upload" style="margin-top:9px">🖼️<b>Upload Logo / Image</b><small>PNG / JPG • Optional</small><input id="logoFile" type="file" accept="image/*"></label>
+  <button id="removeLogo" class="btn alt" style="margin-top:7px">Remove Logo</button>
+ </div>
+
+ <div class="panel">
+  <h3>2. Label Size</h3>
+  <label>Preset Size</label>
+  <select id="preset">
+   <option value="50,30">Small Product — 50 × 30 mm</option>
+   <option value="70,40">Medium — 70 × 40 mm</option>
+   <option value="90,50">Large — 90 × 50 mm</option>
+   <option value="40,40">Square — 40 × 40 mm</option>
+   <option value="50,50">Square — 50 × 50 mm</option>
+   <option value="60,25">Address / Name — 60 × 25 mm</option>
+   <option value="custom">Custom Size</option>
+  </select>
+  <div class="grid2"><div><label>Width (mm)</label><input id="labelW" type="number" step=".1" value="50"></div><div><label>Height (mm)</label><input id="labelH" type="number" step=".1" value="30"></div></div>
+  <label>Shape</label><select id="shape"><option value="rectangle">Rectangle</option><option value="rounded">Rounded</option><option value="circle">Circle / Oval</option></select>
+ </div>
+
+ <div class="panel">
+  <h3>3. Design</h3>
+  <div class="grid2"><div><label>Background</label><input id="bg" type="color" value="#ffffff"></div><div><label>Text Color</label><input id="textColor" type="color" value="#172033"></div></div>
+  <div class="grid2"><div><label>Accent / Border</label><input id="accent" type="color" value="#2563eb"></div><div><label>Border Width</label><input id="borderW" type="number" min="0" max="8" value="2"></div></div>
+  <div class="grid2"><div><label>Title Size</label><input id="titleSize" type="number" min="8" max="40" value="18"></div><div><label>Price Size</label><input id="priceSize" type="number" min="8" max="40" value="18"></div></div>
+  <label>Template</label><select id="template"><option value="classic">Classic</option><option value="topband">Top Band</option><option value="price">Price Focus</option><option value="minimal">Minimal</option></select>
+  <div class="check"><input id="showLogo" type="checkbox" checked> Show Logo</div>
+  <div class="check"><input id="showPrice" type="checkbox" checked> Show Price / Highlight</div>
+  <div class="check"><input id="showExtra" type="checkbox" checked> Show Extra Text</div>
+ </div>
+
+ <div class="panel">
+  <h3>4. A4 Print Sheet</h3>
+  <div class="grid3"><div><label>Copies</label><input id="copies" type="number" min="1" max="100" value="20"></div><div><label>Gap mm</label><input id="gap" type="number" min="0" max="15" step=".5" value="3"></div><div><label>Margin mm</label><input id="margin" type="number" min="0" max="30" step=".5" value="10"></div></div>
+  <div class="check"><input id="cutMarks" type="checkbox" checked> Show Cut Marks</div>
+ </div>
+
+ <div class="panel">
+  <h3>5. Download / Print</h3>
+  <div class="grid2"><button id="png" class="btn">⬇ PNG Sticker</button><button id="jpg" class="btn alt">⬇ JPG Sticker</button></div>
+  <div class="grid2" style="margin-top:8px"><button id="pdf" class="btn">📄 A4 PDF</button><button id="print" class="btn dark">🖨️ Print A4</button></div>
+  <button id="reset" class="btn danger" style="margin-top:8px">Reset</button>
+ </div>
+</div>
+
+<div class="previewWrap">
+ <div class="previewPanel">
+  <div class="tabs"><button id="labelTab" class="btn alt active">Sticker Preview</button><button id="sheetTab" class="btn alt">A4 Sheet</button></div>
+  <div id="singleView" class="previewBox"><div id="labelPreview" class="labelPreview"></div></div>
+  <div id="sheetView" class="paperOuter" style="display:none"><div id="paper" class="paper"></div></div>
+  <div class="stats"><div class="stat"><span>A4 Capacity</span><b id="capacity">0</b></div><div class="stat"><span>Grid</span><b id="gridInfo">0 × 0</b></div><div class="stat"><span>Copies</span><b id="copyInfo">0</b></div></div>
+ </div>
+</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)},logo="",PW=210,PH=297,view="label";
+function readLogo(){var f=$("logoFile").files[0];if(!f)return;var r=new FileReader();r.onload=function(){logo=r.result;render()};r.readAsDataURL(f)}
+$("logoFile").onchange=readLogo;$("removeLogo").onclick=function(){logo="";$("logoFile").value="";render()};
+function vals(){
+ var w=Math.max(10,+$("labelW").value||50),h=Math.max(10,+$("labelH").value||30),g=Math.max(0,+$("gap").value||0),m=Math.max(0,+$("margin").value||0),copies=Math.max(1,Math.min(100,+$("copies").value||1));
+ var cols=Math.max(1,Math.floor((PW-2*m+g)/(w+g))),rows=Math.max(1,Math.floor((PH-2*m+g)/(h+g)));
+ return{w:w,h:h,g:g,m:m,copies:copies,cols:cols,rows:rows,cap:cols*rows};
+}
+function styleData(){return{title:$("title").value,sub:$("subtitle").value,price:$("price").value,extra:$("extra").value,bg:$("bg").value,text:$("textColor").value,accent:$("accent").value,bw:+$("borderW").value||0,ts:+$("titleSize").value||18,ps:+$("priceSize").value||18,shape:$("shape").value,tpl:$("template").value,showLogo:$("showLogo").checked,showPrice:$("showPrice").checked,showExtra:$("showExtra").checked}}
+function radius(shape,w,h){return shape==="circle"?Math.min(w,h)/2:shape==="rounded"?Math.min(w,h)*.12:0}
+function makeStickerCanvas(scale){
+ var v=vals(),d=styleData(),S=scale||8,c=document.createElement("canvas");c.width=Math.round(v.w*S);c.height=Math.round(v.h*S);var x=c.getContext("2d"),W=c.width,H=c.height,r=radius(d.shape,W,H);
+ x.save();roundPath(x,0,0,W,H,r);x.clip();x.fillStyle=d.bg;x.fillRect(0,0,W,H);
+ if(d.tpl==="topband"){x.fillStyle=d.accent;x.fillRect(0,0,W,H*.25)}
+ if(d.tpl==="price"){x.fillStyle=d.accent;x.fillRect(W*.67,0,W*.33,H)}
+ if(logo&&d.showLogo){var im=window._logoImg;if(im&&im.complete){var lw=W*.22,lh=H*.28;x.drawImage(im,W*.06,H*.12,lw,lh)}}
+ x.textAlign="center";x.textBaseline="middle";x.fillStyle=d.text;
+ var hasLogo=!!(logo&&d.showLogo), leftPad=hasLogo?W*.29:W*.07, rightPad=W*.07;
+ var contentLeft=leftPad,contentRight=W-rightPad,contentW=Math.max(20,contentRight-contentLeft),contentCX=contentLeft+contentW/2;
+ var titleY=d.tpl==="topband"?H*.13:H*.24,titleColor=d.tpl==="topband"?"#ffffff":d.text;
+ if(d.tpl==="topband"){contentLeft=W*.07;contentRight=W*.93;contentW=contentRight-contentLeft;contentCX=W*.5}
+ if(d.tpl==="price"){contentRight=W*.64;contentW=Math.max(20,contentRight-contentLeft);contentCX=contentLeft+contentW/2}
+ x.fillStyle=titleColor;x.font="bold "+Math.max(10,d.ts*S*.35)+"px Arial";fitText(x,d.title,contentCX,titleY,contentW*.94);
+ x.fillStyle=d.text;x.font=Math.max(9,H*.085)+"px Arial";fitText(x,d.sub,contentCX,H*.47,contentW*.94);
+ if(d.showPrice){x.fillStyle=d.tpl==="price"?"#ffffff":d.accent;x.font="bold "+Math.max(10,d.ps*S*.35)+"px Arial";fitText(x,d.price,d.tpl==="price"?W*.82:contentCX,H*.68,d.tpl==="price"?W*.27:contentW*.9)}
+ if(d.showExtra){x.fillStyle=d.text;x.font=Math.max(8,H*.07)+"px Arial";fitText(x,d.extra,contentCX,H*.86,contentW*.9)}
+ x.restore();if(d.bw>0){x.strokeStyle=d.accent;x.lineWidth=d.bw*S*.18;roundPath(x,x.lineWidth/2,x.lineWidth/2,W-x.lineWidth,H-x.lineWidth,Math.max(0,r-x.lineWidth/2));x.stroke()}return c;
+}
+function roundPath(x,a,b,w,h,r){r=Math.min(r,w/2,h/2);x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+function fitText(x,t,cx,cy,max){t=String(t||"");if(!t)return;var size=parseFloat(x.font)||12,min=7;while(x.measureText(t).width>max&&size>min){size-=1;x.font=x.font.replace(/([0-9.]+)px/,size+"px")}x.fillText(t,cx,cy,max)}
+function render(){
+ if(logo){if(!window._logoImg||window._logoImg.src!==logo){var im=new Image();im.onload=function(){window._logoImg=im;render()};im.src=logo;window._logoImg=im}}
+ var v=vals(),single=$("labelPreview"),maxW=Math.min(500,window.innerWidth-45),scale=Math.min(maxW/v.w,220/v.h);
+ single.style.width=(v.w*scale)+"px";single.style.height=(v.h*scale)+"px";single.style.borderRadius=(radius($("shape").value,v.w*scale,v.h*scale))+"px";
+ var c=makeStickerCanvas(Math.max(5,scale));c.style.width="100%";c.style.height="100%";single.innerHTML="";single.appendChild(c);
+ renderSheet();
+ $("capacity").textContent=v.cap;$("gridInfo").textContent=v.rows+" × "+v.cols;$("copyInfo").textContent=Math.min(v.copies,v.cap)+"/"+v.copies;
+}
+function renderSheet(){
+ var v=vals(),p=$("paper"),outer=$("sheetView"),avail=Math.min(650,(outer.clientWidth||650)-10),sc=Math.max(.5,avail/PW),count=Math.min(v.copies,v.cap),sticker=makeStickerCanvas(8).toDataURL("image/png");
+ p.innerHTML="";p.style.width=(PW*sc)+"px";p.style.height=(PH*sc)+"px";
+ for(var i=0;i<count;i++){var col=i%v.cols,row=Math.floor(i/v.cols),X=v.m+col*(v.w+v.g),Y=v.m+row*(v.h+v.g),d=document.createElement("div");d.className="sheetLabel";d.style.left=X*sc+"px";d.style.top=Y*sc+"px";d.style.width=v.w*sc+"px";d.style.height=v.h*sc+"px";var im=document.createElement("img");im.src=sticker;d.appendChild(im);p.appendChild(d);addCut(p,X,Y,v.w,v.h,sc)}
+}
+function addCut(p,x,y,w,h,s){if(!$("cutMarks").checked)return;var L=2.5,T=.18,arr=[[x-L,y,L,T],[x,y-L,T,L],[x+w,y-L,T,L],[x+w,y,L,T],[x-L,y+h,L,T],[x,y+h,T,L],[x+w,y+h,T,L],[x+w,y+h,L,T]];arr.forEach(function(a){var d=document.createElement("div");d.className="cut";d.style.left=a[0]*s+"px";d.style.top=a[1]*s+"px";d.style.width=a[2]*s+"px";d.style.height=a[3]*s+"px";p.appendChild(d)})}
+function sheetCanvas(){
+ var v=vals(),S=4,c=document.createElement("canvas");c.width=PW*S;c.height=PH*S;var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);var st=makeStickerCanvas(8),count=Math.min(v.copies,v.cap);
+ for(var i=0;i<count;i++){var col=i%v.cols,row=Math.floor(i/v.cols),X=(v.m+col*(v.w+v.g))*S,Y=(v.m+row*(v.h+v.g))*S,W=v.w*S,H=v.h*S;x.drawImage(st,X,Y,W,H);if($("cutMarks").checked){x.strokeStyle="#444";x.lineWidth=.6;var L=2.5*S;x.beginPath();x.moveTo(X-L,Y);x.lineTo(X,Y);x.moveTo(X,Y-L);x.lineTo(X,Y);x.moveTo(X+W,Y-L);x.lineTo(X+W,Y);x.moveTo(X+W,Y);x.lineTo(X+W+L,Y);x.moveTo(X-L,Y+H);x.lineTo(X,Y+H);x.moveTo(X,Y+H);x.lineTo(X,Y+H+L);x.moveTo(X+W,Y+H);x.lineTo(X+W+L,Y+H);x.moveTo(X+W,Y+H);x.lineTo(X+W,Y+H+L);x.stroke()}}
+ return c;
+}
+function dl(data,name){var a=document.createElement("a");a.href=data;a.download=name;document.body.appendChild(a);a.click();a.remove()}
+$("png").onclick=function(){dl(makeStickerCanvas(12).toDataURL("image/png"),"manjeet-sticker.png")};
+$("jpg").onclick=function(){var src=makeStickerCanvas(12),c=document.createElement("canvas");c.width=src.width;c.height=src.height;var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(src,0,0);dl(c.toDataURL("image/jpeg",.95),"manjeet-sticker.jpg")};
+$("pdf").onclick=function(){var jsPDF=window.jspdf.jsPDF,p=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"}),c=sheetCanvas();p.addImage(c.toDataURL("image/jpeg",.96),"JPEG",0,0,210,297);p.save("manjeet-sticker-a4.pdf")};
+$("print").onclick=function(){var c=sheetCanvas(),w=window.open("","_blank");if(!w)return alert("Please allow pop-ups.");w.document.write('<html><head><style>@page{size:A4;margin:0}html,body{margin:0}img{width:210mm;height:297mm;display:block}</style></head><body><img src="'+c.toDataURL("image/png")+'"></body></html>');w.document.close();setTimeout(function(){w.focus();w.print()},700)};
+$("labelTab").onclick=function(){view="label";$("singleView").style.display="flex";$("sheetView").style.display="none";this.className="btn alt active";$("sheetTab").className="btn alt"};
+$("sheetTab").onclick=function(){view="sheet";$("singleView").style.display="none";$("sheetView").style.display="flex";this.className="btn alt active";$("labelTab").className="btn alt";renderSheet()};
+$("preset").onchange=function(){if(this.value!=="custom"){var a=this.value.split(",");$("labelW").value=a[0];$("labelH").value=a[1]}render()};
+["title","subtitle","price","extra","labelW","labelH","shape","bg","textColor","accent","borderW","titleSize","priceSize","template","showLogo","showPrice","showExtra","copies","gap","margin","cutMarks"].forEach(function(id){$(id).oninput=render;$(id).onchange=render});
+$("reset").onclick=function(){$("title").value="MANJEET STORE";$("subtitle").value="Premium Quality Product";$("price").value="₹99";$("extra").value="Thank You";$("preset").value="50,30";$("labelW").value=50;$("labelH").value=30;$("shape").value="rectangle";$("bg").value="#ffffff";$("textColor").value="#172033";$("accent").value="#2563eb";$("borderW").value=2;$("titleSize").value=18;$("priceSize").value=18;$("template").value="classic";$("showLogo").checked=true;$("showPrice").checked=true;$("showExtra").checked=true;$("copies").value=20;$("gap").value=3;$("margin").value=10;$("cutMarks").checked=true;logo="";$("logoFile").value="";render()};
+window.addEventListener("resize",render);render();
+})();
+</script>
+</body></html>
