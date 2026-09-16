@@ -43,6 +43,24 @@
 
 @media(max-width:760px){.wrap{grid-template-columns:1fr}.desktop{display:none}.mobileLive{display:block;position:sticky;top:0;z-index:50;background:#f1f5f9f5;margin:0 -12px 9px;padding:5px;border-bottom:1px solid #ddd}.mobileLive b{display:block;text-align:center;font-size:11px;margin-bottom:4px}.mini{height:210px;overflow:hidden;display:flex;justify-content:center}.mini .page{transform:scale(.18);transform-origin:top center;flex:none}.templates{grid-template-columns:repeat(4,1fr)}}
 @media print{body>*{display:none!important}#printArea{display:block!important;position:absolute;left:0;top:0;width:210mm}#printArea img{display:block;width:210mm;height:297mm;object-fit:contain}}
+
+/* ===== MOBILE WIDTH FIX V4.1 ===== */
+html,body{max-width:100%;overflow-x:hidden}
+*{box-sizing:border-box}
+@media(max-width:760px){
+  body{width:100%;min-width:0;margin:0;overflow-x:hidden}
+  .wrap,.container,.app,.editor,.controls,.panel,.card{width:100%!important;max-width:100%!important;min-width:0!important}
+  .panel{overflow:hidden}
+  .grid,.grid2,.formGrid,.two,.twoCol,.row{grid-template-columns:minmax(0,1fr)!important}
+  input,textarea,select,button,label{max-width:100%;min-width:0}
+  input[type="text"],input[type="email"],input[type="tel"],input[type="url"],input[type="number"],textarea,select{width:100%!important}
+  input[type="color"]{width:100%!important;max-width:100%!important}
+  .templates,.templateGrid,.tplGrid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;width:100%!important}
+  .tpl{width:100%!important;min-width:0!important;margin:0!important}
+  .mobileLive{left:0!important;right:0!important;width:100%!important;max-width:100vw!important;overflow:hidden!important}
+  .mini{max-width:100%!important;overflow:hidden!important}
+}
+
 </style></head><body>
 <header><h1>📄 Resume Maker</h1><p>Manjeet Digital Hub • Professional Resume • PDF • Print</p></header>
 <div class="wrap"><div>
