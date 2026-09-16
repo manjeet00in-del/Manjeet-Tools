@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Smart Photo Enhancer - Manjeet Digital Hub</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#0d1830;color:#fff}
+header{padding:15px;background:#111e39;border-bottom:1px solid #30415f}
+header b{font-size:20px}header small{display:block;color:#9fb1cf;margin-top:4px}
+.wrap{max-width:760px;margin:auto;padding:12px}.card{background:#182641;border:1px solid #344563;border-radius:17px;padding:14px;margin-bottom:13px}
+.upload{display:block;text-align:center;border:2px dashed #6885b6;border-radius:14px;padding:22px;cursor:pointer}.upload input{display:none}.upload .ico{font-size:36px}
+.muted,.note{color:#aab9d2;font-size:12px;line-height:1.45}.status{margin-top:10px;padding:10px;border-radius:10px;background:#101c33;color:#c7d9f8;font-size:13px}
+.stage{position:relative;overflow:hidden;border-radius:14px;background:#070f1f;min-height:260px;display:flex;align-items:center;justify-content:center}
+.stage img{display:block;max-width:100%;max-height:65vh}.afterWrap{position:absolute;left:0;top:0;width:50%;height:100%;overflow:hidden;border-right:3px solid #fff}
+.afterWrap img{position:absolute;left:0;top:0;max-width:none}.handle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:#fff;color:#101828;display:flex;align-items:center;justify-content:center;font-weight:bold}
+.range{width:100%;accent-color:#6b7cff}.info{display:flex;justify-content:space-between;gap:8px;color:#aab9d2;font-size:12px;margin-top:8px;flex-wrap:wrap}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}.btn{border:0;border-radius:11px;padding:13px 9px;font-size:14px;font-weight:bold;color:#fff;background:#3b4a66}
+.btn.main{background:linear-gradient(90deg,#6e5be8,#159ee0)}.btn.white{background:#fff;color:#17223a}.btn.on{outline:2px solid #7db7ff;background:#244a79}
+label.ctrl{display:block;margin-top:12px;font-size:13px;color:#d6e0f1}.val{float:right;color:#9fc7ff}
+.hidden{display:none!important}h3{margin:0 0 8px;font-size:16px}.preset{grid-template-columns:repeat(2,1fr)}
+@media(max-width:420px){.wrap{padding:8px}.card{padding:11px}.stage{min-height:230px}}
+</style>
+</head>
+<body>
+<header><b>✨ Smart Photo Enhancer</b><small>Manjeet Digital Hub • Fast browser enhancement</small></header>
+<div class="wrap">
+<div class="card">
+<label class="upload"><input id="file" type="file" accept="image/*"><div class="ico">📷</div><b>Choose Photo</b><div class="muted">JPG / PNG / WebP • Processing stays in your browser</div></label>
+<div id="status" class="status">Choose a photo to start.</div>
+</div>
+
+<div id="previewCard" class="card hidden">
+<div id="stage" class="stage">
+<img id="before">
+<div id="afterWrap" class="afterWrap"><img id="after"></div>
+<div id="handle" class="handle">↔</div>
+</div>
+<input id="compare" class="range" type="range" min="0" max="100" value="50">
+<div class="row"><button id="showOriginal" class="btn">Original</button><button id="showEnhanced" class="btn">Enhanced</button></div>
+<div class="info"><span id="originalInfo"></span><span id="outputInfo"></span><span id="sizeInfo"></span></div>
+<div class="row"><button id="reset" class="btn">Reset All</button><button id="download" class="btn white">Download HD</button></div>
+</div>
+
+<div id="controls" class="card hidden">
+<h3>One-Tap Enhance</h3>
+<button id="auto" class="btn main" style="width:100%">✨ Smart Auto Enhance</button>
+<label class="ctrl">Enhancement Strength <span id="strengthV" class="val">70%</span></label>
+<input id="strength" class="range" type="range" min="0" max="100" value="70">
+
+<div class="row preset">
+<button class="btn presetBtn" data-preset="clear">Clear & Sharp</button>
+<button class="btn presetBtn" data-preset="vivid">Vivid</button>
+<button class="btn presetBtn" data-preset="soft">Soft Glow</button>
+<button class="btn presetBtn" data-preset="natural">Natural</button>
+</div>
+
+<h3 style="margin-top:18px">Output Quality</h3>
+<div class="row">
+<button id="qualityOriginal" class="btn">Original Size</button>
+<button id="quality2x" class="btn on">2× HD</button>
+</div>
+<h3 style="margin-top:18px">Manual Adjustments</h3>
+<label class="ctrl">Brightness <span id="brightnessV" class="val">0</span></label>
+<input id="brightness" class="range manual" type="range" min="-25" max="25" value="0">
+<label class="ctrl">Contrast <span id="contrastV" class="val">0</span></label>
+<input id="contrast" class="range manual" type="range" min="-25" max="30" value="0">
+<label class="ctrl">Color <span id="saturationV" class="val">0</span></label>
+<input id="saturation" class="range manual" type="range" min="-20" max="30" value="0">
+<label class="ctrl">Sharpness <span id="sharpnessV" class="val">20</span></label>
+<input id="sharpness" class="range manual" type="range" min="0" max="60" value="20">
+<label class="ctrl">Warmth <span id="warmthV" class="val">0</span></label>
+<input id="warmth" class="range manual" type="range" min="-20" max="20" value="0">
+<div class="note" style="margin-top:12px">No AI model is used. The tool improves tone, color, clarity and resolution locally, so it is fast and does not intentionally alter facial identity.</div>
+</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id)};
+var file=$("file"),before=$("before"),after=$("after"),stage=$("stage"),aw=$("afterWrap"),handle=$("handle"),compare=$("compare");
+var source=null,result=null,objUrl="",timer=null,qualityScale=2;
+var controls=["brightness","contrast","saturation","sharpness","warmth"];
+
+function sync(){
+ var p=+compare.value; aw.style.width=p+"%"; handle.style.left=p+"%";
+ if(before.naturalWidth && after.naturalWidth){
+   var r=before.getBoundingClientRect();
+   after.style.width=r.width+"px"; after.style.height=r.height+"px"; after.style.objectFit="contain";
+ }
+}
+compare.oninput=sync; window.addEventListener("resize",sync);
+
+file.onchange=function(){
+ var f=this.files&&this.files[0]; if(!f)return;
+ if(objUrl)URL.revokeObjectURL(objUrl); objUrl=URL.createObjectURL(f);
+ var im=new Image();
+ im.onload=function(){
+   source=document.createElement("canvas"); source.width=im.naturalWidth; source.height=im.naturalHeight;
+   source.getContext("2d").drawImage(im,0,0);
+   before.src=objUrl;
+   resetValues(false);
+   render();
+   $("previewCard").classList.remove("hidden"); $("controls").classList.remove("hidden");
+   $("originalInfo").textContent="Original: "+(f.size/1048576).toFixed(2)+" MB • "+im.naturalWidth+"×"+im.naturalHeight;
+   $("status").textContent="✅ Photo ready. Tap Smart Auto Enhance.";
+ };
+ im.src=objUrl;
+};
+
+function clamp(v){return v<0?0:v>255?255:v}
+function smartProcess(){
+ if(!source)return;
+ var strength=+$("strength").value/100;
+ var b=+$("brightness").value, c=+$("contrast").value, sat=+$("saturation").value, sh=+$("sharpness").value, warm=+$("warmth").value;
+ var scale=qualityScale, maxSide=4096;
+ if(Math.max(source.width,source.height)*scale>maxSide) scale=maxSide/Math.max(source.width,source.height);
+ scale=Math.max(1,scale);
+ var base=document.createElement("canvas"); base.width=Math.round(source.width*scale); base.height=Math.round(source.height*scale);
+ var bx=base.getContext("2d"); bx.imageSmoothingEnabled=true; bx.imageSmoothingQuality="high";
+ bx.drawImage(source,0,0,base.width,base.height);
+
+ var ctx=base.getContext("2d"), img=ctx.getImageData(0,0,base.width,base.height), d=img.data;
+ var cf=(259*((c*strength)+255))/(255*(259-(c*strength)));
+ var sv=1+(sat*strength/100), bv=b*strength*2.0, wv=warm*strength*0.8;
+ for(var i=0;i<d.length;i+=4){
+   var r=cf*(d[i]-128)+128+bv+wv;
+   var g=cf*(d[i+1]-128)+128+bv;
+   var bl=cf*(d[i+2]-128)+128+bv-wv;
+   var lum=.299*r+.587*g+.114*bl;
+   d[i]=clamp(lum+(r-lum)*sv); d[i+1]=clamp(lum+(g-lum)*sv); d[i+2]=clamp(lum+(bl-lum)*sv);
+ }
+ ctx.putImageData(img,0,0);
+
+ if(sh>0){
+   var original=ctx.getImageData(0,0,base.width,base.height), src=original.data, out=ctx.createImageData(base.width,base.height), od=out.data;
+   od.set(src); var amount=(sh/100)*strength*0.75, w=base.width,h=base.height;
+   for(var y=1;y<h-1;y++){
+     for(var x=1;x<w-1;x++){
+       var k=(y*w+x)*4;
+       for(var ch=0;ch<3;ch++){
+         var blur=(src[k-4+ch]+src[k+4+ch]+src[k-w*4+ch]+src[k+w*4+ch])/4;
+         od[k+ch]=clamp(src[k+ch]+(src[k+ch]-blur)*amount);
+       }
+       od[k+3]=src[k+3];
+     }
+   }
+   ctx.putImageData(out,0,0);
+ }
+ result=base;
+ after.src=base.toDataURL("image/jpeg",.94);
+ after.onload=sync;
+ $("outputInfo").textContent=(qualityScale===2?"2× HD":"Original Size")+": "+base.width+"×"+base.height;
+ base.toBlob(function(blob){if(blob)$("sizeInfo").textContent="Enhanced: "+(blob.size/1048576).toFixed(2)+" MB";},"image/jpeg",.95);
+ $("status").textContent="✨ Enhancement ready.";
+}
+
+function render(){clearTimeout(timer);timer=setTimeout(smartProcess,80)}
+controls.forEach(function(id){
+ $(id).oninput=function(){ $(id+"V").textContent=this.value; render(); };
+});
+$("strength").oninput=function(){$("strengthV").textContent=this.value+"%";render()};
+
+$("auto").onclick=function(){
+ $("strength").value=70;$("strengthV").textContent="70%";
+ setVals(4,14,10,28,2); render(); $("status").textContent="✨ Smart Auto Enhance applied.";
+};
+function setVals(b,c,s,sh,w){
+ var a={brightness:b,contrast:c,saturation:s,sharpness:sh,warmth:w};
+ controls.forEach(function(id){$(id).value=a[id];$(id+"V").textContent=a[id]});
+}
+document.querySelectorAll(".presetBtn").forEach(function(btn){
+ btn.onclick=function(){
+  document.querySelectorAll(".presetBtn").forEach(function(x){x.classList.remove("on")});this.classList.add("on");
+  var p=this.getAttribute("data-preset");
+  if(p==="clear")setVals(2,16,4,42,0);
+  if(p==="vivid")setVals(3,15,22,28,3);
+  if(p==="soft")setVals(6,5,7,8,4);
+  if(p==="natural")setVals(2,8,5,20,1);
+  render();
+ };
+});
+function resetValues(doRender){
+ $("strength").value=70;$("strengthV").textContent="70%";setVals(0,0,0,20,0);
+ document.querySelectorAll(".presetBtn").forEach(function(x){x.classList.remove("on")});
+ if(doRender)render();
+}
+$("showOriginal").onclick=function(){compare.value=0;sync()};
+$("showEnhanced").onclick=function(){compare.value=100;sync()};
+$("qualityOriginal").onclick=function(){
+ qualityScale=1;this.classList.add("on");$("quality2x").classList.remove("on");render();
+};
+$("quality2x").onclick=function(){
+ qualityScale=2;this.classList.add("on");$("qualityOriginal").classList.remove("on");render();
+};
+$("reset").onclick=function(){if(source){resetValues(true);$("status").textContent="🔄 Adjustments reset."}};
+$("download").onclick=function(){
+ if(!result)return;
+ result.toBlob(function(blob){
+   var u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="manjeet-smart-enhanced.jpg";a.click();
+   setTimeout(function(){URL.revokeObjectURL(u)},2000);
+ },"image/jpeg",.95);
+};
+})();
+</script>
+</body></html>
