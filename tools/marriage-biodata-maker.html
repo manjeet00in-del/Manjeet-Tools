@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Marriage Biodata Maker - Manjeet Digital Hub</title>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box}html,body{margin:0;max-width:100%;overflow-x:hidden;font-family:Arial,sans-serif;background:#f4f7fb;color:#172033}
+header{position:sticky;top:0;z-index:60;background:#7c2d12;color:white;padding:12px 14px;box-shadow:0 2px 10px #0002}
+header b{font-size:17px}header small{display:block;color:#fed7aa;margin-top:3px}
+.wrap{max-width:1200px;margin:auto;padding:12px;display:grid;grid-template-columns:390px 1fr;gap:12px}
+.panel,.previewPanel{background:white;border:1px solid #e2e8f0;border-radius:14px;padding:12px;margin-bottom:10px;box-shadow:0 2px 8px #0f172a0b}
+h3{font-size:14px;margin:0 0 9px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+label{display:block;font-size:11px;font-weight:700;margin:7px 0 4px}input,textarea,select,button{width:100%;min-width:0;border:1px solid #cbd5e1;border-radius:9px;padding:8px;background:white;font-size:12px}
+textarea{min-height:60px;resize:vertical}.btn{min-height:39px;border:0;background:#9a3412;color:#fff;font-weight:700;cursor:pointer}.btn.alt{background:#ffedd5;color:#9a3412}.btn.dark{background:#172033}.btn.danger{background:#fee2e2;color:#b91c1c}
+.upload{position:relative;display:block;border:2px dashed #fdba74;background:#fff7ed;padding:13px 8px;text-align:center;border-radius:10px;cursor:pointer}.upload input{position:absolute;opacity:0;width:1px;height:1px}.upload b{display:block;font-size:11px}.upload small{font-size:9px;color:#78716c}
+.check{display:flex;align-items:center;gap:7px;font-size:11px;margin-top:8px}.check input{width:auto}.note{font-size:10px;line-height:1.45;color:#64748b;background:#f8fafc;border-radius:8px;padding:8px;margin-top:8px}
+.previewWrap{position:sticky;top:70px}.previewOuter{background:#dbe2ea;border-radius:12px;padding:8px;display:flex;justify-content:center;overflow:auto;max-height:80vh}
+.bio{position:relative;width:794px;height:1123px;background:#fff;overflow:hidden;flex:none;transform-origin:top center;color:#292524}
+.inner{position:absolute;inset:48px 55px}.orn{position:absolute;pointer-events:none}.title{text-align:center;font-family:Georgia,serif;font-weight:bold;font-size:31px;letter-spacing:1px}.subtitle{text-align:center;font-size:13px;margin-top:6px}.photo{position:absolute;width:128px;height:154px;object-fit:cover;border:4px solid white;box-shadow:0 1px 8px #0003;background:#f1f5f9;cursor:move;touch-action:none}.moveText{position:relative;cursor:move;touch-action:none}.name{font-family:Georgia,serif;font-size:27px;font-weight:bold}.section{margin-top:18px}.section h2{font-family:Georgia,serif;font-size:16px;margin:0 0 8px;padding-bottom:4px;border-bottom:1px solid currentColor}.rows{font-size:13px;line-height:1.55}.row{display:grid;grid-template-columns:150px 12px 1fr;gap:2px}.key{font-weight:bold}.about{white-space:pre-wrap;font-size:12px;line-height:1.5}.footer{text-align:center;font-size:10px;position:absolute;left:55px;right:55px;bottom:30px}
+.t1{border:13px double var(--accent)}.t1 .orn{inset:25px;border:2px solid var(--accent)}.t1 .title,.t1 .name,.t1 .section h2{color:var(--accent)}
+.t2:before{content:"";position:absolute;left:0;top:0;bottom:0;width:150px;background:var(--accent)}.t2 .inner{left:185px}.t2 .title{text-align:left;color:var(--accent)}.t2 .photo{left:-155px;top:90px;width:120px;height:145px;border-radius:60px}.t2 .name{color:var(--accent)}
+.t3{background:#fffaf5}.t3:before,.t3:after{content:"";position:absolute;width:220px;height:220px;background:var(--accent);transform:rotate(45deg)}.t3:before{left:-150px;top:-150px}.t3:after{right:-150px;bottom:-150px}.t3 .title,.t3 .name,.t3 .section h2{color:var(--accent)}.t3 .photo{right:0;top:70px;border-radius:12px}
+.t4{border:5px solid var(--accent)}.t4 .inner{inset:36px 45px}.t4 .title{background:var(--accent);color:white;padding:17px;margin:-36px -45px 20px}.t4 .photo{right:0;top:78px}.t4 .section h2{background:#f8fafc;padding:6px 8px;border-left:5px solid var(--accent);color:var(--accent)}
+.t5 .orn{left:25px;right:25px;top:25px;bottom:25px;border:1px solid var(--accent);border-radius:28px}.t5 .title,.t5 .name,.t5 .section h2{color:var(--accent)}.t5 .title:after{content:"◆";display:block;font-size:12px;margin:8px;color:var(--accent)}.t5 .photo{right:0;top:80px;border-radius:50%;height:128px}
+.t6{background:#fff}.t6 .inner{inset:45px 62px}.t6 .title{font-family:Arial,sans-serif;text-align:left;font-size:29px;color:var(--accent);border-bottom:5px solid var(--accent);padding-bottom:10px}.t6 .photo{right:0;top:78px;border:2px solid var(--accent)}.t6 .name{font-family:Arial,sans-serif;color:#111827}.t6 .section h2{font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1px;color:var(--accent)}
+@media(max-width:760px){
+ .wrap{display:flex;flex-direction:column;padding:8px}.previewWrap{order:-1;position:sticky;top:67px;z-index:25;background:#f4f7fb;padding-bottom:5px}.controls{order:1}
+ .previewPanel{padding:6px;margin-bottom:6px}.previewOuter{max-height:36vh;padding:4px}.grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+}
+</style>
+</head>
+<body>
+<header><b>💍 Marriage Biodata Maker</b><small>Manjeet Digital Hub • Premium Biodata • PDF / JPG / PNG / Print</small></header>
+<div class="wrap">
+<div class="controls">
+<div class="panel"><h3>1. Photo & Basic Details</h3>
+<label class="upload">📷<b>Upload Photo</b><small>JPG / PNG</small><input id="photoFile" type="file" accept="image/*"></label>
+<div class="grid2"><div><label>Full Name</label><input id="name" value="Your Name"></div><div><label>Date of Birth</label><input id="dob" placeholder="DD/MM/YYYY"></div></div>
+<div class="grid2"><div><label>Height</label><input id="height" placeholder="5' 8&quot;"></div><div><label>Complexion</label><input id="complexion" placeholder="Optional"></div></div>
+<div class="grid2"><div><label>Religion</label><input id="religion"></div><div><label>Caste / Community</label><input id="caste"></div></div>
+<div class="grid2"><div><label>Gotra</label><input id="gotra"></div><div><label>Marital Status</label><input id="status" value="Never Married"></div></div>
+<div class="check"><input id="showPhoto" type="checkbox" checked> Show Photo</div>
+</div>
+
+<div class="panel"><h3>2. Education & Profession</h3>
+<label>Education</label><input id="education" placeholder="e.g. B.Tech / MBA">
+<label>Occupation / Profession</label><input id="job" placeholder="e.g. Software Engineer">
+<div class="grid2"><div><label>Company / Business</label><input id="company"></div><div><label>Annual Income</label><input id="income"></div></div>
+</div>
+
+<div class="panel"><h3>3. Family Details</h3>
+<div class="grid2"><div><label>Father's Name</label><input id="father"></div><div><label>Father's Occupation</label><input id="fatherJob"></div></div>
+<div class="grid2"><div><label>Mother's Name</label><input id="mother"></div><div><label>Mother's Occupation</label><input id="motherJob"></div></div>
+<label>Siblings / Family Details</label><textarea id="siblings" placeholder="Brother, sister, family background..."></textarea>
+</div>
+
+<div class="panel"><h3>4. Contact & About</h3>
+<label>Address</label><textarea id="address"></textarea>
+<div class="grid2"><div><label>Mobile</label><input id="mobile"></div><div><label>Email</label><input id="email"></div></div>
+<label>About Me</label><textarea id="about" placeholder="Write a short introduction..."></textarea>
+<label>Partner Preference</label><textarea id="partner" placeholder="Optional"></textarea>
+</div>
+
+<div class="panel"><h3>5. Design</h3>
+<label>Template</label><select id="template"><option value="t1">1. Traditional Classic</option><option value="t2">2. Modern Sidebar</option><option value="t3">3. Elegant Corner</option><option value="t4">4. Royal Header</option><option value="t5">5. Premium Frame</option><option value="t6">6. Minimal Professional</option></select>
+<div class="grid2"><div><label>Accent Color</label><input id="accent" type="color" value="#9a3412"></div><div><label>Text Color</label><input id="textColor" type="color" value="#292524"></div></div>
+<div class="check"><input id="showPersonal" type="checkbox" checked> Personal Details</div>
+<div class="check"><input id="showCareer" type="checkbox" checked> Education & Profession</div>
+<div class="check"><input id="showFamily" type="checkbox" checked> Family Details</div>
+<div class="check"><input id="showContact" type="checkbox" checked> Contact Details</div>
+<div class="check"><input id="showAbout" type="checkbox" checked> About / Partner Preference</div>
+</div>
+
+<div class="panel"><h3>6. Download / Print</h3>
+<div class="grid2"><button id="png" class="btn">⬇ PNG</button><button id="jpg" class="btn alt">⬇ JPG</button></div>
+<div class="grid2" style="margin-top:8px"><button id="pdf" class="btn">📄 A4 PDF</button><button id="print" class="btn dark">🖨️ Print</button></div>
+<button id="reset" class="btn danger" style="margin-top:8px">Reset</button>
+<div class="note">Biodata aapke browser me locally banta hai. Photo/details server par upload nahi kiye jaate.</div>
+</div>
+</div>
+
+<div class="previewWrap"><div class="previewPanel"><h3>Live A4 Preview</h3><div class="previewOuter"><div id="bio" class="bio t1"><div class="orn"></div><div class="inner" id="inner"></div><div class="footer">Marriage Biodata • Created with Manjeet Digital Hub</div></div></div></div></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)},photo="";
+function esc(s){var d=document.createElement("div");d.textContent=s||"";return d.innerHTML}
+function row(k,v){if(!String(v||"").trim())return"";return '<div class="row"><span class="key">'+esc(k)+'</span><span>:</span><span>'+esc(v)+'</span></div>'}
+function section(title,content){return content?'<div class="section"><h2>'+esc(title)+'</h2><div class="rows">'+content+'</div></div>':""}
+$("photoFile").onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){photo=r.result;render()};r.readAsDataURL(f)};
+function render(){
+ var b=$("bio"),tpl=$("template").value;b.className="bio "+tpl;b.style.setProperty("--accent",$("accent").value);b.style.color=$("textColor").value;
+ var personal=row("Date of Birth",$("dob").value)+row("Height",$("height").value)+row("Complexion",$("complexion").value)+row("Religion",$("religion").value)+row("Caste / Community",$("caste").value)+row("Gotra",$("gotra").value)+row("Marital Status",$("status").value);
+ var career=row("Education",$("education").value)+row("Profession",$("job").value)+row("Company / Business",$("company").value)+row("Annual Income",$("income").value);
+ var family=row("Father",$("father").value)+row("Father's Occupation",$("fatherJob").value)+row("Mother",$("mother").value)+row("Mother's Occupation",$("motherJob").value)+row("Family / Siblings",$("siblings").value);
+ var contact=row("Address",$("address").value)+row("Mobile",$("mobile").value)+row("Email",$("email").value);
+ var about="";if($("about").value.trim())about+='<div class="section"><h2>About Me</h2><div class="about">'+esc($("about").value)+'</div></div>';if($("partner").value.trim())about+='<div class="section"><h2>Partner Preference</h2><div class="about">'+esc($("partner").value)+'</div></div>';
+ var img=photo&&$("showPhoto").checked?'<img class="photo" src="'+photo+'">':"";
+ $("inner").innerHTML='<div class="title">Marriage Biodata</div><div class="subtitle">॥ शुभ विवाह ॥</div>'+img+'<div id="moveText" class="moveText"><div class="name" style="margin-top:38px">'+esc($("name").value||"Your Name")+'</div>'+
+ ($("showPersonal").checked?section("Personal Details",personal):"")+($("showCareer").checked?section("Education & Profession",career):"")+($("showFamily").checked?section("Family Details",family):"")+($("showContact").checked?section("Contact Details",contact):"")+($("showAbout").checked?about:"")+'</div>';
+ applyPositions();bindDrag();fit();
+}
+
+var pos={photoX:0,photoY:0,textX:0,textY:0};
+function applyPositions(){
+ var im=document.querySelector("#inner .photo"),mt=$("moveText");
+ if(im)im.style.transform="translate("+pos.photoX+"px,"+pos.photoY+"px)";
+ if(mt)mt.style.transform="translate("+pos.textX+"px,"+pos.textY+"px)";
+}
+function makeDrag(el,type){
+ if(!el)return;
+ var active=false,sx=0,sy=0,bx=0,by=0;
+ function point(e){var q=e.touches&&e.touches[0]?e.touches[0]:e;return{x:q.clientX,y:q.clientY}}
+ function start(e){var q=point(e);active=true;sx=q.x;sy=q.y;bx=type==="photo"?pos.photoX:pos.textX;by=type==="photo"?pos.photoY:pos.textY;if(e.cancelable)e.preventDefault()}
+ function move(e){if(!active)return;var q=point(e),nx=bx+(q.x-sx),ny=by+(q.y-sy);if(type==="photo"){pos.photoX=nx;pos.photoY=ny}else{pos.textX=nx;pos.textY=ny}applyPositions();if(e.cancelable)e.preventDefault()}
+ function end(){active=false}
+ el.addEventListener("mousedown",start);document.addEventListener("mousemove",move);document.addEventListener("mouseup",end);
+ el.addEventListener("touchstart",start,{passive:false});document.addEventListener("touchmove",move,{passive:false});document.addEventListener("touchend",end);
+}
+function bindDrag(){makeDrag(document.querySelector("#inner .photo"),"photo");makeDrag($("moveText"),"text")}
+function fit(){var outer=document.querySelector(".previewOuter"),b=$("bio"),scale=Math.min(1,(outer.clientWidth-10)/794,(outer.clientHeight>200?(outer.clientHeight-10)/1123:1));b.style.transform="scale("+scale+")";b.style.marginBottom=-(1123*(1-scale))+"px"}
+var ids=["name","dob","height","complexion","religion","caste","gotra","status","education","job","company","income","father","fatherJob","mother","motherJob","siblings","address","mobile","email","about","partner","template","accent","textColor","showPhoto","showPersonal","showCareer","showFamily","showContact","showAbout"];
+ids.forEach(function(id){$(id).oninput=render;$(id).onchange=render});
+function capture(){var b=$("bio"),old=b.style.transform,mb=b.style.marginBottom;b.style.transform="none";b.style.marginBottom="0";return html2canvas(b,{scale:2,useCORS:true,backgroundColor:"#ffffff"}).then(function(c){b.style.transform=old;b.style.marginBottom=mb;return c})}
+function dl(data,name){var a=document.createElement("a");a.href=data;a.download=name;document.body.appendChild(a);a.click();a.remove()}
+$("png").onclick=function(){capture().then(function(c){dl(c.toDataURL("image/png"),"marriage-biodata.png")})};
+$("jpg").onclick=function(){capture().then(function(c){dl(c.toDataURL("image/jpeg",.95),"marriage-biodata.jpg")})};
+$("pdf").onclick=function(){capture().then(function(c){var jsPDF=window.jspdf.jsPDF,p=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});p.addImage(c.toDataURL("image/jpeg",.96),"JPEG",0,0,210,297);p.save("marriage-biodata.pdf")})};
+$("print").onclick=function(){capture().then(function(c){var w=window.open("","_blank");if(!w)return alert("Please allow pop-ups.");w.document.write('<html><head><style>@page{size:A4;margin:0}html,body{margin:0}img{width:210mm;height:297mm;display:block}</style></head><body><img src="'+c.toDataURL("image/png")+'"></body></html>');w.document.close();setTimeout(function(){w.focus();w.print()},700)})};
+$("reset").onclick=function(){pos={photoX:0,photoY:0,textX:0,textY:0};location.reload()};
+window.addEventListener("resize",fit);render();
+})();
+</script>
+</body></html>
