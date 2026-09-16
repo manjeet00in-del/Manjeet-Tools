@@ -1,0 +1,121 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Resume Maker - Manjeet Digital Hub</title>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f1f5f9;color:#172033}header{background:#173b72;color:#fff;text-align:center;padding:13px}header h1{margin:0;font-size:21px}header p{margin:3px 0 0;font-size:12px}
+.wrap{max-width:1180px;margin:auto;padding:12px;display:grid;grid-template-columns:390px 1fr;gap:14px}.panel{background:#fff;border-radius:13px;padding:13px;margin-bottom:11px;box-shadow:0 2px 12px #0001}h3{font-size:15px;margin:0 0 9px}.field{margin:7px 0}.field label{display:block;font-size:11px;font-weight:bold;margin-bottom:4px}.field input,.field textarea,.field select{width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:7px;font:12px Arial}.grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.btn{border:0;border-radius:8px;background:#173b72;color:#fff;padding:9px 10px;font-weight:bold;cursor:pointer}.green{background:#16834b}.gray{background:#64748b}.actions{display:flex;gap:7px;flex-wrap:wrap}.actions .btn{flex:1}.upload{display:block;text-align:center;border:2px dashed #aac0dc;border-radius:9px;padding:10px;cursor:pointer}.upload input{display:none}.templates{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.tpl{height:54px;border:2px solid transparent;border-radius:7px;font-size:10px;font-weight:bold;cursor:pointer}.tpl.active{border-color:#2563eb}
+.tpl:nth-child(1){background:linear-gradient(90deg,#173b72 0 30%,#fff 30%)}
+.tpl:nth-child(2){background:linear-gradient(180deg,#173b72 0 35%,#fff 35%)}
+.tpl:nth-child(3){background:linear-gradient(90deg,#1f2937 0 36%,#fff 36%);color:#d4af37}
+.tpl:nth-child(4){background:linear-gradient(135deg,#eef2f7 0 55%,#fff 55%)}
+.tpl:nth-child(5){background:linear-gradient(180deg,#fff 0 78%,#173b72 78%);border-left:5px solid #173b72}
+.tpl:nth-child(6){background:linear-gradient(135deg,#173b72 0 24%,#fff 24% 76%,#e8eef7 76%)}.hint{font-size:10px;color:#64748b}
+.preview{position:sticky;top:8px}.page{width:794px;min-height:1123px;background:#fff;box-shadow:0 5px 20px #0002;position:relative;overflow:hidden}.resume{min-height:1123px}.head{padding:45px 50px 28px;display:flex;gap:25px;align-items:center}.photo{width:120px;height:120px;border-radius:50%;object-fit:cover;border:4px solid #fff}.headName{font-size:38px;font-weight:800}.headRole{font-size:17px;margin-top:5px}.body{display:grid;grid-template-columns:31% 69%;min-height:930px}.side{padding:30px 25px}.main{padding:30px 35px}.section{margin-bottom:24px}.section h2{font-size:16px;text-transform:uppercase;letter-spacing:1px;margin:0 0 9px;padding-bottom:5px;border-bottom:2px solid currentColor}.section p,.section div{font-size:13px;line-height:1.55;white-space:pre-line}.skill{display:inline-block;padding:5px 8px;border-radius:5px;background:#e8eef7;margin:2px;font-size:11px}.dragSec{touch-action:none;cursor:move}.dragSec.dragging{outline:2px dashed #2563eb}.mobileLive{display:none}
+
+/* Template 2: centered modern, single-column content */
+.t2 .head{text-align:center;justify-content:center;flex-direction:column;padding:38px 50px 25px;border-radius:0 0 55% 55%/0 0 22% 22%}
+.t2 .photo{width:105px;height:105px}.t2 .body{display:flex;flex-direction:column}.t2 .side,.t2 .main{padding:18px 65px;background:#fff!important}
+.t2 .side{display:grid;grid-template-columns:1fr 1fr;gap:10px 28px}.t2 .section h2{text-align:center;border-bottom:0}.t2 .main .section{border-left:4px solid currentColor;padding-left:16px}
+
+/* Template 3: executive dark left rail */
+.t3 .head{background:#111!important;border-bottom:10px solid #d4af37;padding-left:300px}.t3 .headName{letter-spacing:2px}
+.t3 .body{grid-template-columns:36% 64%}.t3 .side{background:#1f2937!important;color:#fff;padding:38px 28px}.t3 .main{padding:38px 42px}
+.t3 .side .section h2{color:#d4af37;border-bottom:1px solid #6b7280}.t3 .side .skill{display:block;background:#374151;color:#fff;margin:5px 0}
+.t3 .main .section h2{color:#111;border-color:#d4af37}
+
+/* Template 4: clean boxed/corporate with right sidebar */
+.t4 .head{margin:28px 35px 0;padding:28px 35px;border-radius:14px}.t4 .photo{border-radius:12px}
+.t4 .body{display:grid;grid-template-columns:65% 35%;padding:20px 35px;gap:20px}.t4 .main{grid-column:1;grid-row:1;padding:15px 10px}
+.t4 .side{grid-column:2;grid-row:1;padding:20px;background:#f3f4f6!important;border-radius:14px}
+.t4 .section{background:#fff;padding:13px;border:1px solid #e5e7eb;border-radius:10px}.t4 .section h2{border:0;margin-bottom:6px}
+
+
+/* Template 5: minimal typography */
+.t5 .head{background:#fff!important;color:inherit!important;border-left:14px solid currentColor;padding:55px 55px 30px}
+.t5 .headName{font-size:42px}.t5 .body{display:flex;flex-direction:column}.t5 .side,.t5 .main{padding:18px 58px;background:#fff!important}
+.t5 .side{display:grid;grid-template-columns:2fr 1fr 1fr;gap:20px}.t5 .section h2{font-size:13px;border-bottom:1px solid #cbd5e1}.t5 .main .section{margin-bottom:20px}
+
+/* Template 6: creative split header */
+.t6 .head{margin:25px 28px 0;padding:38px 42px;clip-path:polygon(0 0,92% 0,100% 100%,8% 100%)}
+.t6 .body{grid-template-columns:38% 62%;padding:18px 28px;gap:14px}.t6 .side{border-radius:18px;padding:28px;background:#eef2f7!important}
+.t6 .main{padding:28px}.t6 .section h2{border-bottom:0;border-left:5px solid currentColor;padding-left:10px}.t6 .skill{border-radius:20px}
+.signatureBox{margin-top:30px;text-align:right;font-size:13px}.signatureBox img{max-width:130px;max-height:55px;display:block;margin-left:auto;object-fit:contain}.signatureLine{display:inline-block;min-width:150px;border-top:1px solid currentColor;padding-top:5px;margin-top:8px}
+
+@media(max-width:760px){.wrap{grid-template-columns:1fr}.desktop{display:none}.mobileLive{display:block;position:sticky;top:0;z-index:50;background:#f1f5f9f5;margin:0 -12px 9px;padding:5px;border-bottom:1px solid #ddd}.mobileLive b{display:block;text-align:center;font-size:11px;margin-bottom:4px}.mini{height:210px;overflow:hidden;display:flex;justify-content:center}.mini .page{transform:scale(.18);transform-origin:top center;flex:none}.templates{grid-template-columns:repeat(4,1fr)}}
+@media print{body>*{display:none!important}#printArea{display:block!important;position:absolute;left:0;top:0;width:210mm}#printArea img{display:block;width:210mm;height:297mm;object-fit:contain}}
+</style></head><body>
+<header><h1>📄 Resume Maker</h1><p>Manjeet Digital Hub • Professional Resume • PDF • Print</p></header>
+<div class="wrap"><div>
+<div class="mobileLive"><b>Live Resume Preview</b><div class="mini" id="mobilePreview"></div></div>
+<div class="panel"><h3>1. Template & Style</h3><div class="templates" id="templates"></div><div class="grid"><div class="field"><label>Accent Color</label><input type="color" id="accent" value="#173b72"></div><div class="field"><label>Body Text Color</label><input type="color" id="textColor" value="#172033"></div></div>
+<div class="field"><label>Name / Top Header Text Color</label><input type="color" id="headerTextColor" value="#ffffff"></div></div>
+<div class="panel"><h3>2. Personal Details</h3><div class="grid"><div class="field"><label>Full Name</label><input id="name" value="Your Name"></div><div class="field"><label>Job Title</label><input id="role" value="Professional Title"></div></div>
+<div class="grid"><div class="field"><label>Phone</label><input id="phone" value="+91 98765 43210"></div><div class="field"><label>Email</label><input id="email" value="name@email.com"></div></div>
+<div class="field"><label>Address</label><input id="address" value="Lucknow, Uttar Pradesh"></div>
+<div class="field"><label>LinkedIn / Website</label><input id="web" value="linkedin.com/in/yourname"></div>
+<label class="upload"><input type="file" id="photoFile" accept="image/*"><b>📷 Upload Photo (Optional)</b></label></div>
+<div class="panel"><h3>3. Resume Content</h3>
+<div class="field"><label>Profile / Objective</label><textarea id="objective" rows="4">Motivated professional with strong communication and problem-solving skills.</textarea></div>
+<div class="field"><label>Experience</label><textarea id="experience" rows="6">Job Title — Company Name
+2023 - Present
+• Add your key responsibilities and achievements here.</textarea></div>
+<div class="field"><label>Education</label><textarea id="education" rows="5">Degree / Course — College / University
+2020 - 2023
+Add result or specialization.</textarea></div>
+<div class="field"><label>Skills (comma separated)</label><textarea id="skills" rows="3">Communication, MS Office, Teamwork, Problem Solving</textarea></div>
+<div class="field"><label>Languages</label><input id="languages" value="Hindi, English"></div>
+<div class="field"><label>Custom Section Title</label><input id="customTitle" value="CERTIFICATIONS"></div><div class="field"><label>Custom Section</label><textarea id="custom" rows="3">Add certificates, projects, awards or other information.</textarea></div>
+</div>
+<div class="panel"><h3>4. Signature</h3>
+<div class="field"><label>Signature Text / Name</label><input id="signature" value="Your Name"></div>
+<label class="upload"><input type="file" id="signatureFile" accept="image/*"><b>✍️ Upload Signature Image (Optional)</b></label>
+</div>
+<div class="panel"><h3>5. Show / Hide Sections</h3><div class="grid">
+<label><input type="checkbox" id="showPhoto" checked> Photo</label><label><input type="checkbox" id="showObjective" checked> Profile</label>
+<label><input type="checkbox" id="showExperience" checked> Experience</label><label><input type="checkbox" id="showEducation" checked> Education</label>
+<label><input type="checkbox" id="showSkills" checked> Skills</label><label><input type="checkbox" id="showLanguages" checked> Languages</label>
+<label><input type="checkbox" id="showCustom" checked> Custom Section</label><label><input type="checkbox" id="showSignature" checked> Signature</label></div></div>
+<div class="panel"><h3>6. Export</h3><div class="actions"><button class="btn green" id="pdfBtn">📄 Download PDF</button><button class="btn" id="printBtn">🖨 Print A4</button></div><button class="btn gray" id="resetOrder" style="width:100%;margin-top:7px">↻ Reset Section Positions</button><p class="hint">Preview me sections ko finger/mouse se drag karke position change kar sakte hain.</p></div>
+</div><div class="desktop"><div class="panel preview"><h3>A4 Resume Preview</h3><div id="desktopPreview"></div></div></div></div>
+<div id="printArea" style="display:none"><img id="printImg"></div>
+<script>
+var $=function(x){return document.getElementById(x)},tpl=1,photo='',signatureImg='',pos={};
+var ts=$('templates');for(var i=1;i<=6;i++){(function(n){var b=document.createElement('button');b.className='tpl'+(n===1?' active':'');b.innerHTML=n===1?'Classic':n===2?'Modern':n===3?'Executive':n===4?'Corporate':n===5?'Minimal': 'Creative';b.onclick=function(){tpl=n;var z=ts.children;for(var j=0;j<z.length;j++)z[j].classList.remove('active');b.classList.add('active');render()};ts.appendChild(b)})(i)}
+function e(s){return String(s||'').replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
+function sec(k,title,content){if(!content)return '';return '<div class="section dragSec" data-key="'+k+'"><h2>'+e(title)+'</h2><div>'+e(content)+'</div></div>'}
+function html(id){
+ var a=$('accent').value,t=$('textColor').value,ht=$('headerTextColor').value,skills=$('skills').value.split(',').filter(Boolean).map(function(x){return '<span class="skill">'+e(x.trim())+'</span>'}).join('');
+ return '<div class="page resume t'+tpl+'" id="'+id+'" style="color:'+t+'"><div class="head" style="background:'+(tpl===3?'#111111':a)+';color:'+ht+'">'+
+ (($('showPhoto').checked&&photo)?'<img class="photo" src="'+photo+'">':'')+'<div><div class="headName">'+e($('name').value)+'</div><div class="headRole">'+e($('role').value)+'</div></div></div>'+
+ '<div class="body"><aside class="side" style="background:'+a+'12">'+
+ sec('contact','CONTACT',$('phone').value+'\n'+$('email').value+'\n'+$('address').value+'\n'+$('web').value)+
+ ($('showSkills').checked?'<div class="section dragSec" data-key="skills"><h2>SKILLS</h2><div>'+skills+'</div></div>':'')+
+ ($('showLanguages').checked?sec('languages','LANGUAGES',$('languages').value):'')+
+ '</aside><main class="main">'+
+ ($('showObjective').checked?sec('objective','PROFILE',$('objective').value):'')+
+ ($('showExperience').checked?sec('experience','EXPERIENCE',$('experience').value):'')+
+ ($('showEducation').checked?sec('education','EDUCATION',$('education').value):'')+
+ ($('showCustom').checked?sec('custom',$('customTitle').value,$('custom').value):'')+
+ ($('showSignature').checked?'<div class="signatureBox dragSec" data-key="signature">'+(signatureImg?'<img src="'+signatureImg+'">':'')+'<div class="signatureLine">'+e($('signature').value)+'</div></div>':'')+
+ '</main></div></div>';
+}
+function drag(root){if(!root)return;var els=root.querySelectorAll('.dragSec');for(var i=0;i<els.length;i++){var el=els[i],p=pos[el.getAttribute('data-key')];if(p)el.style.transform='translate('+p.x+'px,'+p.y+'px)';(function(el){var st=null;function pt(ev){var q=(ev.touches&&ev.touches[0])||(ev.changedTouches&&ev.changedTouches[0])||ev;return{x:q.clientX,y:q.clientY}}function dn(ev){if(ev.type==='mousedown'&&ev.button!==0)return;if(ev.cancelable)ev.preventDefault();var q=pt(ev),k=el.getAttribute('data-key'),p=pos[k]||{x:0,y:0};st={x:q.x,y:q.y,ox:p.x,oy:p.y,k:k};el.classList.add('dragging')}function mv(ev){if(!st)return;if(ev.cancelable)ev.preventDefault();var q=pt(ev),page=el.closest('.page'),r=page.getBoundingClientRect(),scale=r.width/page.offsetWidth||1,x=st.ox+(q.x-st.x)/scale,y=st.oy+(q.y-st.y)/scale;pos[st.k]={x:x,y:y};el.style.transform='translate('+x+'px,'+y+'px)'}function up(){st=null;el.classList.remove('dragging')}el.addEventListener('mousedown',dn);el.addEventListener('touchstart',dn,{passive:false});document.addEventListener('mousemove',mv);document.addEventListener('touchmove',mv,{passive:false});document.addEventListener('mouseup',up);document.addEventListener('touchend',up)})(el)}}
+function render(){$('desktopPreview').innerHTML=html('resumeDesk');$('mobilePreview').innerHTML=html('resumeMob');drag($('resumeDesk'));drag($('resumeMob'))}
+document.querySelectorAll('input,textarea,select').forEach(function(x){if(x.id!=='photoFile'&&x.id!=='signatureFile')x.addEventListener('input',render);x.addEventListener('change',render)});
+$('photoFile').onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){photo=r.result;render()};r.readAsDataURL(f)};
+$('signatureFile').onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){signatureImg=r.result;render()};r.readAsDataURL(f)};
+$('resetOrder').onclick=function(){pos={};render()};
+function resumeCanvas(){
+ var p=$('resumeDesk')||$('resumeMob'),c=document.createElement('canvas');c.width=1240;c.height=1754;var x=c.getContext('2d'),a=$('accent').value;
+ x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.fillStyle=a;x.fillRect(0,0,c.width,250);x.fillStyle=$('headerTextColor').value;x.font='bold 58px Arial';x.fillText($('name').value,80,115);x.font='28px Arial';x.fillText($('role').value,80,165);
+ x.fillStyle=$('textColor').value;var y=320;
+ function block(title,text){if(!text)return;x.font='bold 25px Arial';x.fillText(title,80,y);y+=38;x.font='20px Arial';String(text).split('\n').forEach(function(line){x.fillText(line,80,y);y+=30});y+=30}
+ block('CONTACT',$('phone').value+' | '+$('email').value+' | '+$('address').value+' | '+$('web').value);
+ if($('showObjective').checked)block('PROFILE',$('objective').value);if($('showExperience').checked)block('EXPERIENCE',$('experience').value);if($('showEducation').checked)block('EDUCATION',$('education').value);if($('showSkills').checked)block('SKILLS',$('skills').value);if($('showLanguages').checked)block('LANGUAGES',$('languages').value);if($('showCustom').checked)block($('customTitle').value,$('custom').value);
+ if($('showSignature').checked)block('SIGNATURE',$('signature').value);
+ return c;
+}
+$('pdfBtn').onclick=function(){if(!window.jspdf)return alert('PDF library load nahi hui.');var d=resumeCanvas().toDataURL('image/jpeg',.95),J=window.jspdf.jsPDF,p=new J({unit:'mm',format:'a4'});p.addImage(d,'JPEG',0,0,210,297);p.save('resume.pdf')};
+$('printBtn').onclick=function(){$('printImg').src=resumeCanvas().toDataURL('image/jpeg',.95);$('printArea').style.display='block';setTimeout(function(){window.print();setTimeout(function(){$('printArea').style.display='none'},500)},250)};
+render();
+</script></body></html>
