@@ -13,17 +13,70 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css">
+  <style>
+    /* Premium hero layer - safe with existing style.css */
+    .hero .hero-inner{padding-top:32px;padding-bottom:32px}
+    .mdh-hero-panel{
+      position:relative;overflow:hidden;
+      width:min(820px,100%);margin:0 auto 18px;
+      padding:27px 18px 25px;border-radius:25px;
+      color:#fff;
+      background:
+        radial-gradient(circle at 15% 15%,rgba(255,255,255,.22),transparent 27%),
+        radial-gradient(circle at 92% 80%,rgba(255,255,255,.12),transparent 30%),
+        linear-gradient(135deg,#2563eb 0%,#4f46e5 55%,#7c3aed 100%);
+      border:1px solid rgba(255,255,255,.28);
+      box-shadow:0 14px 32px rgba(37,99,235,.24),0 5px 0 rgba(30,64,175,.12);
+    }
+    .mdh-hero-panel:before,.mdh-hero-panel:after{
+      content:"";position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.12)
+    }
+    .mdh-hero-panel:before{width:170px;height:170px;left:-90px;top:-85px}
+    .mdh-hero-panel:after{width:220px;height:220px;right:-120px;bottom:-145px}
+    .mdh-hero-panel .hero-badge{
+      position:relative;z-index:2;margin-bottom:11px;
+      color:#fff;background:rgba(255,255,255,.14);
+      border-color:rgba(255,255,255,.25);box-shadow:none
+    }
+    .mdh-hero-panel h1{
+      position:relative;z-index:2;color:#fff;
+      font-size:clamp(25px,5vw,42px);letter-spacing:-1.2px;margin-bottom:7px
+    }
+    .mdh-hero-panel .hero-mainline{
+      position:relative;z-index:2;
+      margin:0 auto 7px;max-width:700px;color:#fff;
+      font-size:clamp(17px,3.7vw,25px);line-height:1.2;font-weight:800;letter-spacing:-.4px
+    }
+    .mdh-hero-panel .hero-subline{
+      position:relative;z-index:2;margin:0 auto;
+      max-width:670px;color:rgba(255,255,255,.86);
+      font-size:11px;line-height:1.55
+    }
+    .hero .search-container{position:relative;z-index:3}
+    .hero .hero-pills{position:relative;z-index:3}
+    @media(max-width:480px){
+      .hero .hero-inner{padding-top:20px;padding-bottom:25px}
+      .mdh-hero-panel{padding:22px 12px 21px;border-radius:21px;margin-bottom:15px}
+      .mdh-hero-panel h1{font-size:25px}
+      .mdh-hero-panel .hero-mainline{font-size:17px}
+      .mdh-hero-panel .hero-subline{font-size:9.5px;padding:0 4px}
+    }
+  </style>
 </head>
 <body>
-<header class="site-header"><div class="header-inner">
+<header class="site-header"><div class="container header-inner">
 <a href="./" class="logo"><span class="logo-icon">MDH</span><span class="logo-text"><strong>Manjeet</strong><span>Digital Hub</span></span></a>
 <nav class="nav"><a href="#tools">Tools</a><a href="#portals">Portals</a><a href="#about">About</a></nav>
 <a href="#tools" class="header-cta">Explore Tools</a>
 </div></header>
 <main>
 <section class="hero"><div class="hero-glow glow-one"></div><div class="hero-glow glow-two"></div><div class="container hero-inner">
+<div class="mdh-hero-panel">
 <div class="hero-badge"><span class="status-dot"></span>Free Digital Tools</div>
-<h1>Manjeet Digital Hub</h1><p>Smart Digital Tools. Simple Solutions.</p>
+<h1>Manjeet Digital Hub</h1>
+<div class="hero-mainline">Online Photo, PDF, ID Card &amp; Digital Tools</div>
+<p class="hero-subline">Passport photos, ID cards, PDFs, resumes and everyday digital services — all in one place.</p>
+</div>
 <div class="search-container"><span class="search-icon">🔍</span><input type="search" id="toolSearch" placeholder="Search tools..." autocomplete="off"><span class="search-shortcut">Ctrl K</span></div>
 <div class="hero-pills"><span>✓ Free to use</span><span>✓ Mobile friendly</span><span>✓ No login required</span></div>
 </div></section>
@@ -31,7 +84,6 @@
 <section class="tools-section" id="tools"><div class="container">
 <div class="section-heading"><div><span class="section-label">TOOLS</span><h2>All Digital Tools</h2><p>Useful tools for your everyday digital work.</p></div></div>
 
-<!-- ESSENTIAL & SERVICES -->
 <div class="tool-category">
 <div class="category-heading"><div class="category-title"><span class="category-icon image-icon">⚡</span><div><h3>Essential &amp; Services</h3><p>Quick access to essential digital services</p></div></div><span class="tool-count">7 Tools</span></div>
 <div class="tools-grid">
@@ -44,7 +96,6 @@
 <div class="tool-card" data-tool="bgremover" data-name="BG Remover"><div class="tool-icon">🪄</div><h4>BG Remover</h4><p>Remove photo background</p></div>
 </div></div>
 
-<!-- IMAGE & PDF TOOLS -->
 <div class="tool-category">
 <div class="category-heading"><div class="category-title"><span class="category-icon pdf-icon">🖼️</span><div><h3>Image &amp; PDF Tools</h3><p>Convert and manage image &amp; PDF files</p></div></div><span class="tool-count">7 Tools</span></div>
 <div class="tools-grid">
@@ -57,7 +108,6 @@
 <div class="tool-card" data-tool="pdfextractor" data-name="PDF Page Extractor"><div class="tool-icon">📤</div><h4>Page Extractor</h4><p>Extract PDF pages</p></div>
 </div></div>
 
-<!-- ID & PRINT -->
 <div class="tool-category">
 <div class="category-heading"><div class="category-title"><span class="category-icon id-icon">🪪</span><div><h3>ID &amp; Print</h3><p>ID card, biodata and printing tools</p></div></div><span class="tool-count">10 Tools</span></div>
 <div class="tools-grid">
@@ -73,7 +123,6 @@
 <div class="tool-card" data-tool="label" data-name="Label Sticker Maker"><div class="tool-icon">🏷️</div><h4>Label / Sticker</h4><p>Create printable labels</p></div>
 </div></div>
 
-<!-- FINANCE -->
 <div class="tool-category">
 <div class="category-heading"><div class="category-title"><span class="category-icon finance-icon">💰</span><div><h3>Finance</h3><p>Useful financial calculators</p></div></div><span class="tool-count">13 Tools</span></div>
 <div class="tools-grid">
@@ -92,7 +141,6 @@
 <div class="tool-card" data-tool="insurance" data-name="Insurance Policy Return Calculator"><div class="tool-icon">🛡️</div><h4>Insurance Return</h4><p>Estimate policy returns</p></div>
 </div></div>
 
-<!-- GOVERNMENT PORTALS -->
 <section class="portal-section" id="portals">
 <div class="category-heading"><div class="category-title"><span class="category-icon portal-icon">🇮🇳</span><div><h3>Government &amp; Useful Portals</h3><p>Quick access to important official websites</p></div></div></div>
 <div class="portal-grid">
