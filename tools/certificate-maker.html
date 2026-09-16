@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Certificate Maker - Manjeet Digital Hub</title>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box}html,body{margin:0;background:#eef2f7;font-family:Arial,sans-serif;color:#172033;overflow-x:hidden}
+header{background:#173b72;color:#fff;padding:13px 16px;text-align:center;font-weight:800;font-size:18px}
+.app{max-width:1180px;margin:auto;padding:14px;display:grid;grid-template-columns:390px 1fr;gap:14px}
+.controls,.previewBox{min-width:0}.panel{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px #0000000d}
+.panel h3{margin:0 0 11px;font-size:15px}.field{margin-bottom:9px}.field label{display:block;font-size:11px;font-weight:700;margin-bottom:4px}
+input,textarea,select{width:100%;border:1px solid #ccd5e2;border-radius:8px;padding:9px;font-size:13px;background:#fff}textarea{min-height:66px;resize:vertical}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.templates{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.tpl{height:68px;border:2px solid #d7dfeb;border-radius:9px;background:#fff;font-size:10px;font-weight:800;padding:5px;cursor:pointer}
+.tpl.active{border-color:#173b72;box-shadow:0 0 0 2px #dbeafe}.tpl:nth-child(1){background:linear-gradient(135deg,#f8f1dc,#fff,#f8f1dc);border-style:double}
+.tpl:nth-child(2){background:linear-gradient(135deg,#173b72 0 20%,#fff 20% 80%,#173b72 80%)}
+.tpl:nth-child(3){background:#171717;color:#d6b45c;border:4px double #d6b45c}.tpl:nth-child(4){background:linear-gradient(90deg,#e8edf5 0 28%,#fff 28%)}
+.tpl:nth-child(5){background:radial-gradient(circle,#fff 50%,#eee7d5 51%);border-radius:50% 8px 50% 8px}
+.tpl:nth-child(6){background:linear-gradient(155deg,#6d28d9 0 16%,#fff 16% 84%,#0f766e 84%)}
+.upload{display:block;border:2px dashed #cbd5e1;padding:11px;border-radius:10px;text-align:center;font-size:12px;cursor:pointer}.upload input{display:none}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:7px;font-size:12px}.checks label{background:#f7f9fc;padding:8px;border-radius:7px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn{border:0;border-radius:9px;padding:11px;background:#173b72;color:#fff;font-weight:800;cursor:pointer}.btn.alt{background:#e9eff8;color:#173b72}
+.previewBox{background:#fff;border-radius:14px;padding:12px;box-shadow:0 2px 10px #0000000d;position:sticky;top:10px;height:max-content;overflow:auto}
+.cert{width:1123px;height:794px;position:relative;overflow:hidden;background:#fff;transform-origin:top left;color:#1f2937}
+.previewScale{width:100%;aspect-ratio:1123/794;overflow:hidden}.previewScale .cert{transform:scale(var(--scale,.65))}
+.logo{position:absolute;object-fit:contain;z-index:5}.sigImg{max-width:145px;max-height:55px;object-fit:contain;display:block;margin:auto}
+.drag{cursor:move;touch-action:none;position:relative;z-index:7}.title{font-weight:800}.recipient{font-family:Georgia,serif;font-weight:800}.small{font-size:15px}.certText{line-height:1.55}
+.signatures{display:flex;justify-content:space-between;gap:50px}.sign{width:180px;text-align:center}.line{border-top:1px solid currentColor;padding-top:6px;margin-top:8px;font-size:13px}
+.c1{padding:55px;text-align:center;background:#fffdf7}.c1:before,.c1:after{content:"";position:absolute;inset:22px;border:5px double #9a6d1f}.c1:after{inset:34px;border-width:1px}.c1 .content{margin-top:70px}.c1 .title{font-family:Georgia;font-size:50px;color:#7b5415}.c1 .recipient{font-size:44px;margin:25px}.c1 .certText{font-size:20px;max-width:760px;margin:auto}.c1 .signatures{margin:70px 150px 0}
+.c2{background:#fdfefe;padding:55px 75px;text-align:center}
+.c2:before{content:"";position:absolute;inset:24px;border:3px solid var(--accent);border-radius:24px}
+.c2:after{content:"";position:absolute;left:50%;top:0;width:360px;height:72px;background:var(--accent);transform:translateX(-50%);clip-path:polygon(8% 0,92% 0,100% 100%,0 100%)}
+.c2 .content{margin-top:72px}.c2 .title{font-family:Georgia,serif;font-size:50px;color:var(--accent);letter-spacing:2px}
+.c2 .recipient{font-size:45px;margin:28px;color:#182235}.c2 .certText{font-size:19px;max-width:760px;margin:auto}
+.c2 .signatures{margin:72px 150px 0}.c2 .org{font-weight:700;color:var(--accent)}
+.c3{background:#151515;color:#eee;padding:50px;text-align:center}.c3:before{content:"";position:absolute;inset:22px;border:4px solid #c5a04e;box-shadow:inset 0 0 0 8px #151515,inset 0 0 0 10px #c5a04e}.c3 .content{margin-top:70px}.c3 .title{font-family:Georgia;font-size:55px;color:#d8b65f}.c3 .recipient{font-size:46px;color:#fff;margin:28px}.c3 .certText{font-size:19px;max-width:760px;margin:auto;color:#ddd}.c3 .signatures{margin:75px 150px 0;color:#d8b65f}
+.c4{background:#fff;padding:52px;text-align:center}
+.c4:before{content:"";position:absolute;inset:18px;border:12px solid #eef1f5;box-shadow:inset 0 0 0 2px var(--accent)}
+.c4:after{content:"";position:absolute;inset:37px;border:1px solid var(--accent)}
+.c4 .rail{display:none}.c4 .content{padding:72px 65px 0}.c4 .title{font-family:Georgia,serif;font-size:48px;color:var(--accent);border-bottom:2px solid var(--accent);display:inline-block;padding-bottom:12px}
+.c4 .recipient{font-size:44px;margin:30px}.c4 .certText{font-size:19px;max-width:720px;margin:auto}.c4 .signatures{margin:72px 145px 0}
+.c5{background:#fffdf8;padding:60px;text-align:center}
+.c5:before{content:"";position:absolute;left:18px;top:18px;width:170px;height:170px;border-left:8px solid var(--accent);border-top:8px solid var(--accent)}
+.c5:after{content:"";position:absolute;right:18px;bottom:18px;width:170px;height:170px;border-right:8px solid var(--accent);border-bottom:8px solid var(--accent)}
+.c5 .content{margin-top:68px}.c5 .title{font-family:Georgia,serif;font-size:53px;color:var(--accent)}
+.c5 .recipient{font-size:46px;margin:30px}.c5 .certText{font-size:19px;max-width:750px;margin:auto}.c5 .signatures{margin:75px 150px 0}
+.c6{background:#f8fafc;padding:52px 68px;text-align:left}
+.c6:before{content:"";position:absolute;left:0;top:0;width:32px;height:100%;background:var(--accent)}
+.c6:after{content:"";position:absolute;right:45px;top:45px;width:125px;height:125px;border:14px solid var(--accent);border-radius:50%;opacity:.12}
+.c6 .content{margin:72px 45px}.c6 .title{font-size:50px;color:var(--accent);letter-spacing:1px}
+.c6 .recipient{font-size:45px;margin:34px 0 18px}.c6 .certText{font-size:19px;max-width:720px}.c6 .signatures{margin-top:78px;max-width:700px}
+
+.cert.portrait{width:794px;height:1123px}
+.previewScale.portraitScale{aspect-ratio:794/1123}
+.cert.portrait.c1,.cert.portrait.c2,.cert.portrait.c3,.cert.portrait.c4,.cert.portrait.c5,.cert.portrait.c6{padding-left:55px;padding-right:55px}
+.cert.portrait .content{margin-left:auto;margin-right:auto;max-width:680px}
+.cert.portrait .title{font-size:43px}.cert.portrait .recipient{font-size:39px}.cert.portrait .certText{max-width:610px}
+.cert.portrait .signatures{margin-left:60px;margin-right:60px}
+.orient.active{box-shadow:0 0 0 3px #bfdbfe}
+
+.mobileLive{display:none}
+@media(max-width:760px){
+ .app{display:block;padding:8px}.previewBox{display:none}.mobileLive{display:block;position:sticky;top:0;z-index:30;background:#eef2f7;padding:7px 0 9px}
+ .mobileLive .previewScale{background:#fff;border-radius:10px;box-shadow:0 2px 10px #0002}
+ .grid2{grid-template-columns:1fr}.templates{grid-template-columns:repeat(2,minmax(0,1fr))}.panel{padding:12px}
+ .checks{grid-template-columns:1fr 1fr}header{font-size:16px}
+}
+</style>
+</head>
+<body>
+<header>🏆 Manjeet Digital Hub — Certificate Maker</header>
+<div class="mobileLive"><div class="previewScale" id="mobilePreview"></div></div>
+<div class="app">
+<div class="controls">
+ <div class="panel"><h3>1. Choose Certificate Design</h3><div class="templates" id="templates"></div></div>
+ <div class="panel"><h3>2. Size / Orientation</h3>
+<div class="grid2">
+ <button type="button" class="btn orient active" id="landscapeBtn">Landscape</button>
+ <button type="button" class="btn alt orient" id="portraitBtn">Portrait / Vertical</button>
+</div></div>
+<div class="panel"><h3>3. Certificate Details</h3>
+  <div class="field"><label>Certificate Title</label><input id="title" value="CERTIFICATE OF ACHIEVEMENT"></div>
+  <div class="field"><label>Presented To</label><input id="name" value="Manjeet Chauhan"></div>
+  <div class="field"><label>Certificate Text</label><textarea id="text">This certificate is proudly presented in recognition of outstanding achievement, dedication and excellence.</textarea></div>
+  <div class="grid2"><div class="field"><label>Organization / School</label><input id="org" value="Manjeet Digital Hub"></div><div class="field"><label>Date</label><input id="date" value="16 September 2026"></div></div>
+  <div class="grid2"><div class="field"><label>Certificate / ID No.</label><input id="certno" value="MDH-2026-001"></div><div class="field"><label>Accent Color</label><input type="color" id="accent" value="#173b72"></div></div>
+ </div>
+ <div class="panel"><h3>4. Logo & Signatures</h3>
+  <label class="upload"><input type="file" id="logoFile" accept="image/*">🏢 Upload Logo (Optional)</label><br>
+  <div class="grid2"><div class="field"><label>Left Signatory</label><input id="sign1" value="Authorized Signatory"></div><div class="field"><label>Right Signatory</label><input id="sign2" value="Director"></div></div>
+  <label class="upload"><input type="file" id="sig1File" accept="image/*">✍️ Upload Left Signature</label><br>
+  <label class="upload"><input type="file" id="sig2File" accept="image/*">✍️ Upload Right Signature</label>
+ </div>
+ <div class="panel"><h3>5. Show / Hide</h3><div class="checks">
+  <label><input type="checkbox" id="showLogo" checked> Logo</label><label><input type="checkbox" id="showOrg" checked> Organization</label>
+  <label><input type="checkbox" id="showDate" checked> Date</label><label><input type="checkbox" id="showNo" checked> Certificate No.</label>
+  <label><input type="checkbox" id="showSigs" checked> Signatures</label>
+ </div></div>
+ <div class="panel"><h3>6. Export</h3><div class="actions"><button class="btn" id="jpg">Download JPG</button><button class="btn" id="png">Download PNG</button><button class="btn" id="pdf">Download PDF</button><button class="btn alt" id="print">🖨 Print</button></div></div>
+</div>
+<div class="previewBox"><div class="previewScale" id="desktopPreview"></div><p style="font-size:11px;color:#64748b;margin:8px 0 0">Tip: Name, title, text and signatures can be moved by finger/mouse.</p></div>
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id)},tpl=1,orientation="landscape",logo="",sig1="",sig2="",pos={};
+function esc(v){return String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function fileData(input,cb){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(){cb(r.result);render()};r.readAsDataURL(f)}
+function templates(){var names=["Classic Ornamental","Royal Blue","Premium Dark","Elegant Frame","Luxury Corner","Professional"],box=$("templates");box.innerHTML="";for(var i=1;i<=6;i++){var b=document.createElement("button");b.type="button";b.className="tpl"+(tpl===i?" active":"");b.setAttribute("data-tpl",i);b.innerHTML=names[i-1];b.onclick=function(){tpl=Number(this.getAttribute("data-tpl"));templates();render()};box.appendChild(b)}}
+function signBlock(img,name){return '<div class="sign drag" data-key="'+name+'">'+(img?'<img class="sigImg" src="'+img+'">':'')+'<div class="line">'+esc($(name).value)+'</div></div>'}
+function certHTML(id){
+ var a=$("accent").value, org=$("showOrg").checked?'<div class="small drag org" data-key="org">'+esc($("org").value)+'</div>':'';
+ var meta='<div class="small">'+($("showDate").checked?'Date: '+esc($("date").value):'')+($("showDate").checked&&$("showNo").checked?' &nbsp; • &nbsp; ':'')+($("showNo").checked?'Certificate No: '+esc($("certno").value):'')+'</div>';
+ var logoHtml=$("showLogo").checked&&logo?'<img class="logo drag" data-key="logo" src="'+logo+'" style="width:95px;height:95px;left:55px;top:45px">':'';
+ var sigs=$("showSigs").checked?'<div class="signatures">'+signBlock(sig1,"sign1")+signBlock(sig2,"sign2")+'</div>':'';
+ var core='<div class="title drag" data-key="title">'+esc($("title").value)+'</div><div class="small">PROUDLY PRESENTED TO</div><div class="recipient drag" data-key="name">'+esc($("name").value)+'</div><div class="certText drag" data-key="text">'+esc($("text").value)+'</div>'+meta+sigs;
+ var inner=tpl===4?'<div class="rail">'+logoHtml+org+'</div><div class="content">'+core+'</div>':'<div class="content">'+logoHtml+org+core+'</div>';
+ return '<div class="cert c'+tpl+(orientation==='portrait'?' portrait':'')+'" id="'+id+'" style="--accent:'+a+'">'+inner+'</div>';
+}
+function applyPos(root){var ds=root.querySelectorAll(".drag");for(var i=0;i<ds.length;i++){var k=ds[i].getAttribute("data-key");if(pos[k])ds[i].style.transform="translate("+pos[k].x+"px,"+pos[k].y+"px)"}}
+function drag(root){
+ var els=root.querySelectorAll(".drag");for(var i=0;i<els.length;i++)(function(el){
+  var key=el.getAttribute("data-key"),sx=0,sy=0,bx=0,by=0,on=false;
+  function start(e){on=true;var p=e.touches?e.touches[0]:e;sx=p.clientX;sy=p.clientY;bx=pos[key]?pos[key].x:0;by=pos[key]?pos[key].y:0;if(e.touches)e.preventDefault()}
+  function move(e){if(!on)return;var p=e.touches?e.touches[0]:e;var baseW=orientation==="portrait"?794:1123;var scale=root.getBoundingClientRect().width/baseW||1;pos[key]={x:bx+(p.clientX-sx)/scale,y:by+(p.clientY-sy)/scale};el.style.transform="translate("+pos[key].x+"px,"+pos[key].y+"px)";if(e.touches)e.preventDefault()}
+  function end(){on=false}
+  el.addEventListener("mousedown",start);el.addEventListener("touchstart",start,{passive:false});document.addEventListener("mousemove",move);document.addEventListener("touchmove",move,{passive:false});document.addEventListener("mouseup",end);document.addEventListener("touchend",end);
+ })(els[i]);
+}
+function fit(holder){var cert=holder.querySelector(".cert");if(!cert)return;var W=orientation==="portrait"?794:1123,H=orientation==="portrait"?1123:794;var scale=holder.clientWidth/W;holder.className="previewScale"+(orientation==="portrait"?" portraitScale":"");holder.style.setProperty("--scale",scale);holder.style.height=(H*scale)+"px"}
+function render(){ $("desktopPreview").innerHTML=certHTML("certDesk");$("mobilePreview").innerHTML=certHTML("certMob");applyPos($("certDesk"));applyPos($("certMob"));fit($("desktopPreview"));fit($("mobilePreview"));drag($("certDesk"));drag($("certMob"))}
+function exportCanvas(cb){
+ var source=$("certDesk");var old=source.style.transform;source.style.transform="none";
+ html2canvas(source,{scale:2,useCORS:true,backgroundColor:"#ffffff"}).then(function(c){source.style.transform=old;cb(c)}).catch(function(){source.style.transform=old;alert("Export could not be created.")});
+}
+function dl(data,name){var a=document.createElement("a");a.href=data;a.download=name;document.body.appendChild(a);a.click();a.remove()}
+$("logoFile").onchange=function(){fileData(this,function(v){logo=v})};$("sig1File").onchange=function(){fileData(this,function(v){sig1=v})};$("sig2File").onchange=function(){fileData(this,function(v){sig2=v})};
+var fields=document.querySelectorAll("input,textarea,select");for(var i=0;i<fields.length;i++){if(fields[i].type!=="file"){fields[i].addEventListener("input",render);fields[i].addEventListener("change",render)}}
+$("jpg").onclick=function(){exportCanvas(function(c){dl(c.toDataURL("image/jpeg",.94),"certificate.jpg")})};
+$("png").onclick=function(){exportCanvas(function(c){dl(c.toDataURL("image/png"),"certificate.png")})};
+$("pdf").onclick=function(){exportCanvas(function(c){var jsPDF=window.jspdf.jsPDF,isP=orientation==="portrait",p=new jsPDF({orientation:isP?"portrait":"landscape",unit:"mm",format:"a4"});p.addImage(c.toDataURL("image/jpeg",.95),"JPEG",0,0,isP?210:297,isP?297:210);p.save("certificate.pdf")})};
+$("print").onclick=function(){exportCanvas(function(c){var w=window.open("","_blank");if(!w)return alert("Please allow pop-ups.");var isP=orientation==="portrait";w.document.write('<html><head><title>Certificate</title><style>@page{size:A4 '+(isP?'portrait':'landscape')+';margin:0}body{margin:0}img{width:'+(isP?'210mm':'297mm')+';height:'+(isP?'297mm':'210mm')+';display:block}</style></head><body><img src="'+c.toDataURL("image/png")+'"></body></html>');w.document.close();w.onload=function(){setTimeout(function(){w.print()},400)}})};
+$("landscapeBtn").onclick=function(){orientation="landscape";this.className="btn orient active";$("portraitBtn").className="btn alt orient";pos={};render()};
+$("portraitBtn").onclick=function(){orientation="portrait";this.className="btn orient active";$("landscapeBtn").className="btn alt orient";pos={};render()};
+window.addEventListener("resize",function(){fit($("desktopPreview"));fit($("mobilePreview"))});
+templates();render();
+})();
+</script>
+</body></html>
