@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Photo Crop & Resize Pro - Manjeet Digital Hub</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#172033}
+header{padding:14px;text-align:center;color:#fff;background:linear-gradient(135deg,#155eef,#6d28d9)}
+header h1{font-size:20px;margin:0 0 4px}header p{font-size:11px;margin:0;opacity:.9}
+.wrap{max-width:1050px;margin:auto;padding:11px}.panel{background:#fff;border:1px solid #e2e8f0;border-radius:15px;padding:11px;margin-bottom:10px;box-shadow:0 5px 15px rgba(20,35,70,.06)}
+h2{font-size:13px;margin:0 0 9px}.upload{display:block;border:2px dashed #a9c5ff;background:#f8fbff;border-radius:12px;padding:15px;text-align:center;cursor:pointer}.upload input{position:absolute;opacity:0;width:1px;height:1px}.upload b{display:block;font-size:13px}.upload small{font-size:10px;color:#667085}
+.stage{height:360px;background:#eef2f7;border-radius:11px;overflow:hidden;display:flex;align-items:center;justify-content:center}.stage img{display:block;max-width:100%}
+.row{display:flex;gap:7px;flex-wrap:wrap}.btn{border:0;border-radius:9px;padding:9px 11px;min-height:38px;font-size:11px;font-weight:700;background:#155eef;color:#fff;cursor:pointer}.btn.alt{background:#eef4ff;color:#174ea6}.btn.dark{background:#172033}.btn:disabled{opacity:.45}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.field label{display:block;font-size:10px;font-weight:700;margin-bottom:4px}.field input,.field select{width:100%;border:1px solid #d8e0eb;border-radius:8px;padding:8px;font-size:12px;background:#fff}
+.ratios{display:flex;gap:6px;flex-wrap:wrap}.ratios button{border:1px solid #d8e0eb;background:#fff;border-radius:8px;padding:7px 10px;font-size:10px;font-weight:700}.ratios button.active{border-color:#155eef;background:#eef4ff;color:#155eef}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.stat div{background:#f8fafc;border-radius:8px;padding:7px;text-align:center}.stat span{display:block;font-size:9px;color:#667085}.stat b{font-size:11px}
+.note{font-size:10px;color:#667085;line-height:1.4;background:#f8fafc;padding:8px;border-radius:8px;margin-top:8px}.status{font-size:10px;color:#667085;margin-top:7px;min-height:13px}
+.previewPanel{position:sticky;top:0;z-index:5}
+#finalPreview{max-width:100%;max-height:280px;display:none;margin:auto;border:1px solid #e2e8f0;border-radius:8px}
+@media(max-width:759px){
+  .previewPanel{position:sticky;top:0;z-index:20;padding:7px;margin-bottom:8px}
+  .previewPanel h2{margin-bottom:5px}
+  .previewPanel .stage{height:210px}
+  .previewPanel .status{margin-top:4px}
+}
+@media(min-width:760px){
+  .layout{display:grid;grid-template-columns:1.1fr .9fr;gap:11px;align-items:start}
+  .previewPanel{position:sticky;top:10px;z-index:5}
+  .stage{height:520px}
+}
+</style>
+</head>
+<body>
+<header><h1>Photo Crop & Resize Pro</h1><p>Crop • Resize • Rotate • Flip • KB Reduce</p></header>
+<div class="wrap"><div class="layout">
+<div>
+<div class="panel previewPanel">
+<h2>Live Crop</h2>
+<div class="stage"><img id="image" alt=""></div>
+<div class="status" id="status">Choose a JPG or PNG photo.</div>
+</div>
+<div class="panel">
+<h2>Crop Controls</h2>
+<div class="ratios">
+<button class="active" data-ratio="free">Free</button><button data-ratio="1">1:1</button>
+<button data-ratio="1.333333">4:3</button><button data-ratio=".75">3:4</button><button data-ratio="1.777778">16:9</button>
+</div>
+<div class="row" style="margin-top:8px">
+<button class="btn alt" id="left">Rotate Left</button><button class="btn alt" id="right">Rotate Right</button>
+<button class="btn alt" id="flipH">Flip H</button><button class="btn alt" id="flipV">Flip V</button>
+</div>
+</div>
+</div>
+
+<div>
+<div class="panel">
+<h2>1. Upload Photo</h2>
+<label class="upload"><input type="file" id="file" accept="image/jpeg,image/png,image/webp"><b>Choose Photo</b><small>JPG, PNG or WebP</small></label>
+</div>
+
+<div class="panel">
+<h2>2. Resize</h2>
+<div class="grid">
+<div class="field"><label>Unit</label><select id="unit"><option value="px">Pixels (px)</option><option value="mm">Millimetres (mm)</option></select></div>
+<div class="field"><label>DPI</label><select id="dpi"><option>300</option><option>200</option><option>150</option><option>96</option></select></div>
+<div class="field"><label>Width</label><input type="number" id="width" placeholder="Auto"></div>
+<div class="field"><label>Height</label><input type="number" id="height" placeholder="Auto"></div>
+</div>
+<label style="font-size:10px;display:block;margin-top:7px"><input type="checkbox" id="keep" checked> Keep aspect ratio</label>
+</div>
+
+<div class="panel">
+<h2>3. KB Reduce</h2>
+<div class="grid">
+<div class="field"><label>Target Size</label><select id="target">
+<option value="0">No KB Limit</option><option value="20">20 KB</option><option value="50">50 KB</option><option value="100">100 KB</option><option value="200">200 KB</option><option value="custom">Custom KB</option>
+</select></div>
+<div class="field"><label>Custom KB</label><input type="number" id="customKB" value="100" min="5" disabled></div>
+<div class="field"><label>Format</label><select id="format"><option value="jpeg">JPG</option><option value="png">PNG</option></select></div>
+<div class="field"><label>JPG Quality</label><input type="range" id="quality" min="10" max="100" value="92"></div>
+</div>
+<div class="note">Target KB JPG me best kaam karta hai. Bahut chhota target choose karne par quality ya dimensions kam karni pad sakti hain.</div>
+</div>
+
+<div class="panel">
+<h2>4. Create Final Photo</h2>
+<button class="btn" id="create" disabled>Create Final Photo</button>
+<img id="finalPreview">
+<div class="stat" id="stats" style="display:none"><div><span>Width</span><b id="sw">-</b></div><div><span>Height</span><b id="sh">-</b></div><div><span>File Size</span><b id="ss">-</b></div></div>
+<div class="row" style="margin-top:8px"><button class="btn dark" id="download" disabled>Download Photo</button><button class="btn alt" id="reset">Reset</button></div>
+</div>
+</div>
+</div></div>
+
+<script>
+(function(){
+var file=document.getElementById('file'),img=document.getElementById('image'),cropper=null,status=document.getElementById('status');
+var W=document.getElementById('width'),H=document.getElementById('height'),unit=document.getElementById('unit'),dpi=document.getElementById('dpi'),keep=document.getElementById('keep');
+var target=document.getElementById('target'),customKB=document.getElementById('customKB'),format=document.getElementById('format'),quality=document.getElementById('quality');
+var create=document.getElementById('create'),download=document.getElementById('download'),finalPreview=document.getElementById('finalPreview'),stats=document.getElementById('stats');
+var finalBlob=null,finalURL=null,scaleX=1,scaleY=1,ratioLock=1;
+
+function px(v){if(!v)return 0;return unit.value==='mm'?Math.round(Number(v)*Number(dpi.value)/25.4):Math.round(Number(v))}
+function showStatus(s){status.textContent=s}
+file.onchange=function(){
+ var f=this.files&&this.files[0];if(!f)return;
+ if(cropper){cropper.destroy();cropper=null}
+ var r=new FileReader();r.onload=function(e){img.src=e.target.result;img.onload=function(){
+  cropper=new Cropper(img,{viewMode:1,dragMode:'move',autoCropArea:.9,responsive:true,background:false,aspectRatio:NaN,
+  cropBoxMovable:true,cropBoxResizable:true,movable:true,zoomable:true,rotatable:true,scalable:true});
+  create.disabled=false;showStatus('Drag crop box/corners freely. Pinch or mouse wheel can zoom.');
+ }};r.readAsDataURL(f);
+};
+document.querySelectorAll('[data-ratio]').forEach(function(b){b.onclick=function(){
+ document.querySelectorAll('[data-ratio]').forEach(function(x){x.classList.remove('active')});this.classList.add('active');
+ if(!cropper)return;var v=this.getAttribute('data-ratio');cropper.setAspectRatio(v==='free'?NaN:Number(v));
+}});
+document.getElementById('left').onclick=function(){if(cropper)cropper.rotate(-90)};
+document.getElementById('right').onclick=function(){if(cropper)cropper.rotate(90)};
+document.getElementById('flipH').onclick=function(){if(cropper){scaleX=-scaleX;cropper.scaleX(scaleX)}};
+document.getElementById('flipV').onclick=function(){if(cropper){scaleY=-scaleY;cropper.scaleY(scaleY)}};
+
+function sync(fromW){
+ if(!keep.checked||!ratioLock)return;
+ if(fromW&&W.value)H.value=(Number(W.value)/ratioLock).toFixed(unit.value==='mm'?1:0);
+ if(!fromW&&H.value)W.value=(Number(H.value)*ratioLock).toFixed(unit.value==='mm'?1:0);
+}
+W.oninput=function(){sync(true)};H.oninput=function(){sync(false)};
+unit.onchange=function(){W.value='';H.value=''};
+target.onchange=function(){customKB.disabled=this.value!=='custom'};
+
+function canvasBlob(c,type,q){return new Promise(function(resolve){c.toBlob(resolve,type,q)})}
+async function compressToTarget(canvas,kb){
+ var targetBytes=kb*1024,low=.05,high=1,best=null;
+ for(var i=0;i<11;i++){var q=(low+high)/2,b=await canvasBlob(canvas,'image/jpeg',q);if(b&&b.size<=targetBytes){best=b;low=q}else high=q}
+ if(best)return best;
+ // If quality alone cannot reach target, progressively reduce dimensions.
+ var base=canvas, factor=.9;
+ for(var j=0;j<12;j++){
+   var c=document.createElement('canvas');c.width=Math.max(50,Math.round(base.width*factor));c.height=Math.max(50,Math.round(base.height*factor));
+   c.getContext('2d').drawImage(base,0,0,c.width,c.height);
+   var b=await canvasBlob(c,'image/jpeg',.05);
+   if(b&&b.size<=targetBytes)return b;
+   factor-=.06;if(factor<.25)break;
+ }
+ return await canvasBlob(canvas,'image/jpeg',.05);
+}
+create.onclick=async function(){
+ if(!cropper)return;
+ showStatus('Creating final photo...');
+ var data=cropper.getData(),cr=data.width/data.height;ratioLock=cr;
+ var outW=px(W.value),outH=px(H.value);
+ if(outW&&!outH)outH=Math.round(outW/cr);if(outH&&!outW)outW=Math.round(outH*cr);
+ var opts={imageSmoothingEnabled:true,imageSmoothingQuality:'high'};
+ if(outW)opts.width=outW;if(outH)opts.height=outH;
+ var c=cropper.getCroppedCanvas(opts);if(!c){showStatus('Could not create photo.');return}
+ var mime=format.value==='png'?'image/png':'image/jpeg';
+ var kb=target.value==='custom'?Number(customKB.value):Number(target.value);
+ if(kb>0){finalBlob=await compressToTarget(c,kb);mime='image/jpeg';}
+ else finalBlob=await canvasBlob(c,mime,Number(quality.value)/100);
+ if(!finalBlob){showStatus('Could not create file.');return}
+ if(finalURL)URL.revokeObjectURL(finalURL);finalURL=URL.createObjectURL(finalBlob);finalPreview.src=finalURL;finalPreview.style.display='block';
+ document.getElementById('sw').textContent=c.width+' px';document.getElementById('sh').textContent=c.height+' px';document.getElementById('ss').textContent=(finalBlob.size/1024).toFixed(1)+' KB';
+ stats.style.display='grid';download.disabled=false;showStatus('Final photo ready.');
+};
+download.onclick=function(){
+ if(!finalBlob)return;var a=document.createElement('a');a.href=finalURL;a.download='manjeet-photo-'+Date.now()+'.'+(finalBlob.type==='image/png'?'png':'jpg');document.body.appendChild(a);a.click();a.remove();
+};
+document.getElementById('reset').onclick=function(){
+ if(cropper){cropper.destroy();cropper=null}file.value='';img.removeAttribute('src');W.value='';H.value='';finalBlob=null;if(finalURL)URL.revokeObjectURL(finalURL);finalURL=null;finalPreview.style.display='none';stats.style.display='none';create.disabled=true;download.disabled=true;scaleX=1;scaleY=1;showStatus('Choose a JPG or PNG photo.');
+};
+})();
+</script>
+</body></html>
