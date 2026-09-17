@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>PVC Auto Crop Final Bottom Fix - Manjeet Digital Hub</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#e9eff6;color:#172033}
+button,input{font:inherit}.top{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid #dbe4ef;padding:9px}
+.topbar{max-width:920px;margin:auto;display:grid;grid-template-columns:46px 46px 1fr 64px;gap:7px}
+.top button,.title{height:43px;border:1px solid #d7e2ef;border-radius:13px;background:#f8fbff;font-weight:800}.trash{color:#e11d48}.title{display:grid;place-items:center;background:#2563eb;color:#fff;border-color:#2563eb;border-radius:10px}.pageNo{display:grid;place-items:center;color:#475569}
+.area{max-width:920px;margin:auto;padding:12px 10px 5px}
+.paper{position:relative;width:100%;height:62vh;min-height:430px;max-height:680px;background:#fff;overflow:hidden;box-shadow:0 3px 12px #0f172a12;touch-action:none}
+.empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#94a3b8;text-align:center}.empty span{font-size:42px}.empty b{font-size:17px;color:#475569;margin:8px 0}
+.card{position:absolute;display:none;left:50%;top:18px;width:310px;max-width:75%;transform:translateX(-50%);touch-action:none;user-select:none;filter:drop-shadow(0 8px 13px #0f172a24)}
+.card img{display:block;width:100%;pointer-events:none;border-radius:3px}.card.sel{outline:2px dashed #06b6d4;outline-offset:4px}
+.floating{max-width:920px;margin:auto;background:#fff;padding:8px 10px;display:none;gap:7px;justify-content:center;border-top:1px solid #e2e8f0}
+.floating.show{display:flex}.tool{width:44px;height:44px;border-radius:50%;border:2px solid #bfdbfe;background:#fff;font-weight:900;box-shadow:0 3px 8px #0f172a18}.tool.green{background:#10b981;color:#fff}.tool.blue{background:#3b82f6;color:#fff}.tool.purple{background:#a855f7;color:#fff}
+.status{max-width:920px;margin:auto;text-align:center;background:#fff;color:#8a96aa;font-size:10px;padding:5px}
+.bottom{position:sticky;bottom:0;z-index:15;background:#fff;border-top:1px solid #dbe4ef;padding:9px 10px 10px}.bottomin{max-width:920px;margin:auto;display:grid;grid-template-columns:1.6fr repeat(4,54px);gap:7px;align-items:center}
+.upload{height:50px;display:flex;align-items:center;border:0;color:#64748b;font-weight:800}.upload strong{color:#2563eb}.upload input{display:none}.act{width:50px;height:50px;border-radius:50%;border:1px solid #dbe4ef;background:#fff;font-weight:900;box-shadow:0 4px 11px #0f172a16}.jpg{color:#2563eb}.pdf{color:#ef4444}.png{color:#16a34a}.print{background:#2563eb;color:#fff}.act small{display:block;font-size:7px}
+.modal{position:fixed;inset:0;background:#0f172a99;z-index:50;display:none;align-items:center;justify-content:center;padding:12px}.modal.show{display:flex}
+.cropbox{width:min(720px,100%);background:#fff;border-radius:17px;padding:10px}.crophead{display:flex;justify-content:space-between;align-items:center;padding:4px 4px 9px}.crophead b{font-size:14px}.cropstage{position:relative;width:100%;height:58vh;min-height:350px;background:#eef2f7;overflow:hidden;touch-action:none;display:flex;align-items:center;justify-content:center}
+#cropImg{max-width:94%;max-height:94%;display:block}.cropstage canvas{position:absolute;inset:0;width:100%;height:100%}.cropactions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:9px}.cropactions button{padding:11px 5px;border:1px solid #dbe4ef;border-radius:10px;background:#f8fafc;font-weight:800}.cropactions .done{background:#2563eb;color:#fff;border-color:#2563eb}
+.adjust{position:fixed;inset:0;background:#0f172a88;z-index:55;display:none;align-items:flex-end;justify-content:center}.adjust.show{display:flex}.sheet{width:min(600px,100%);background:#fff;border-radius:20px 20px 0 0;padding:16px}.range{margin:11px 0}.range label{font-size:11px;font-weight:800;display:flex;justify-content:space-between}.range input{width:100%}.sheet button{width:100%;padding:11px;border:0;border-radius:10px;background:#2563eb;color:#fff;font-weight:800}
+@media(max-width:480px){.area{padding:8px 7px 4px}.paper{height:60vh;min-height:410px}.card{width:245px}.bottomin{grid-template-columns:1.5fr repeat(4,48px);gap:5px}.act{width:46px;height:46px}.cropstage{height:54vh;min-height:340px}}
+</style>
+
+<style>
+.autoBadge{position:absolute;left:12px;top:12px;z-index:6;background:#fff;border:1px solid #dbe4ef;
+padding:7px 10px;border-radius:999px;font-size:10px;font-weight:800;color:#2563eb;box-shadow:0 3px 10px #0f172a16}
+.multiCard{position:absolute;touch-action:none;user-select:none;filter:drop-shadow(0 7px 12px #0f172a24)}
+.multiCard img{width:100%;height:100%;display:block;pointer-events:none}
+.multiCard.selected{outline:2px dashed #06b6d4;outline-offset:3px}
+.topTools{max-width:920px;margin:auto;display:none;grid-template-columns:repeat(7,1fr);gap:6px;padding:7px 8px;background:#fff;border-bottom:1px solid #e2e8f0}
+.topTools.show{display:grid}.topTools button{padding:9px 3px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;font-size:9px;font-weight:800}
+.processing{position:fixed;inset:0;z-index:80;background:#0f172a66;display:none;align-items:center;justify-content:center}
+.processing.show{display:flex}.processing>div{background:#fff;border-radius:15px;padding:16px 22px;text-align:center;box-shadow:0 10px 30px #0f172a33}
+.processing b{display:block;color:#2563eb;margin-bottom:5px}
+
+.modebar{max-width:920px;margin:8px auto 0;padding:8px;background:#fff;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.modebtn{padding:11px 7px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;font-size:11px;font-weight:800;color:#475569}
+.modebtn.active{background:#2563eb;color:#fff;border-color:#2563eb}
+.queueWrap{max-width:920px;margin:0 auto;background:#fff;padding:7px 9px;border-top:1px solid #e2e8f0;display:none}
+.queueWrap.show{display:block}.queueTitle{font-size:10px;font-weight:800;color:#64748b;margin-bottom:6px}
+.queue{display:flex;gap:7px;overflow-x:auto;padding-bottom:3px}
+.qitem{min-width:72px;width:72px;border:2px solid #dbe4ef;border-radius:8px;padding:3px;background:#fff;position:relative}
+.qitem.active{border-color:#2563eb}.qitem img{width:100%;height:42px;object-fit:cover;display:block;border-radius:5px}
+.qitem small{display:block;font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+.qdel{position:absolute;right:-5px;top:-6px;width:18px;height:18px;border:0;border-radius:50%;background:#ef4444;color:#fff;font-size:10px;font-weight:900;padding:0}
+</style>
+</head>
+<body>
+<div class="top"><div class="topbar"><button onclick="location.href='../index.html'">⌂</button><button class="trash" onclick="resetAll()">🗑</button><div class="title">PVC AUTO CROP</div><button class="pageNo">▱ P1</button></div></div>
+<div class="modebar">
+<button class="modebtn active" id="dualMode" onclick="setMode('dual')">FRONT + BACK PAGE</button>
+<button class="modebtn" id="singleMode" onclick="setMode('single')">SINGLE CARD / DOC</button>
+</div>
+
+<div class="topTools" id="topTools">
+<button onclick="makeA4()">MAKE A4</button><button onclick="singleLayout()">SINGLE</button>
+<button onclick="page4x6()">PAGE 4×6</button><button onclick="toggleMirror()">MIRROR OFF</button>
+<button onclick="openAdjust()">ENHANCE</button><button onclick="openCrop()">RE-CROP</button>
+<button onclick="centerSelected()">CENTER</button>
+</div>
+<div class="area"><div class="paper" id="paper"><div class="autoBadge" id="autoBadge" style="display:none">AUTO CROP ✓</div>
+<div class="empty" id="empty"><span>🪪</span><b>Select PVC / ID Card</b><small>Auto crop ke baad card yahan aa jayega</small></div>
+<div class="card" id="card"><img id="finalImg"></div>
+</div></div>
+<div id="sideBar" style="max-width:920px;margin:auto;background:#fff;padding:8px 10px;display:none;gap:8px">
+<button onclick="chooseSide('front')" id="frontBtn" style="flex:1;padding:11px;border:0;border-radius:10px;background:#2563eb;color:#fff;font-weight:800">✂ CROP FRONT</button>
+<button onclick="chooseSide('back')" id="backBtn" style="flex:1;padding:11px;border:0;border-radius:10px;background:#f59e0b;color:#111827;font-weight:800">✂ CROP BACK</button>
+</div>
+<div class="floating" id="floating">
+<button class="tool green" onclick="openCrop()" title="Re-Crop">⌗</button>
+<button class="tool blue" onclick="rotateFinal()" title="Rotate">↻</button>
+<button class="tool" onclick="scaleCard(.9)" title="Smaller">−</button>
+<button class="tool" onclick="scaleCard(1.1)" title="Bigger">＋</button>
+<button class="tool purple" onclick="openAdjust()" title="Enhance">✣</button>
+<button class="tool" onclick="centerCard()" title="Center">◎</button>
+</div>
+<div class="queueWrap" id="queueWrap"><div class="queueTitle">QUEUE • multiple files/cards</div><div class="queue" id="queue"></div></div>
+<div class="status" id="status">Select File → Auto Detect → Crop → Drag anywhere on page</div>
+
+<div class="bottom"><div class="bottomin">
+<label class="upload">📷 &nbsp;<strong>SELECT FILE</strong><input id="file" type="file" multiple accept="image/*,application/pdf"></label>
+<button class="act jpg" onclick="saveJPG()">↓<small>JPG</small></button>
+<button class="act pdf" onclick="savePDF()">▣<small>PDF</small></button>
+<button class="act png" onclick="savePNG()">▧<small>PNG</small></button>
+<button class="act print" onclick="doPrint()">▣<small>PRINT</small></button>
+</div></div>
+
+<div class="processing" id="processing"><div><b>Auto Crop Processing...</b><small>Front / Back detect kiya ja raha hai</small></div></div>
+<div class="modal" id="reliableCrop"><div class="cropbox">
+<div class="crophead"><b>PVC Crop</b><span style="font-size:10px;color:#64748b">Har edge/corner ko independently move karein</span></div>
+<div style="height:58vh;min-height:350px;background:#111827;overflow:hidden"><img id="rcImg" style="display:block;max-width:100%"></div>
+<div class="cropactions"><button onclick="resetReliableCrop()">RESET</button><button onclick="rotateReliableCrop()">ROTATE</button><button class="done" onclick="applyReliableCrop()">DONE</button></div>
+</div></div>
+<div class="modal" id="cropModal"><div class="cropbox">
+<div class="crophead"><b>Adjust Card Corners</b><span style="font-size:10px;color:#64748b">4 blue dots ko finger se move karein</span></div>
+<div class="cropstage" id="cropStage"><img id="cropImg"><canvas id="overlay"></canvas></div>
+<div class="cropactions"><button onclick="detectEdges()">AUTO DETECT</button><button onclick="setPVCRatio()">PVC RATIO</button><button class="done" onclick="applyCrop()">DONE / SAVE SIDE</button></div>
+</div></div>
+
+<div class="adjust" id="adjust"><div class="sheet"><b>Enhance Card</b>
+<div class="range"><label>Brightness <span id="bv">0</span></label><input id="bright" type="range" min="-40" max="40" value="0" oninput="renderEnhance()"></div>
+<div class="range"><label>Contrast <span id="cv">0</span></label><input id="contrast" type="range" min="-40" max="40" value="0" oninput="renderEnhance()"></div>
+<div class="range"><label>Saturation <span id="sv">0</span></label><input id="sat" type="range" min="-40" max="40" value="0" oninput="renderEnhance()"></div>
+<button onclick="adjust.classList.remove('show')">DONE</button></div></div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+const file=document.getElementById('file'),cropImg=document.getElementById('cropImg'),cropStage=document.getElementById('cropStage'),overlay=document.getElementById('overlay'),octx=overlay.getContext('2d'),card=document.getElementById('card'),finalImg=document.getElementById('finalImg'),paper=document.getElementById('paper');
+let source=null,points=[],dragPoint=-1,finalCanvas=null,baseCanvas=null,frontCanvas=null,backCanvas=null,currentSide='front',cardScale=1,finalRotation=0;
+let cropMode='dual', pendingFiles=[], processingFiles=false;
+file.onchange=e=>{ pendingFiles=[...e.target.files]; processNextFile(); file.value=''; };
+function setMode(m){
+ cropMode=m;
+ dualMode.classList.toggle('active',m==='dual');
+ singleMode.classList.toggle('active',m==='single');
+ status.textContent=m==='dual'?'Front + Back full-page mode selected':'Single Card / Document mode selected';
+}
+async function processNextFile(){
+ if(processingFiles || !pendingFiles.length)return;
+ processingFiles=true;
+ let f=pendingFiles.shift();
+ await loadFile(f);
+}
+
+async function loadFile(f){if(!f){processingFiles=false;return;}status.textContent="Loading file...";if(f.type==="application/pdf"){let pdf=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise,p=await pdf.getPage(1),v=p.getViewport({scale:2}),c=document.createElement('canvas');c.width=v.width;c.height=v.height;await p.render({canvasContext:c.getContext('2d'),viewport:v}).promise;loadURL(c.toDataURL('image/jpeg',.97))}else{let r=new FileReader;r.onload=()=>loadURL(r.result);r.readAsDataURL(f)}}
+function loadURL(u){
+ let im=new Image;
+ im.onload=()=>{
+   source=im; currentSide='front'; sideBar.style.display='none';
+   cropImg.src=u; processing.classList.add('show');
+   status.textContent="Auto detecting Front / Back...";
+   setTimeout(()=>autoProcessSource(im),120);
+ };
+ im.src=u;
+}
+function stageBox(){let a=cropImg.getBoundingClientRect(),b=cropStage.getBoundingClientRect();return{x:a.left-b.left,y:a.top-b.top,w:a.width,h:a.height}}
+function sizeOv(){overlay.width=cropStage.clientWidth;overlay.height=cropStage.clientHeight}
+function defaultPoints(){let b=stageBox(),m=Math.min(15,b.w*.04);points=[[b.x+m,b.y+m],[b.x+b.w-m,b.y+m],[b.x+b.w-m,b.y+b.h-m],[b.x+m,b.y+b.h-m]];drawOverlay()}
+function drawOverlay(){sizeOv();octx.clearRect(0,0,overlay.width,overlay.height);if(points.length!==4)return;octx.fillStyle='rgba(15,23,42,.42)';octx.fillRect(0,0,overlay.width,overlay.height);octx.save();octx.globalCompositeOperation='destination-out';octx.beginPath();octx.moveTo(...points[0]);for(let i=1;i<4;i++)octx.lineTo(...points[i]);octx.closePath();octx.fill();octx.restore();octx.strokeStyle='#06b6d4';octx.lineWidth=3;octx.setLineDash([7,5]);octx.beginPath();octx.moveTo(...points[0]);for(let i=1;i<4;i++)octx.lineTo(...points[i]);octx.closePath();octx.stroke();octx.setLineDash([]);points.forEach(p=>{octx.beginPath();octx.arc(p[0],p[1],10,0,Math.PI*2);octx.fillStyle='#fff';octx.fill();octx.lineWidth=4;octx.strokeStyle='#06b6d4';octx.stroke()})}
+function detectEdges(){if(!source)return;let c=document.createElement('canvas'),max=1000,sc=Math.min(1,max/Math.max(source.width,source.height));c.width=Math.round(source.width*sc);c.height=Math.round(source.height*sc);let x=c.getContext('2d');x.drawImage(source,0,0,c.width,c.height);let d=x.getImageData(0,0,c.width,c.height).data,w=c.width,h=c.height;
+let sample=[];let band=Math.max(2,Math.floor(Math.min(w,h)*.025));for(let yy=0;yy<band;yy+=2)for(let xx=0;xx<w;xx+=8){let i=(yy*w+xx)*4;sample.push([d[i],d[i+1],d[i+2]]);let j=((h-1-yy)*w+xx)*4;sample.push([d[j],d[j+1],d[j+2]])}for(let xx=0;xx<band;xx+=2)for(let yy=0;yy<h;yy+=8){let i=(yy*w+xx)*4;sample.push([d[i],d[i+1],d[i+2]]);let j=(yy*w+w-1-xx)*4;sample.push([d[j],d[j+1],d[j+2]])}
+let bg=[0,1,2].map(k=>sample.reduce((a,q)=>a+q[k],0)/sample.length),minx=w,miny=h,maxx=0,maxy=0,n=0,step=Math.max(1,Math.floor(Math.max(w,h)/700));
+for(let y=0;y<h;y+=step)for(let z=0;z<w;z+=step){let i=(y*w+z)*4,dist=Math.abs(d[i]-bg[0])+Math.abs(d[i+1]-bg[1])+Math.abs(d[i+2]-bg[2]);if(dist>60){minx=Math.min(minx,z);maxx=Math.max(maxx,z);miny=Math.min(miny,y);maxy=Math.max(maxy,y);n++}}
+let b=stageBox();if(n<80||maxx-minx<w*.25||maxy-miny<h*.15){defaultPoints();status.textContent="Auto detect uncertain • blue dots manually set karein";return}
+let sx=b.w/w,sy=b.h/h,pad=Math.max(0,Math.min(5,Math.min(maxx-minx,maxy-miny)*.01));minx=Math.max(0,minx-pad);miny=Math.max(0,miny-pad);maxx=Math.min(w,maxx+pad);maxy=Math.min(h,maxy+pad);
+points=[[b.x+minx*sx,b.y+miny*sy],[b.x+maxx*sx,b.y+miny*sy],[b.x+maxx*sx,b.y+maxy*sy],[b.x+minx*sx,b.y+maxy*sy]];drawOverlay();status.textContent="Auto crop detected • dots se correction possible"}
+function setPVCRatio(){let b=stageBox(),cx=(points[0][0]+points[2][0])/2,cy=(points[0][1]+points[2][1])/2,W=Math.abs(points[1][0]-points[0][0]),H=W/(85.6/54);if(H>b.h*.96){H=b.h*.96;W=H*(85.6/54)};points=[[cx-W/2,cy-H/2],[cx+W/2,cy-H/2],[cx+W/2,cy+H/2],[cx-W/2,cy+H/2]];drawOverlay()}
+function pos(e){let r=cropStage.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return[t.clientX-r.left,t.clientY-r.top]}
+function pd(e){let q=pos(e),best=1e9;dragPoint=-1;points.forEach((p,i)=>{let d=Math.hypot(q[0]-p[0],q[1]-p[1]);if(d<42&&d<best){best=d;dragPoint=i}});if(dragPoint>=0)e.preventDefault()}
+function pm(e){if(dragPoint<0)return;e.preventDefault();let q=pos(e),b=stageBox();points[dragPoint]=[Math.max(b.x,Math.min(b.x+b.w,q[0])),Math.max(b.y,Math.min(b.y+b.h,q[1]))];drawOverlay()}
+function pu(){dragPoint=-1}
+cropStage.addEventListener('touchstart',pd,{passive:false});cropStage.addEventListener('touchmove',pm,{passive:false});cropStage.addEventListener('touchend',pu);cropStage.addEventListener('mousedown',pd);window.addEventListener('mousemove',pm);window.addEventListener('mouseup',pu);
+function applyCrop(){if(points.length!==4)return;let b=stageBox(),sx=source.width/b.w,sy=source.height/b.h,pp=points.map(p=>[(p[0]-b.x)*sx,(p[1]-b.y)*sy]);let minx=Math.max(0,Math.min(...pp.map(p=>p[0]))),maxx=Math.min(source.width,Math.max(...pp.map(p=>p[0]))),miny=Math.max(0,Math.min(...pp.map(p=>p[1]))),maxy=Math.min(source.height,Math.max(...pp.map(p=>p[1]))),w=maxx-minx,h=maxy-miny;if(w<10||h<10)return;
+let land=w>=h;baseCanvas=document.createElement('canvas');baseCanvas.width=land?1011:638;baseCanvas.height=land?638:1011;baseCanvas.getContext('2d').drawImage(source,minx,miny,w,h,0,0,baseCanvas.width,baseCanvas.height);
+if(currentSide==='front') frontCanvas=cloneCanvas(baseCanvas); else backCanvas=cloneCanvas(baseCanvas);
+finalCanvas=cloneCanvas(baseCanvas);finalImg.src=finalCanvas.toDataURL('image/png');cropModal.classList.remove('show');empty.style.display='none';card.style.display='block';card.classList.add('sel');floating.classList.add('show');cardScale=1;finalRotation=0;centerCard();
+status.textContent=(currentSide==='front'?'Front':'Back')+" crop saved • card drag kar sakte hain • doosri side ke liye button dabayein"}
+function cloneCanvas(c){let n=document.createElement('canvas');n.width=c.width;n.height=c.height;n.getContext('2d').drawImage(c,0,0);return n}
+function chooseSide(side){
+ currentSide=side;
+ frontBtn.style.opacity=side==='front'?'1':'.55';
+ backBtn.style.opacity=side==='back'?'1':'.55';
+ if(!source){file.click();return}
+ openReliableCrop();
+ status.textContent=(side==='front'?'Front':'Back')+" crop ready";
+}
+function openCrop(){if(selectedItem>=0&&autoItems[selectedItem]){source=autoItems[selectedItem].source||source;currentSide=autoItems[selectedItem].label==='Back'?'back':'front'}if(!source)return;openReliableCrop()}
+
+let reliableCropper=null, autoItems=[], selectedItem=-1, mirrorOn=false;
+
+function autoProcessSource(im){
+ try{
+   let c=document.createElement('canvas'),max=1600,sc=Math.min(1,max/Math.max(im.width,im.height));
+   c.width=Math.max(1,Math.round(im.width*sc));c.height=Math.max(1,Math.round(im.height*sc));
+   let x=c.getContext('2d');x.drawImage(im,0,0,c.width,c.height);
+   let w=c.width,h=c.height,ratio=85.6/54,candidates=[];
+
+   if(cropMode==='dual'){
+     // Full Aadhaar/e-Aadhaar style page: take the detachable PVC pair from bottom.
+     let portraitPage=h>w*1.05;
+     if(portraitPage){
+       let stripTop=Math.round(h*.70),stripBottom=Math.round(h*.985),stripH=stripBottom-stripTop;
+       let gap=Math.max(2,Math.round(w*.006)),sideMargin=Math.max(2,Math.round(w*.018)),half=(w-gap)/2;
+       function pvcBox(x0,x1){
+         let availW=x1-x0-2*sideMargin,H=Math.min(stripH,availW/ratio),W=H*ratio;
+         if(W>availW){W=availW;H=W/ratio}
+         let X=x0+(x1-x0-W)/2,Y=stripBottom-H;
+         return{x:Math.max(0,X),y:Math.max(0,Y),w:Math.min(W,w-X),h:Math.min(H,h-Y)};
+       }
+       candidates=[pvcBox(0,half-gap/2),pvcBox(half+gap/2,w)];
+     }else if(w/h>2.25){
+       let H=Math.min(h*.94,(w*.47)/ratio),W=H*ratio,Y=(h-H)/2;
+       candidates=[{x:w*.02,y:Y,w:W,h:H},{x:w*.51,y:Y,w:W,h:H}];
+     }else{
+       // If a single card was accidentally used in dual mode, keep it as one instead of bad split.
+       let W=w*.94,H=W/ratio;if(H>h*.94){H=h*.94;W=H*ratio}
+       candidates=[{x:(w-W)/2,y:(h-H)/2,w:W,h:H}];
+     }
+   }else{
+     // SINGLE CARD / DOC: one crop only. Preserve the center and fit PVC ratio.
+     let W=w*.96,H=W/ratio;
+     if(H>h*.96){H=h*.96;W=H*ratio}
+     candidates=[{x:(w-W)/2,y:(h-H)/2,w:W,h:H}];
+   }
+
+   let baseIndex=autoItems.length;
+   candidates.forEach((b,i)=>{
+     let out=document.createElement('canvas');out.width=1011;out.height=638;
+     out.getContext('2d').drawImage(c,b.x,b.y,b.w,b.h,0,0,1011,638);
+     let label=cropMode==='single'?'Single':(i===0?'Front':'Back');
+     addAutoCard(out,label,baseIndex+i,im);
+   });
+   processing.classList.remove('show');empty.style.display='none';autoBadge.style.display='block';
+   topTools.classList.add('show');floating.classList.remove('show');renderQueue();
+   status.textContent=cropMode==='single'?"Single card added to queue • galat ho to RE-CROP":"Front + Back added to queue • galat ho to RE-CROP";
+ }catch(e){
+   processing.classList.remove('show');status.textContent="Auto detect clear nahi hua • manual Re-Crop use karein";
+   openReliableCrop();
+ }
+ processingFiles=false;
+ if(pendingFiles.length)setTimeout(processNextFile,80);
+}
+function clearAutoItems(){autoItems.forEach(q=>q.el.remove());autoItems=[];selectedItem=-1;if(typeof renderQueue==='function')renderQueue()}
+function addAutoCard(canvas,label,index,srcImg){
+ let el=document.createElement('div');el.className='multiCard';el.style.width='260px';el.style.height=(260/(85.6/54))+'px';
+ let col=index%3,row=Math.floor(index/3);el.style.left=(20+col*280)+'px';el.style.top=(25+row*180)+'px';
+ let img=document.createElement('img');img.src=canvas.toDataURL('image/png');el.appendChild(img);paper.appendChild(el);
+ let item={el,img,canvas,label,rotation:0,scale:1,source:srcImg||source};autoItems.push(item);
+ el.addEventListener('mousedown',e=>startItemDrag(e,autoItems.indexOf(item)));
+ el.addEventListener('touchstart',e=>startItemDrag(e,autoItems.indexOf(item)),{passive:false});
+ selectItem(autoItems.length-1);renderQueue();
+}
+function selectItem(i){
+ selectedItem=i;autoItems.forEach((q,k)=>q.el.classList.toggle('selected',k===i));
+ if(i>=0&&autoItems[i]){
+   source=autoItems[i].source||source;
+   baseCanvas=cloneCanvas(autoItems[i].canvas);finalCanvas=cloneCanvas(autoItems[i].canvas);finalImg.src=autoItems[i].img.src;
+ }
+ renderQueue();
+}
+function renderQueue(){
+ queue.innerHTML='';
+ autoItems.forEach((q,i)=>{
+   let d=document.createElement('div');d.className='qitem'+(i===selectedItem?' active':'');
+   d.onclick=()=>selectItem(i);
+   let im=document.createElement('img');im.src=q.img.src;d.appendChild(im);
+   let sm=document.createElement('small');sm.textContent=(i+1)+'. '+q.label;d.appendChild(sm);
+   let del=document.createElement('button');del.className='qdel';del.textContent='×';
+   del.onclick=e=>{e.stopPropagation();removeQueueItem(i)};d.appendChild(del);queue.appendChild(d);
+ });
+ queueWrap.classList.toggle('show',autoItems.length>0);
+}
+function removeQueueItem(i){
+ if(!autoItems[i])return;autoItems[i].el.remove();autoItems.splice(i,1);
+ if(!autoItems.length){selectedItem=-1;empty.style.display='flex';autoBadge.style.display='none';topTools.classList.remove('show')}
+ else selectItem(Math.min(i,autoItems.length-1));
+ renderQueue();
+}
+let itemDrag=null,itemDX=0,itemDY=0;
+function startItemDrag(e,i){selectItem(i);let t=e.touches?e.touches[0]:e,r=autoItems[i].el.getBoundingClientRect();itemDrag=i;itemDX=t.clientX-r.left;itemDY=t.clientY-r.top;e.preventDefault()}
+function moveItem(e){if(itemDrag===null)return;let t=e.touches?e.touches[0]:e,p=paper.getBoundingClientRect(),q=autoItems[itemDrag],w=q.el.offsetWidth,h=q.el.offsetHeight;
+ let X=Math.max(0,Math.min(p.width-w,t.clientX-p.left-itemDX)),Y=Math.max(0,Math.min(p.height-h,t.clientY-p.top-itemDY));
+ q.el.style.left=X+'px';q.el.style.top=Y+'px';e.preventDefault()}
+function endItemDrag(){itemDrag=null}
+window.addEventListener('mousemove',moveItem);window.addEventListener('mouseup',endItemDrag);
+window.addEventListener('touchmove',moveItem,{passive:false});window.addEventListener('touchend',endItemDrag);
+function centerSelected(){if(selectedItem<0)return;let q=autoItems[selectedItem],p=paper.getBoundingClientRect();q.el.style.left=Math.max(0,(p.width-q.el.offsetWidth)/2)+'px';q.el.style.top='25px'}
+function makeA4(){status.textContent='A4 layout ready • cards ko required position par drag karein'}
+function singleLayout(){if(autoItems.length){autoItems.forEach((q,i)=>{q.el.style.left='20px';q.el.style.top=(20+i*180)+'px'})}}
+function page4x6(){status.textContent='4×6 layout option selected'}
+function toggleMirror(){mirrorOn=!mirrorOn;if(selectedItem>=0)autoItems[selectedItem].img.style.transform=mirrorOn?'scaleX(-1)':'';event.target.textContent=mirrorOn?'MIRROR ON':'MIRROR OFF'}
+
+function openReliableCrop(){
+ if(!source)return;
+ reliableCrop.classList.add('show');
+ rcImg.src=source.src;
+ setTimeout(()=>{
+   if(reliableCropper) reliableCropper.destroy();
+   reliableCropper=new Cropper(rcImg,{
+     aspectRatio:NaN,
+     viewMode:1,
+     dragMode:'move',
+     autoCropArea:.92,
+     responsive:true,
+     restore:false,
+     guides:true,
+     center:true,
+     highlight:true,
+     background:false,
+     movable:true,
+     zoomable:true,
+     rotatable:true,
+     scalable:false,
+     cropBoxMovable:true,
+     cropBoxResizable:true,
+     toggleDragModeOnDblclick:false
+   });
+ },80);
+}
+function resetReliableCrop(){if(reliableCropper) reliableCropper.reset()}
+function rotateReliableCrop(){if(reliableCropper) reliableCropper.rotate(90)}
+function applyReliableCrop(){
+ if(!reliableCropper)return;
+ let raw=reliableCropper.getCroppedCanvas({
+   fillColor:'#fff',
+   imageSmoothingEnabled:true,
+   imageSmoothingQuality:'high'
+ });
+ if(!raw)return;
+ // Preserve exactly what user selected; no fixed-ratio stretching.
+ let c=document.createElement('canvas');
+ let maxOut=1400,scale=Math.min(1,maxOut/Math.max(raw.width,raw.height));
+ c.width=Math.max(1,Math.round(raw.width*scale));c.height=Math.max(1,Math.round(raw.height*scale));
+ c.getContext('2d').drawImage(raw,0,0,c.width,c.height);
+ baseCanvas=cloneCanvas(c);
+ if(currentSide==='front') frontCanvas=cloneCanvas(c); else backCanvas=cloneCanvas(c);
+ finalCanvas=cloneCanvas(c);
+ finalImg.src=finalCanvas.toDataURL('image/png');
+ if(selectedItem>=0 && autoItems[selectedItem]){
+   autoItems[selectedItem].canvas=cloneCanvas(finalCanvas);
+   autoItems[selectedItem].img.src=finalCanvas.toDataURL('image/png');
+    autoItems[selectedItem].source=source;
+    renderQueue();
+ }else{
+   addAutoCard(finalCanvas,cropMode==='single'?'Single':(currentSide==='front'?'Front':'Back'),autoItems.length,source);
+ }
+ reliableCropper.destroy();reliableCropper=null;
+ reliableCrop.classList.remove('show');
+ empty.style.display='none';autoBadge.style.display='block';topTools.classList.add('show');
+ status.textContent="Re-Crop updated • card ko page par drag kar sakte hain";
+}
+
+let dragging=false,dx=0,dy=0;
+function cardDown(e){let t=e.touches?e.touches[0]:e,r=card.getBoundingClientRect();dragging=true;dx=t.clientX-r.left;dy=t.clientY-r.top;e.preventDefault()}
+function cardMove(e){if(!dragging)return;e.preventDefault();let t=e.touches?e.touches[0]:e,p=paper.getBoundingClientRect(),w=card.offsetWidth,h=card.offsetHeight,x=t.clientX-p.left-dx,y=t.clientY-p.top-dy;x=Math.max(0,Math.min(p.width-w,x));y=Math.max(0,Math.min(p.height-h,y));card.style.left=x+'px';card.style.top=y+'px';card.style.transform=`rotate(${finalRotation}deg) scale(${cardScale})`}
+function cardUp(){dragging=false}
+card.addEventListener('touchstart',cardDown,{passive:false});window.addEventListener('touchmove',cardMove,{passive:false});window.addEventListener('touchend',cardUp);card.addEventListener('mousedown',cardDown);window.addEventListener('mousemove',cardMove);window.addEventListener('mouseup',cardUp);
+function centerCard(){let p=paper.getBoundingClientRect(),w=card.offsetWidth;card.style.left=Math.max(0,(p.width-w)/2)+'px';card.style.top='18px';card.style.transform=`rotate(${finalRotation}deg) scale(${cardScale})`}
+function scaleCard(v){cardScale=Math.max(.55,Math.min(1.8,cardScale*v));card.style.transform=`rotate(${finalRotation}deg) scale(${cardScale})`}
+function rotateFinal(){finalRotation=(finalRotation+90)%360;card.style.transform=`rotate(${finalRotation}deg) scale(${cardScale})`}
+function openAdjust(){if(finalCanvas)adjust.classList.add('show')}
+function renderEnhance(){if(!baseCanvas)return;bv.textContent=bright.value;cv.textContent=contrast.value;sv.textContent=sat.value;finalCanvas=document.createElement('canvas');finalCanvas.width=baseCanvas.width;finalCanvas.height=baseCanvas.height;let x=finalCanvas.getContext('2d');x.filter=`brightness(${100+(+bright.value)}%) contrast(${100+(+contrast.value)}%) saturate(${100+(+sat.value)}%)`;x.drawImage(baseCanvas,0,0);x.filter='none';finalImg.src=finalCanvas.toDataURL('image/png')}
+function ensure(){if(selectedItem>=0&&autoItems[selectedItem])finalCanvas=autoItems[selectedItem].canvas;return !!finalCanvas}
+function saveJPG(){if(!ensure())return;let a=document.createElement('a');a.href=finalCanvas.toDataURL('image/jpeg',.96);a.download='pvc-card.jpg';a.click()}
+function savePNG(){if(!ensure())return;let a=document.createElement('a');a.href=finalCanvas.toDataURL('image/png');a.download='pvc-card.png';a.click()}
+function savePDF(){if(!ensure())return;let {jsPDF}=window.jspdf,p=new jsPDF({unit:'mm',format:'a4'}),land=finalCanvas.width>=finalCanvas.height,w=land?85.6:54,h=land?54:85.6;p.addImage(finalCanvas.toDataURL('image/jpeg',.96),'JPEG',(210-w)/2,20,w,h);p.save('pvc-card.pdf')}
+function doPrint(){if(!ensure())return;let u=finalCanvas.toDataURL('image/png'),w=window.open('','_blank');w.document.write('<style>@page{size:A4;margin:15mm}body{text-align:center}img{width:85.6mm;height:54mm}</style><img src="'+u+'"><script>onload=()=>print()<\/script>');w.document.close()}
+function resetAll(){source=finalCanvas=baseCanvas=frontCanvas=backCanvas=null;points=[];currentSide='front';clearAutoItems();renderQueue();pendingFiles=[];processingFiles=false;autoBadge.style.display='none';topTools.classList.remove('show');file.value='';card.style.display='none';floating.classList.remove('show');sideBar.style.display='none';empty.style.display='flex';cropModal.classList.remove('show');reliableCrop.classList.remove('show');adjust.classList.remove('show');if(reliableCropper){reliableCropper.destroy();reliableCropper=null;}status.textContent='Select File → Auto Detect → Crop → Drag anywhere on page'}
+window.addEventListener('resize',()=>{if(cropModal.classList.contains('show')&&source)setTimeout(detectEdges,60)})
+</script>
+</body></html>
