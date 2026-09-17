@@ -14,103 +14,44 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css">
   <style>
-    /* Premium hero layer - safe with existing style.css */
     .hero .hero-inner{padding-top:32px;padding-bottom:32px}
-    .mdh-hero-panel{
-      position:relative;overflow:hidden;
-      width:min(820px,100%);margin:0 auto 18px;
-      padding:27px 18px 25px;border-radius:25px;
-      color:#fff;
-      background:
-        radial-gradient(circle at 15% 15%,rgba(255,255,255,.22),transparent 27%),
-        radial-gradient(circle at 92% 80%,rgba(255,255,255,.12),transparent 30%),
-        linear-gradient(135deg,#2563eb 0%,#4f46e5 55%,#7c3aed 100%);
-      border:1px solid rgba(255,255,255,.28);
-      box-shadow:0 14px 32px rgba(37,99,235,.24),0 5px 0 rgba(30,64,175,.12);
-    }
-    .mdh-hero-panel:before,.mdh-hero-panel:after{
-      content:"";position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.12)
-    }
-    .mdh-hero-panel:before{width:170px;height:170px;left:-90px;top:-85px}
-    .mdh-hero-panel:after{width:220px;height:220px;right:-120px;bottom:-145px}
-    .mdh-hero-panel .hero-badge{
-      position:relative;z-index:2;margin-bottom:11px;
-      color:#fff;background:rgba(255,255,255,.14);
-      border-color:rgba(255,255,255,.25);box-shadow:none
-    }
-    .mdh-hero-panel h1{
-      position:relative;z-index:2;color:#fff;
-      font-size:clamp(25px,5vw,42px);letter-spacing:-1.2px;margin-bottom:7px
-    }
-    .mdh-hero-panel .hero-mainline{
-      position:relative;z-index:2;
-      margin:0 auto 7px;max-width:700px;color:#fff;
-      font-size:clamp(17px,3.7vw,25px);line-height:1.2;font-weight:800;letter-spacing:-.4px
-    }
-    .mdh-hero-panel .hero-subline{
-      position:relative;z-index:2;margin:0 auto;
-      max-width:670px;color:rgba(255,255,255,.86);
-      font-size:11px;line-height:1.55
-    }
-    .hero .search-container{position:relative;z-index:3}
-    .hero .hero-pills{position:relative;z-index:3}
-    @media(max-width:480px){
-      .hero .hero-inner{padding-top:20px;padding-bottom:25px}
-      .mdh-hero-panel{padding:22px 12px 21px;border-radius:21px;margin-bottom:15px}
-      .mdh-hero-panel h1{font-size:25px}
-      .mdh-hero-panel .hero-mainline{font-size:17px}
-      .mdh-hero-panel .hero-subline{font-size:9.5px;padding:0 4px}
-    }
+    .mdh-hero-panel{position:relative;overflow:hidden;width:min(820px,100%);margin:0 auto 18px;padding:27px 18px 25px;border-radius:25px;color:#fff;background:radial-gradient(circle at 15% 15%,rgba(255,255,255,.22),transparent 27%),radial-gradient(circle at 92% 80%,rgba(255,255,255,.12),transparent 30%),linear-gradient(135deg,#2563eb 0%,#4f46e5 55%,#7c3aed 100%);border:1px solid rgba(255,255,255,.28);box-shadow:0 14px 32px rgba(37,99,235,.24),0 5px 0 rgba(30,64,175,.12)}
+    .mdh-hero-panel:before,.mdh-hero-panel:after{content:"";position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.12)}
+    .mdh-hero-panel:before{width:170px;height:170px;left:-90px;top:-85px}.mdh-hero-panel:after{width:220px;height:220px;right:-120px;bottom:-145px}
+    .mdh-hero-panel .hero-badge{position:relative;z-index:2;margin-bottom:11px;color:#fff;background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.25);box-shadow:none}
+    .mdh-hero-panel h1{position:relative;z-index:2;color:#fff;font-size:clamp(25px,5vw,42px);letter-spacing:-1.2px;margin-bottom:7px}
+    .mdh-hero-panel .hero-mainline{position:relative;z-index:2;margin:0 auto 7px;max-width:700px;color:#fff;font-size:clamp(17px,3.7vw,25px);line-height:1.2;font-weight:800;letter-spacing:-.4px}
+    .mdh-hero-panel .hero-subline{position:relative;z-index:2;margin:0 auto;max-width:670px;color:rgba(255,255,255,.86);font-size:11px;line-height:1.55}
+    .hero .search-container,.hero .hero-pills{position:relative;z-index:3}
+    @media(max-width:480px){.hero .hero-inner{padding-top:20px;padding-bottom:25px}.mdh-hero-panel{padding:22px 12px 21px;border-radius:21px;margin-bottom:15px}.mdh-hero-panel h1{font-size:25px}.mdh-hero-panel .hero-mainline{font-size:17px}.mdh-hero-panel .hero-subline{font-size:9.5px;padding:0 4px}}
   </style>
 </head>
 <body>
 <header class="site-header"><div class="container header-inner">
 <a href="./" class="logo"><span class="logo-icon">MDH</span><span class="logo-text"><strong>Manjeet</strong><span>Digital Hub</span></span></a>
-<nav class="nav"><a href="#tools">Tools</a><a href="#portals">Portals</a><a href="#about">About</a></nav>
-<a href="#tools" class="header-cta">Explore Tools</a>
+<nav class="nav"><a href="#tools">Tools</a><a href="#portals">Portals</a><a href="#about">About</a></nav><a href="#tools" class="header-cta">Explore Tools</a>
 </div></header>
 <main>
 <section class="hero"><div class="hero-glow glow-one"></div><div class="hero-glow glow-two"></div><div class="container hero-inner">
-<div class="mdh-hero-panel">
-<div class="hero-badge"><span class="status-dot"></span>Free Digital Tools</div>
-<h1>Manjeet Digital Hub</h1>
-<div class="hero-mainline">Online Photo, PDF, ID Card &amp; Digital Tools</div>
-<p class="hero-subline">Passport photos, ID cards, PDFs, resumes and everyday digital services — all in one place.</p>
-</div>
+<div class="mdh-hero-panel"><div class="hero-badge"><span class="status-dot"></span>Free Digital Tools</div><h1>Manjeet Digital Hub</h1><div class="hero-mainline">Online Photo, PDF, ID Card &amp; Digital Tools</div><p class="hero-subline">Passport photos, ID cards, PDFs, resumes and everyday digital services — all in one place.</p></div>
 <div class="search-container"><span class="search-icon">🔍</span><input type="search" id="toolSearch" placeholder="Search tools..." autocomplete="off"><span class="search-shortcut">Ctrl K</span></div>
 <div class="hero-pills"><span>✓ Free to use</span><span>✓ Mobile friendly</span><span>✓ No login required</span></div>
 </div></section>
-
 <section class="tools-section" id="tools"><div class="container">
 <div class="section-heading"><div><span class="section-label">TOOLS</span><h2>All Digital Tools</h2><p>Useful tools for your everyday digital work.</p></div></div>
-
-<div class="tool-category">
-<div class="category-heading"><div class="category-title"><span class="category-icon image-icon">⚡</span><div><h3>Essential &amp; Services</h3><p>Quick access to essential digital services</p></div></div><span class="tool-count">7 Tools</span></div>
-<div class="tools-grid">
+<div class="tool-category"><div class="category-heading"><div class="category-title"><span class="category-icon image-icon">⚡</span><div><h3>Essential &amp; Services</h3><p>Quick access to essential digital services</p></div></div><span class="tool-count">7 Tools</span></div><div class="tools-grid">
 <div class="tool-card" data-tool="aienhancer" data-name="Smart Photo Enhancer"><div class="tool-icon">✨</div><h4>Smart Photo Enhancer</h4><p>Enhance photo quality</p></div>
-<div class="tool-card" data-tool="idprint" data-name="ID Card Print"><div class="tool-icon">🪪</div><h4>ID Card Print</h4><p>Print ID cards on sheet</p></div>
+<div class="tool-card" data-tool="idprint" data-name="ID Card Print"><div class="tool-icon">🪪</div><h4>ID Card Print</h4><p>Single ID card print</p></div>
 <div class="tool-card" data-tool="pvcautocrop" data-name="PVC Auto Crop"><div class="tool-icon">✂️</div><h4>PVC Auto Crop</h4><p>Auto crop PVC card</p></div>
 <div class="tool-card" data-tool="passport" data-name="Passport Photo Maker"><div class="tool-icon">📸</div><h4>Passport Photo</h4><p>Make passport photo</p></div>
 <div class="tool-card" data-tool="photocropresize" data-name="Photo Crop And Resize"><div class="tool-icon">📐</div><h4>Photo Crop And Resize</h4><p>Crop and resize photos</p></div>
 <div class="tool-card" data-tool="resume" data-name="Resume Maker"><div class="tool-icon">📋</div><h4>Resume Maker</h4><p>Create professional resume</p></div>
 <div class="tool-card" data-tool="bgremover" data-name="BG Remover"><div class="tool-icon">🪄</div><h4>BG Remover</h4><p>Remove photo background</p></div>
 </div></div>
-
-<div class="tool-category">
-<div class="category-heading"><div class="category-title"><span class="category-icon pdf-icon">🖼️</span><div><h3>Image &amp; PDF Tools</h3><p>Convert and manage image &amp; PDF files</p></div></div><span class="tool-count">7 Tools</span></div>
-<div class="tools-grid">
-<div class="tool-card" data-tool="jpgpdf" data-name="JPG to PDF"><div class="tool-icon">🖼️</div><h4>JPG → PDF</h4><p>Convert JPG to PDF</p></div>
-<div class="tool-card" data-tool="pngpdf" data-name="PNG to PDF"><div class="tool-icon">📄</div><h4>PNG → PDF</h4><p>Convert PNG to PDF</p></div>
-<div class="tool-card" data-tool="pdfjpg" data-name="PDF to JPG"><div class="tool-icon">🖼️</div><h4>PDF → JPG</h4><p>Convert PDF pages to JPG</p></div>
-<div class="tool-card" data-tool="pdfpng" data-name="PDF to PNG"><div class="tool-icon">🖼️</div><h4>PDF → PNG</h4><p>Convert PDF pages to PNG</p></div>
-<div class="tool-card" data-tool="splitpdf" data-name="Split PDF"><div class="tool-icon">✂️</div><h4>Split PDF</h4><p>Split PDF pages</p></div>
-<div class="tool-card" data-tool="pdfcompressor" data-name="PDF Compressor"><div class="tool-icon">🗜️</div><h4>PDF Compressor</h4><p>Reduce PDF size</p></div>
-<div class="tool-card" data-tool="pdfextractor" data-name="PDF Page Extractor"><div class="tool-icon">📤</div><h4>Page Extractor</h4><p>Extract PDF pages</p></div>
+<div class="tool-category"><div class="category-heading"><div class="category-title"><span class="category-icon pdf-icon">🖼️</span><div><h3>Image &amp; PDF Tools</h3><p>Convert and manage image &amp; PDF files</p></div></div><span class="tool-count">7 Tools</span></div><div class="tools-grid">
+<div class="tool-card" data-tool="jpgpdf" data-name="JPG to PDF"><div class="tool-icon">🖼️</div><h4>JPG → PDF</h4><p>Convert JPG to PDF</p></div><div class="tool-card" data-tool="pngpdf" data-name="PNG to PDF"><div class="tool-icon">📄</div><h4>PNG → PDF</h4><p>Convert PNG to PDF</p></div><div class="tool-card" data-tool="pdfjpg" data-name="PDF to JPG"><div class="tool-icon">🖼️</div><h4>PDF → JPG</h4><p>Convert PDF pages to JPG</p></div><div class="tool-card" data-tool="pdfpng" data-name="PDF to PNG"><div class="tool-icon">🖼️</div><h4>PDF → PNG</h4><p>Convert PDF pages to PNG</p></div><div class="tool-card" data-tool="splitpdf" data-name="Split PDF"><div class="tool-icon">✂️</div><h4>Split PDF</h4><p>Split PDF pages</p></div><div class="tool-card" data-tool="pdfcompressor" data-name="PDF Compressor"><div class="tool-icon">🗜️</div><h4>PDF Compressor</h4><p>Reduce PDF size</p></div><div class="tool-card" data-tool="pdfextractor" data-name="PDF Page Extractor"><div class="tool-icon">📤</div><h4>Page Extractor</h4><p>Extract PDF pages</p></div>
 </div></div>
-
-<div class="tool-category">
-<div class="category-heading"><div class="category-title"><span class="category-icon id-icon">🪪</span><div><h3>ID &amp; Print</h3><p>ID card, biodata and printing tools</p></div></div><span class="tool-count">10 Tools</span></div>
-<div class="tools-grid">
+<div class="tool-category"><div class="category-heading"><div class="category-title"><span class="category-icon id-icon">🪪</span><div><h3>ID &amp; Print</h3><p>ID card, biodata and printing tools</p></div></div><span class="tool-count">10 Tools</span></div><div class="tools-grid">
 <div class="tool-card" data-tool="schoolid" data-name="School ID Card Maker" onclick="event.stopPropagation(); window.location.href='tools/school-id-card-maker.html';"><div class="tool-icon">🎓</div><h4>School ID Card</h4><p>Create student ID</p></div>
 <div class="tool-card" data-tool="employeeid" data-name="Employee ID Card Maker"><div class="tool-icon">💼</div><h4>Employee ID Card</h4><p>Create office ID</p></div>
 <div class="tool-card" data-tool="marriagebio" data-name="Marriage Biodata Maker"><div class="tool-icon">💍</div><h4>Marriage Biodata</h4><p>Create marriage biodata</p></div>
@@ -119,85 +60,26 @@
 <div class="tool-card" data-tool="resume" data-name="Resume Maker"><div class="tool-icon">📋</div><h4>Resume Maker</h4><p>Create resume</p></div>
 <div class="tool-card" data-tool="certificate" data-name="Certificate Maker"><div class="tool-icon">🏆</div><h4>Certificate Maker</h4><p>Create certificate</p></div>
 <div class="tool-card" data-tool="signature" data-name="Signature Maker"><div class="tool-icon">✍️</div><h4>Signature Maker</h4><p>Resize signature</p></div>
-<div class="tool-card" data-tool="idprint" data-name="ID Card Print Sheet"><div class="tool-icon">🪪</div><h4>ID Card Print Sheet</h4><p>Arrange ID cards</p></div>
+<div class="tool-card" data-tool="idsheet" data-name="ID Card Print Sheet"><div class="tool-icon">🪪</div><h4>ID Card Print Sheet</h4><p>Arrange multiple ID cards</p></div>
 <div class="tool-card" data-tool="label" data-name="Label Sticker Maker"><div class="tool-icon">🏷️</div><h4>Label / Sticker</h4><p>Create printable labels</p></div>
 </div></div>
-
-<div class="tool-category">
-<div class="category-heading"><div class="category-title"><span class="category-icon finance-icon">💰</span><div><h3>Finance</h3><p>Useful financial calculators</p></div></div><span class="tool-count">13 Tools</span></div>
-<div class="tools-grid">
-<div class="tool-card" data-tool="emi" data-name="EMI Calculator"><div class="tool-icon">🏦</div><h4>EMI Calculator</h4><p>Calculate loan EMI</p></div>
-<div class="tool-card" data-tool="gst" data-name="GST Calculator"><div class="tool-icon">🧾</div><h4>GST Calculator</h4><p>Calculate GST</p></div>
-<div class="tool-card" data-tool="percentage" data-name="Percentage Calculator"><div class="tool-icon">％</div><h4>Percentage</h4><p>Calculate percentage</p></div>
-<div class="tool-card" data-tool="sip" data-name="SIP Calculator"><div class="tool-icon">📈</div><h4>SIP Calculator</h4><p>Calculate SIP returns</p></div>
-<div class="tool-card" data-tool="fd" data-name="FD Calculator"><div class="tool-icon">🏦</div><h4>FD Calculator</h4><p>Calculate FD returns</p></div>
-<div class="tool-card" data-tool="rd" data-name="RD Calculator"><div class="tool-icon">💰</div><h4>RD Calculator</h4><p>Calculate RD returns</p></div>
-<div class="tool-card" data-tool="loaninterest" data-name="Loan Interest Calculator"><div class="tool-icon">📊</div><h4>Loan Interest</h4><p>Calculate loan interest</p></div>
-<div class="tool-card" data-tool="interest" data-name="Simple Interest Calculator"><div class="tool-icon">📊</div><h4>Simple Interest</h4><p>Calculate interest</p></div>
-<div class="tool-card" data-tool="compound" data-name="Compound Interest Calculator"><div class="tool-icon">📈</div><h4>Compound Interest</h4><p>Calculate compound returns</p></div>
-<div class="tool-card" data-tool="discount" data-name="Discount Calculator"><div class="tool-icon">🏷️</div><h4>Discount Calculator</h4><p>Calculate discount</p></div>
-<div class="tool-card" data-tool="profit" data-name="Profit and Loss Calculator"><div class="tool-icon">💹</div><h4>Profit &amp; Loss</h4><p>Calculate profit or loss</p></div>
-<div class="tool-card" data-tool="age" data-name="Age Calculator"><div class="tool-icon">🎂</div><h4>Age Calculator</h4><p>Calculate exact age</p></div>
-<div class="tool-card" data-tool="insurance" data-name="Insurance Policy Return Calculator"><div class="tool-icon">🛡️</div><h4>Insurance Return</h4><p>Estimate policy returns</p></div>
+<div class="tool-category"><div class="category-heading"><div class="category-title"><span class="category-icon finance-icon">💰</span><div><h3>Finance</h3><p>Useful financial calculators</p></div></div><span class="tool-count">13 Tools</span></div><div class="tools-grid">
+<div class="tool-card" data-tool="emi" data-name="EMI Calculator"><div class="tool-icon">🏦</div><h4>EMI Calculator</h4><p>Calculate loan EMI</p></div><div class="tool-card" data-tool="gst" data-name="GST Calculator"><div class="tool-icon">🧾</div><h4>GST Calculator</h4><p>Calculate GST</p></div><div class="tool-card" data-tool="percentage" data-name="Percentage Calculator"><div class="tool-icon">％</div><h4>Percentage</h4><p>Calculate percentage</p></div><div class="tool-card" data-tool="sip" data-name="SIP Calculator"><div class="tool-icon">📈</div><h4>SIP Calculator</h4><p>Calculate SIP returns</p></div><div class="tool-card" data-tool="fd" data-name="FD Calculator"><div class="tool-icon">🏦</div><h4>FD Calculator</h4><p>Calculate FD returns</p></div><div class="tool-card" data-tool="rd" data-name="RD Calculator"><div class="tool-icon">💰</div><h4>RD Calculator</h4><p>Calculate RD returns</p></div><div class="tool-card" data-tool="loaninterest" data-name="Loan Interest Calculator"><div class="tool-icon">📊</div><h4>Loan Interest</h4><p>Calculate loan interest</p></div><div class="tool-card" data-tool="interest" data-name="Simple Interest Calculator"><div class="tool-icon">📊</div><h4>Simple Interest</h4><p>Calculate interest</p></div><div class="tool-card" data-tool="compound" data-name="Compound Interest Calculator"><div class="tool-icon">📈</div><h4>Compound Interest</h4><p>Calculate compound returns</p></div><div class="tool-card" data-tool="discount" data-name="Discount Calculator"><div class="tool-icon">🏷️</div><h4>Discount Calculator</h4><p>Calculate discount</p></div><div class="tool-card" data-tool="profit" data-name="Profit and Loss Calculator"><div class="tool-icon">💹</div><h4>Profit &amp; Loss</h4><p>Calculate profit or loss</p></div><div class="tool-card" data-tool="age" data-name="Age Calculator"><div class="tool-icon">🎂</div><h4>Age Calculator</h4><p>Calculate exact age</p></div><div class="tool-card" data-tool="insurance" data-name="Insurance Policy Return Calculator"><div class="tool-icon">🛡️</div><h4>Insurance Return</h4><p>Estimate policy returns</p></div>
 </div></div>
-
-<section class="portal-section" id="portals">
-<div class="category-heading"><div class="category-title"><span class="category-icon portal-icon">🇮🇳</span><div><h3>Government &amp; Useful Portals</h3><p>Quick access to important official websites</p></div></div></div>
-<div class="portal-grid">
-<a class="portal-card" href="https://www.digilocker.gov.in/" target="_blank" rel="noopener noreferrer"><span>🇮🇳</span><strong>DigiLocker</strong><small>Official Portal ↗</small></a>
-<a class="portal-card" href="https://uidai.gov.in/" target="_blank" rel="noopener noreferrer"><span>🪪</span><strong>Aadhaar</strong><small>Official Portal ↗</small></a>
-<a class="portal-card" href="https://www.pan.utiitsl.com/" target="_blank" rel="noopener noreferrer"><span>💳</span><strong>PAN</strong><small>Portal ↗</small></a>
-<a class="portal-card" href="https://www.incometax.gov.in/" target="_blank" rel="noopener noreferrer"><span>🧾</span><strong>Income Tax</strong><small>Official Portal ↗</small></a>
-<a class="portal-card" href="https://www.epfindia.gov.in/" target="_blank" rel="noopener noreferrer"><span>🏦</span><strong>EPFO</strong><small>Official Portal ↗</small></a>
-<a class="portal-card" href="https://unifiedportal-mem.epfindia.gov.in/" target="_blank" rel="noopener noreferrer"><span>🔐</span><strong>UAN</strong><small>Official Portal ↗</small></a>
-<a class="portal-card" href="https://www.irctc.co.in/" target="_blank" rel="noopener noreferrer"><span>🚆</span><strong>IRCTC</strong><small>Official Portal ↗</small></a>
-<a class="portal-card" href="https://www.umang.gov.in/" target="_blank" rel="noopener noreferrer"><span>📱</span><strong>UMANG</strong><small>Official Portal ↗</small></a>
-<a class="portal-card" href="https://www.myscheme.gov.in/" target="_blank" rel="noopener noreferrer"><span>🏛️</span><strong>MyScheme</strong><small>Official Portal ↗</small></a>
-<a class="portal-card" href="https://scholarships.gov.in/" target="_blank" rel="noopener noreferrer"><span>🎓</span><strong>Scholarships</strong><small>Official Portal ↗</small></a>
-<a class="portal-card" href="https://www.ayushmanbharat.gov.in/" target="_blank" rel="noopener noreferrer"><span>🏥</span><strong>Ayushman Bharat</strong><small>Official Portal ↗</small></a>
-<a class="portal-card" href="https://www.gov.in/" target="_blank" rel="noopener noreferrer"><span>🇮🇳</span><strong>Government Jobs</strong><small>India.gov.in ↗</small></a>
+<section class="portal-section" id="portals"><div class="category-heading"><div class="category-title"><span class="category-icon portal-icon">🇮🇳</span><div><h3>Government &amp; Useful Portals</h3><p>Quick access to important official websites</p></div></div></div><div class="portal-grid">
+<a class="portal-card" href="https://www.digilocker.gov.in/" target="_blank" rel="noopener noreferrer"><span>🇮🇳</span><strong>DigiLocker</strong><small>Official Portal ↗</small></a><a class="portal-card" href="https://uidai.gov.in/" target="_blank" rel="noopener noreferrer"><span>🪪</span><strong>Aadhaar</strong><small>Official Portal ↗</small></a><a class="portal-card" href="https://www.pan.utiitsl.com/" target="_blank" rel="noopener noreferrer"><span>💳</span><strong>PAN</strong><small>Portal ↗</small></a><a class="portal-card" href="https://www.incometax.gov.in/" target="_blank" rel="noopener noreferrer"><span>🧾</span><strong>Income Tax</strong><small>Official Portal ↗</small></a><a class="portal-card" href="https://www.epfindia.gov.in/" target="_blank" rel="noopener noreferrer"><span>🏦</span><strong>EPFO</strong><small>Official Portal ↗</small></a><a class="portal-card" href="https://unifiedportal-mem.epfindia.gov.in/" target="_blank" rel="noopener noreferrer"><span>🔐</span><strong>UAN</strong><small>Official Portal ↗</small></a><a class="portal-card" href="https://www.irctc.co.in/" target="_blank" rel="noopener noreferrer"><span>🚆</span><strong>IRCTC</strong><small>Official Portal ↗</small></a><a class="portal-card" href="https://www.umang.gov.in/" target="_blank" rel="noopener noreferrer"><span>📱</span><strong>UMANG</strong><small>Official Portal ↗</small></a><a class="portal-card" href="https://www.myscheme.gov.in/" target="_blank" rel="noopener noreferrer"><span>🏛️</span><strong>MyScheme</strong><small>Official Portal ↗</small></a><a class="portal-card" href="https://scholarships.gov.in/" target="_blank" rel="noopener noreferrer"><span>🎓</span><strong>Scholarships</strong><small>Official Portal ↗</small></a><a class="portal-card" href="https://www.ayushmanbharat.gov.in/" target="_blank" rel="noopener noreferrer"><span>🏥</span><strong>Ayushman Bharat</strong><small>Official Portal ↗</small></a><a class="portal-card" href="https://www.gov.in/" target="_blank" rel="noopener noreferrer"><span>🇮🇳</span><strong>Government Jobs</strong><small>India.gov.in ↗</small></a>
 </div></section>
-
 <div id="noResults" class="no-results" hidden><div class="no-results-icon">🔍</div><h3>No tool found</h3><p>Try searching with another keyword.</p></div>
 </div></section>
-
-<section class="trust-section"><div class="container"><div class="trust-grid">
-<div class="trust-item"><strong>Free</strong><span>Tools for everyone</span></div>
-<div class="trust-item"><strong>Fast</strong><span>Simple browser tools</span></div>
-<div class="trust-item"><strong>Mobile</strong><span>Made for phones</span></div>
-<div class="trust-item"><strong>Easy</strong><span>No complicated steps</span></div>
-</div></div></section>
-
-<section class="about-section" id="about"><div class="container"><div class="about-box">
-<span class="section-label">ABOUT</span><h2>Welcome to Manjeet Digital Hub</h2>
-<p>Manjeet Digital Hub is a collection of simple and useful digital tools designed for everyday work, image editing, documents, calculations and online services.</p>
-<p>Our goal is to make common digital tasks faster, easier and accessible from mobile and desktop devices.</p>
-</div></div></section>
+<section class="trust-section"><div class="container"><div class="trust-grid"><div class="trust-item"><strong>Free</strong><span>Tools for everyone</span></div><div class="trust-item"><strong>Fast</strong><span>Simple browser tools</span></div><div class="trust-item"><strong>Mobile</strong><span>Made for phones</span></div><div class="trust-item"><strong>Easy</strong><span>No complicated steps</span></div></div></div></section>
+<section class="about-section" id="about"><div class="container"><div class="about-box"><span class="section-label">ABOUT</span><h2>Welcome to Manjeet Digital Hub</h2><p>Manjeet Digital Hub is a collection of simple and useful digital tools designed for everyday work, image editing, documents, calculations and online services.</p><p>Our goal is to make common digital tasks faster, easier and accessible from mobile and desktop devices.</p></div></div></section>
 </main>
-
-<div class="modal" id="toolModal" aria-hidden="true"><div class="modal-overlay" id="modalOverlay"></div><div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-<div class="modal-header"><div class="modal-title-area"><span id="modalIcon" class="modal-icon">🛠️</span><h2 id="modalTitle">Tool</h2></div><button id="closeTool" class="close-button" type="button" aria-label="Close">✕</button></div>
-<div id="toolContent" class="tool-content"></div></div></div>
-
-<footer class="site-footer"><div class="container footer-inner">
-<div><strong>Manjeet Digital Hub</strong><p>Smart Digital Tools. Simple Solutions.</p></div>
-<div class="footer-links"><a href="#tools">Tools</a><a href="#portals">Portals</a><a href="#about">About</a></div>
-<div class="footer-copy">© <span id="currentYear"></span> Manjeet Digital Hub</div>
-</div></footer>
-
+<div class="modal" id="toolModal" aria-hidden="true"><div class="modal-overlay" id="modalOverlay"></div><div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-header"><div class="modal-title-area"><span id="modalIcon" class="modal-icon">🛠️</span><h2 id="modalTitle">Tool</h2></div><button id="closeTool" class="close-button" type="button" aria-label="Close">✕</button></div><div id="toolContent" class="tool-content"></div></div></div>
+<footer class="site-footer"><div class="container footer-inner"><div><strong>Manjeet Digital Hub</strong><p>Smart Digital Tools. Simple Solutions.</p></div><div class="footer-links"><a href="#tools">Tools</a><a href="#portals">Portals</a><a href="#about">About</a></div><div class="footer-copy">© <span id="currentYear"></span> Manjeet Digital Hub</div></div></footer>
 <script src="./app.js"></script>
 <script>
-document.addEventListener("keydown",function(event){
- if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="k"){
-  event.preventDefault();const search=document.getElementById("toolSearch");
-  if(search){search.focus();search.select();}
- }
-});
-if("serviceWorker"in navigator){
- window.addEventListener("load",function(){
-  navigator.serviceWorker.register("./service-worker.js").catch(function(){});
- });
-}
+document.addEventListener("keydown",function(event){if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="k"){event.preventDefault();const search=document.getElementById("toolSearch");if(search){search.focus();search.select();}}});
+if("serviceWorker"in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("./service-worker.js").catch(function(){});});}
 </script>
 </body>
 </html>
