@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>PDF to JPG - Manjeet Digital Hub</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f8ff;color:#172033}
+.wrap{max-width:950px;margin:auto;padding:14px}.top{margin-bottom:12px}.back{text-decoration:none;color:#2563eb;font-weight:700}
+.card{background:#fff;border:1px solid #e3e9f5;border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(37,99,235,.08)}
+h1{font-size:22px;margin:0 0 5px}.sub{font-size:13px;color:#64748b;margin:0 0 15px}
+.upload{display:block;border:2px dashed #93b4ff;border-radius:14px;padding:22px;text-align:center;background:#f8fbff;cursor:pointer}
+.upload input{display:none}.upload b{display:block;margin-top:5px}.upload small{color:#64748b}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}
+.field label{display:block;font-size:11px;font-weight:700;margin-bottom:5px}.field select{width:100%;padding:10px;border:1px solid #dbe3ef;border-radius:9px;background:#fff}
+.bar{display:flex;gap:7px;flex-wrap:wrap;margin:13px 0}.btn{border:0;border-radius:9px;padding:9px 11px;background:#edf4ff;color:#1d4ed8;font-weight:700;cursor:pointer}
+.btn.primary{background:#2563eb;color:#fff}.btn:disabled{opacity:.45}
+.info{font-size:12px;color:#64748b;margin:9px 0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.page{border:2px solid #e2e8f0;border-radius:12px;padding:7px;background:#fff;position:relative}.page.selected{border-color:#2563eb;background:#f4f8ff}
+.page canvas{width:100%;height:180px;object-fit:contain;background:#f8fafc;border-radius:7px;display:block}
+.row{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:11px}.row input{width:18px;height:18px}
+.download{width:100%;margin-top:6px;border:0;border-radius:7px;padding:7px;background:#2563eb;color:#fff;font-weight:700}
+.status{text-align:center;color:#64748b;font-size:12px;margin-top:10px}.note{margin-top:12px;padding:10px;background:#f8fafc;border-radius:9px;color:#64748b;font-size:11px}
+@media(min-width:650px){.grid{grid-template-columns:repeat(4,1fr)}.controls{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><a class="back" href="../index.html">← Back</a></div>
+<div class="card">
+<h1>🖼️ PDF → JPG</h1>
+<p class="sub">Convert PDF pages into high-quality JPG images.</p>
+
+<label class="upload">
+<input id="pdfFile" type="file" accept="application/pdf,.pdf">
+<div style="font-size:30px">📄</div><b>Choose PDF File</b>
+<small>Tap here to select a PDF</small>
+</label>
+
+<div class="controls">
+<div class="field"><label>JPG Quality</label><select id="quality"><option value=".7">Normal</option><option value=".85" selected>High</option><option value=".95">Very High</option></select></div>
+<div class="field"><label>Resolution</label><select id="scale"><option value="1.5">Standard</option><option value="2" selected>High</option><option value="3">Extra High</option></select></div>
+<div class="field"><label>Background</label><select id="background"><option value="white" selected>White</option><option value="#f8fafc">Light</option></select></div>
+</div>
+
+<div class="bar">
+<button id="selectAll" class="btn" disabled>Select All</button>
+<button id="clearAll" class="btn" disabled>Clear Selection</button>
+<button id="downloadSelected" class="btn primary" disabled>Download Selected JPGs</button>
+</div>
+
+<div id="info" class="info">No PDF selected.</div>
+<div id="pages" class="grid"></div>
+<div id="status" class="status"></div>
+<div class="note">PDF processing happens in your browser. Each selected page is downloaded as a separate JPG image.</div>
+</div></div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+const file=document.getElementById("pdfFile"),pages=document.getElementById("pages"),info=document.getElementById("info"),
+quality=document.getElementById("quality"),scale=document.getElementById("scale"),bg=document.getElementById("background"),
+selectAll=document.getElementById("selectAll"),clearAll=document.getElementById("clearAll"),
+downloadSelected=document.getElementById("downloadSelected"),status=document.getElementById("status");
+let pdf=null, rendered=[];
+
+function refresh(){
+ const checks=[...pages.querySelectorAll("input[type=checkbox]")];
+ const n=checks.filter(x=>x.checked).length;
+ info.textContent=pdf?`${pdf.numPages} page(s) • ${n} selected`:"No PDF selected.";
+ downloadSelected.disabled=n===0;
+ pages.querySelectorAll(".page").forEach((p,i)=>p.classList.toggle("selected",checks[i]?.checked));
+}
+async function renderPage(n){
+ const page=await pdf.getPage(n), s=Number(scale.value), viewport=page.getViewport({scale:s});
+ const canvas=document.createElement("canvas"); canvas.width=viewport.width;canvas.height=viewport.height;
+ const ctx=canvas.getContext("2d");ctx.fillStyle=bg.value;ctx.fillRect(0,0,canvas.width,canvas.height);
+ await page.render({canvasContext:ctx,viewport}).promise;
+ rendered[n-1]=canvas;
+ const box=document.createElement("div");box.className="page selected";
+ box.innerHTML=`<div class="holder"></div><div class="row"><strong>Page ${n}</strong><input type="checkbox" checked aria-label="Select page ${n}"></div><button class="download">Download JPG</button>`;
+ box.querySelector(".holder").appendChild(canvas);
+ box.querySelector("input").onchange=refresh;
+ box.querySelector(".download").onclick=()=>downloadCanvas(canvas,n);
+ pages.appendChild(box);
+}
+function downloadCanvas(canvas,n){
+ const a=document.createElement("a");a.download=`manjeet-pdf-page-${n}.jpg`;a.href=canvas.toDataURL("image/jpeg",Number(quality.value));document.body.appendChild(a);a.click();a.remove();
+}
+async function loadPDF(){
+ const f=file.files[0];if(!f)return;
+ try{
+  status.textContent="Loading PDF...";pages.innerHTML="";rendered=[];pdf=null;
+  const data=await f.arrayBuffer();pdf=await pdfjsLib.getDocument({data}).promise;
+  selectAll.disabled=false;clearAll.disabled=false;
+  for(let n=1;n<=pdf.numPages;n++){status.textContent=`Rendering page ${n} of ${pdf.numPages}...`;await renderPage(n);}
+  status.textContent="PDF ready.";refresh();
+ }catch(e){console.error(e);status.textContent="Unable to open this PDF.";info.textContent="Please try another PDF.";}
+}
+file.onchange=loadPDF;
+selectAll.onclick=()=>{pages.querySelectorAll("input[type=checkbox]").forEach(x=>x.checked=true);refresh()};
+clearAll.onclick=()=>{pages.querySelectorAll("input[type=checkbox]").forEach(x=>x.checked=false);refresh()};
+downloadSelected.onclick=async()=>{
+ const checks=[...pages.querySelectorAll("input[type=checkbox]")];
+ const chosen=checks.map((x,i)=>x.checked?i:-1).filter(i=>i>=0);
+ if(!chosen.length)return;
+ status.textContent="Downloading selected pages...";
+ for(const i of chosen){downloadCanvas(rendered[i],i+1);await new Promise(r=>setTimeout(r,300));}
+ status.textContent="Download complete.";
+};
+scale.onchange=()=>{if(file.files[0])loadPDF()};
+bg.onchange=()=>{if(file.files[0])loadPDF()};
+</script>
+</body>
+</html>
