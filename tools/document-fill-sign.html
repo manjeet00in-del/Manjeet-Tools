@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Document Fill & Sign V8 - Manjeet Digital Hub</title>
+<title>Document Fill & Sign V8.1 - Manjeet Digital Hub</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <style>
@@ -16,7 +16,7 @@
 <div class="wrap"><a class="back" href="../index.html">← Back</a><div class="card">
 <h1>✍️ Document Fill & Sign</h1>
 <p class="sub">Upload PDF or multiple JPG/PNG images, improve pages, add text and reuse up to two saved signatures on any page.</p>
-<label class="upload"><input id="files" type="file" accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png" multiple><div style="font-size:30px">📑</div><b>Choose PDF / Images</b><small>Multiple images and files supported</small></label>
+<label class="upload"><input id="files" type="file" multiple><div style="font-size:30px">📑</div><b>Choose PDF / Images</b><small>Multiple images and files supported</small></label>
 
 <div class="toolbar">
 <select class="btn" id="pageFilter" disabled style="width:auto"><option value="original">Original</option><option value="scan">Document Scan</option><option value="bw">B&W</option><option value="gray">Grayscale</option><option value="contrast">High Contrast</option><option value="bright">Bright</option></select>
@@ -33,7 +33,7 @@
 <p class="sub">Upload a signature or tap a saved signature to add it to the selected page.</p>
 
 <label class="upload" style="padding:12px">
-<input id="menuSigUpload" type="file" accept="image/*">
+<input id="menuSigUpload" type="file" accept="image/*,.jpg,.jpeg,.png,.heic,.heif">
 <b>🖼️ Upload New Signature</b>
 <small>Background will be cleaned before saving</small>
 </label>
