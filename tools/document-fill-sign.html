@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Document Fill & Sign V8.4 - Manjeet Digital Hub</title>
+<title>Document Fill & Sign V8.5 - Manjeet Digital Hub</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <style>
@@ -24,7 +24,13 @@
 </div>
 
 <div id="textControls" class="textcontrols"><div><label>Font</label><select id="fontFamily"><option>Arial</option><option>Georgia</option><option>Times New Roman</option><option>Verdana</option><option>Courier New</option></select></div><div><label>Text Size</label><input id="fontSize" type="number" min="8" max="96" value="18"></div><div style="grid-column:1/-1"><label>Edit Text</label><input id="editText" type="text" placeholder="Edit selected text"></div></div>
-<div id="pageTabs" class="pages"></div><div class="stagewrap"><div id="stage" class="stage"><canvas id="pageCanvas"></canvas></div></div><div id="status" class="status">Choose a PDF or images to begin.</div>
+<div id="pageTabs" class="pages"></div>
+<div class="toolbar" style="justify-content:center;margin:3px 0 9px">
+<button class="btn" id="zoomOut" disabled>➖ Zoom Out</button>
+<button class="btn" id="zoomReset" disabled>100%</button>
+<button class="btn" id="zoomIn" disabled>➕ Zoom In</button>
+</div>
+<div class="stagewrap"><div id="stage" class="stage"><canvas id="pageCanvas"></canvas></div></div><div id="status" class="status">Choose a PDF or images to begin.</div>
 <div class="note">Tap ✍️ Sign to upload, save or reuse Sign 1 and Sign 2. Select any page first, then add the same saved signature as many times as needed.</div>
 </div></div>
 
@@ -81,16 +87,33 @@ const $=id=>document.getElementById(id);
 const input=$("files"),tabs=$("pageTabs"),stage=$("stage"),canvas=$("pageCanvas"),ctx=canvas.getContext("2d"),status=$("status");
 const pageFilter=$("pageFilter"),applyFilterBtn=$("applyFilter"),addTextBtn=$("addText"),signBtn=$("signBtn"),delBtn=$("deleteItem"),undoBtn=$("undo"),downloadBtn=$("download"),textControls=$("textControls"),fontFamily=$("fontFamily"),fontSize=$("fontSize"),editText=$("editText");
 let pages=[],current=0,selected=null,history=[],savedSigs=[null,null],cleanTarget=0,uploadedSigOriginal=null;
+let zoomLevel=1;
+const zoomInBtn=$("zoomIn"),zoomOutBtn=$("zoomOut"),zoomResetBtn=$("zoomReset");
 
 function snapshot(){history.push(JSON.stringify(pages.map(p=>p.items)));if(history.length>30)history.shift();undoBtn.disabled=history.length===0}
 function restore(){if(!history.length)return;const x=JSON.parse(history.pop());pages.forEach((p,i)=>p.items=x[i]||[]);selected=null;renderCurrent();undoBtn.disabled=history.length===0} undoBtn.onclick=restore;
 function imageFromFile(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{URL.revokeObjectURL(u);res(im)};im.onerror=()=>{URL.revokeObjectURL(u);rej()};im.src=u})}
 async function canvasFromImage(im){const c=document.createElement("canvas");c.width=im.naturalWidth;c.height=im.naturalHeight;c.getContext("2d").drawImage(im,0,0);return c}
 async function addPDF(file){const data=await file.arrayBuffer(),pdf=await pdfjsLib.getDocument({data}).promise;for(let n=1;n<=pdf.numPages;n++){status.textContent=`Loading PDF page ${n}/${pdf.numPages}...`;const p=await pdf.getPage(n),vp=p.getViewport({scale:1.5}),c=document.createElement("canvas");c.width=Math.ceil(vp.width);c.height=Math.ceil(vp.height);await p.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;pages.push({canvas:c,items:[],name:file.name+" - "+n})}}
-input.onchange=async()=>{status.textContent="Reading selected file(s)...";const fs=Array.from(input.files||[]);if(!fs.length){status.textContent="No file selected.";return;}try{pages=[];history=[];selected=null;tabs.innerHTML="";status.textContent="Loading files...";for(const f of fs){if(f.type==="application/pdf"||f.name.toLowerCase().endsWith(".pdf"))await addPDF(f);else if(f.type.startsWith("image/")||/\.(jpg|jpeg|png|heic|heif)$/i.test(f.name))pages.push({canvas:await canvasFromImage(await imageFromFile(f)),items:[],name:f.name})}current=0;makeTabs();renderCurrent();[pageFilter,applyFilterBtn,addTextBtn,signBtn,downloadBtn].forEach(b=>b.disabled=!pages.length);status.textContent=`${pages.length} page(s) ready.`}catch(e){console.error(e);status.textContent="Unable to load one of the selected files."}};
+input.onchange=async()=>{status.textContent="Reading selected file(s)...";const fs=Array.from(input.files||[]);if(!fs.length){status.textContent="No file selected.";return;}try{pages=[];history=[];selected=null;tabs.innerHTML="";status.textContent="Loading files...";for(const f of fs){if(f.type==="application/pdf"||f.name.toLowerCase().endsWith(".pdf"))await addPDF(f);else if(f.type.startsWith("image/")||/\.(jpg|jpeg|png|heic|heif)$/i.test(f.name))pages.push({canvas:await canvasFromImage(await imageFromFile(f)),items:[],name:f.name})}current=0;zoomLevel=1;makeTabs();renderCurrent();[pageFilter,applyFilterBtn,addTextBtn,signBtn,downloadBtn,zoomInBtn,zoomOutBtn,zoomResetBtn].forEach(b=>b.disabled=!pages.length);status.textContent=`${pages.length} page(s) ready.`}catch(e){console.error(e);status.textContent="Unable to load one of the selected files."}};
 
 function makeTabs(){tabs.innerHTML="";pages.forEach((p,i)=>{const b=document.createElement("button");b.className="pagebtn"+(i===current?" active":"");b.textContent="Page "+(i+1);b.onclick=()=>{current=i;selected=null;makeTabs();renderCurrent();status.textContent=`Page ${i+1} selected.`};tabs.appendChild(b)})}
-function renderCurrent(){stage.querySelectorAll(".item").forEach(x=>x.remove());if(!pages.length){canvas.width=1;canvas.height=1;return}const p=pages[current],maxW=Math.min(820,window.innerWidth-36),ratio=p.canvas.height/p.canvas.width;stage.style.width=maxW+"px";stage.style.height=(maxW*ratio)+"px";canvas.width=p.canvas.width;canvas.height=p.canvas.height;ctx.drawImage(p.canvas,0,0);p.items.forEach((it,i)=>createItemElement(it,i));delBtn.disabled=true;textControls.classList.remove("show")}
+function renderCurrent(){stage.querySelectorAll(".item").forEach(x=>x.remove());if(!pages.length){canvas.width=1;canvas.height=1;return}const p=pages[current],baseW=Math.min(820,window.innerWidth-36),maxW=baseW*zoomLevel,ratio=p.canvas.height/p.canvas.width;stage.style.width=maxW+"px";stage.style.height=(maxW*ratio)+"px";canvas.width=p.canvas.width;canvas.height=p.canvas.height;ctx.drawImage(p.canvas,0,0);p.items.forEach((it,i)=>createItemElement(it,i));delBtn.disabled=true;textControls.classList.remove("show")}
+
+function updateZoom(){
+ if(!pages.length)return;
+ zoomLevel=Math.max(.5,Math.min(3,zoomLevel));
+ zoomResetBtn.textContent=Math.round(zoomLevel*100)+"%";
+ zoomOutBtn.disabled=zoomLevel<=.5;
+ zoomInBtn.disabled=zoomLevel>=3;
+ selected=null;
+ renderCurrent();
+ status.textContent="Zoom "+Math.round(zoomLevel*100)+"% — document output size will not change.";
+}
+zoomInBtn.onclick=()=>{zoomLevel=Math.min(3,Math.round((zoomLevel+.25)*100)/100);updateZoom()};
+zoomOutBtn.onclick=()=>{zoomLevel=Math.max(.5,Math.round((zoomLevel-.25)*100)/100);updateZoom()};
+zoomResetBtn.onclick=()=>{zoomLevel=1;updateZoom()};
+
 function createItemElement(it,index){const el=document.createElement("div");el.className="item "+(it.type==="text"?"textitem":"sigitem");el.style.left=it.x*100+"%";el.style.top=it.y*100+"%";el.style.width=it.w*100+"%";el.style.height=it.h*100+"%";if(it.type==="text"){el.textContent=it.text;el.style.fontSize=(it.font||18)+"px";el.style.fontFamily=it.family||"Arial";el.style.color=it.color||"#111"}else{const im=document.createElement("img");im.src=it.src;el.appendChild(im)}const h=document.createElement("span");h.className="handle";el.appendChild(h);stage.appendChild(el);el.onclick=e=>{e.stopPropagation();selectEl(el,index)};drag(el,it);resize(el,h,it)}
 function selectEl(el,i){stage.querySelectorAll(".item").forEach(x=>x.classList.remove("selected"));el.classList.add("selected");selected=i;delBtn.disabled=false;const it=pages[current].items[i];if(it&&it.type==="text"){textControls.classList.add("show");fontFamily.value=it.family||"Arial";fontSize.value=it.font||18;editText.value=it.text||""}else textControls.classList.remove("show")}
 stage.onclick=()=>{selected=null;stage.querySelectorAll(".item").forEach(x=>x.classList.remove("selected"));delBtn.disabled=true;textControls.classList.remove("show")};
