@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Document Fill & Sign V8.3 - Manjeet Digital Hub</title>
+<title>Document Fill & Sign V8.4 - Manjeet Digital Hub</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <style>
@@ -138,7 +138,7 @@ function saveCleanToSlot(slot){
 $("saveSlot1").onclick=()=>saveCleanToSlot(0);
 $("saveSlot2").onclick=()=>saveCleanToSlot(1);
 $("cancelSlot").onclick=()=>{$("saveSlotModal").classList.remove("show");pendingCleanCanvas=null};
-refreshSigSlot(cleanTarget);cleanerModal.classList.remove("show");status.textContent=`Signature ${cleanTarget+1} saved. Select any page and tap Add Sign ${cleanTarget+1} to Page.`};
+
 
 
 const signMenu=$("signMenu");
