@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PNG to PDF - Manjeet Digital Hub</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f5f8ff;color:#172033}
+.wrap{max-width:900px;margin:auto;padding:14px}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.back{text-decoration:none;color:#2563eb;font-weight:700}
+.card{background:#fff;border:1px solid #e3e9f5;border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(37,99,235,.08)}
+h1{font-size:22px;margin:0 0 5px}
+.sub{font-size:13px;color:#64748b;margin:0 0 15px}
+.upload{display:block;border:2px dashed #93b4ff;border-radius:14px;padding:22px;text-align:center;background:#f8fbff;cursor:pointer}
+.upload input{display:none}
+.upload b{display:block;font-size:15px;margin-top:5px}
+.upload small{color:#64748b}
+.controls{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+.field label{display:block;font-size:12px;font-weight:700;margin-bottom:5px}
+.field select,.field input{width:100%;padding:10px;border:1px solid #dbe3ef;border-radius:9px;background:white}
+.preview-title{font-size:14px;margin:17px 0 8px}
+#preview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.item{position:relative;border:1px solid #dce5f3;border-radius:12px;padding:7px;background:#fff}
+.item img{display:block;width:100%;height:145px;object-fit:contain;background:#f8fafc;border-radius:8px}
+.item .name{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:5px}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:6px}
+.actions button{border:0;border-radius:7px;padding:7px 3px;background:#edf4ff;color:#1d4ed8;font-weight:700}
+.actions .remove{background:#fff0f0;color:#dc2626}
+.mainbtn{width:100%;margin-top:15px;border:0;border-radius:11px;padding:13px;background:#2563eb;color:#fff;font-size:14px;font-weight:800}
+.mainbtn:disabled{opacity:.45}
+.status{text-align:center;font-size:12px;color:#64748b;margin-top:9px}
+.note{margin-top:12px;padding:10px;background:#f8fafc;border-radius:10px;font-size:11px;color:#64748b}
+@media(min-width:650px){#preview{grid-template-columns:repeat(4,1fr)}.controls{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a class="back" href="../index.html">← Back</a></div>
+  <div class="card">
+    <h1>📄 PNG → PDF</h1>
+    <p class="sub">Select multiple PNG images, arrange them and download one PDF.</p>
+
+    <label class="upload">
+      <input id="files" type="file" accept="image/png,.png" multiple>
+      <div style="font-size:30px">🖼️</div>
+      <b>Choose PNG Images</b>
+      <small>Multiple photos can be selected</small>
+    </label>
+
+    <div class="controls">
+      <div class="field"><label>Page Size</label>
+        <select id="pageSize"><option value="a4">A4</option><option value="fit">Fit to Image</option></select>
+      </div>
+      <div class="field"><label>Orientation</label>
+        <select id="orientation"><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select>
+      </div>
+      <div class="field"><label>Margin</label>
+        <select id="margin"><option value="0">No Margin</option><option value="5">Small</option><option value="10" selected>Normal</option><option value="20">Large</option></select>
+      </div>
+      <div class="field"><label>Image Fit</label>
+        <select id="fit"><option value="contain">Fit Entire Image</option><option value="cover">Fill Page</option></select>
+      </div>
+    </div>
+
+    <h3 class="preview-title">Selected Images: <span id="count">0</span></h3>
+    <div id="preview"></div>
+
+    <button id="create" class="mainbtn" disabled>Create & Download PDF</button>
+    <div id="status" class="status"></div>
+    <div class="note">Your images are processed in your browser. Use ↑ and ↓ to change page order, or Remove to delete an image.</div>
+  </div>
+</div>
+
+<script>
+const { jsPDF } = window.jspdf;
+const fileInput=document.getElementById("files");
+const preview=document.getElementById("preview");
+const count=document.getElementById("count");
+const create=document.getElementById("create");
+const status=document.getElementById("status");
+let items=[];
+
+function readFile(file){
+ return new Promise((resolve,reject)=>{
+   const r=new FileReader();
+   r.onload=()=>resolve(r.result); r.onerror=reject; r.readAsDataURL(file);
+ });
+}
+async function addFiles(files){
+ for(const file of files){
+   if(file.type!=="image/png" && !file.name.toLowerCase().endsWith(".png")) continue;
+   items.push({name:file.name,data:await readFile(file)});
+ }
+ render();
+}
+fileInput.addEventListener("change",async e=>{
+ await addFiles([...e.target.files]);
+ e.target.value="";
+});
+function move(i,d){
+ const n=i+d;if(n<0||n>=items.length)return;
+ [items[i],items[n]]=[items[n],items[i]];render();
+}
+function removeItem(i){items.splice(i,1);render();}
+function render(){
+ preview.innerHTML="";
+ items.forEach((x,i)=>{
+   const d=document.createElement("div");d.className="item";
+   d.innerHTML=`<img src="${x.data}" alt=""><div class="name">${x.name}</div>
+   <div class="actions"><button type="button" data-a="up">↑ Up</button><button type="button" data-a="down">↓ Down</button><button type="button" class="remove" data-a="remove">Remove</button></div>`;
+   d.querySelector('[data-a="up"]').onclick=()=>move(i,-1);
+   d.querySelector('[data-a="down"]').onclick=()=>move(i,1);
+   d.querySelector('[data-a="remove"]').onclick=()=>removeItem(i);
+   preview.appendChild(d);
+ });
+ count.textContent=items.length;create.disabled=!items.length;
+}
+function imageInfo(src){
+ return new Promise((resolve,reject)=>{
+   const im=new Image();im.onload=()=>resolve({w:im.naturalWidth,h:im.naturalHeight});im.onerror=reject;im.src=src;
+ });
+}
+create.onclick=async()=>{
+ if(!items.length)return;
+ create.disabled=true;status.textContent="Creating PDF...";
+ try{
+   const pageMode=document.getElementById("pageSize").value;
+   const orient=document.getElementById("orientation").value;
+   const margin=Number(document.getElementById("margin").value);
+   const fit=document.getElementById("fit").value;
+   let pdf=null;
+   for(let i=0;i<items.length;i++){
+     const info=await imageInfo(items[i].data);
+     let format="a4",orientation=orient;
+     if(pageMode==="fit"){
+       const pxToMm=0.264583;
+       let pw=info.w*pxToMm, ph=info.h*pxToMm;
+       const max=500;
+       const scale=Math.min(1,max/Math.max(pw,ph));
+       pw*=scale;ph*=scale;
+       format=[pw+margin*2,ph+margin*2];
+       orientation=pw>ph?"landscape":"portrait";
+     }
+     if(!pdf) pdf=new jsPDF({orientation,unit:"mm",format});
+     else pdf.addPage(format,orientation);
+
+     const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight();
+     const aw=Math.max(1,pw-margin*2),ah=Math.max(1,ph-margin*2);
+     const ir=info.w/info.h, ar=aw/ah;
+     let w,h,x,y;
+     if(fit==="cover"){
+       if(ir>ar){h=ah;w=h*ir}else{w=aw;h=w/ir}
+     }else{
+       if(ir>ar){w=aw;h=w/ir}else{h=ah;w=h*ir}
+     }
+     x=(pw-w)/2;y=(ph-h)/2;
+     pdf.addImage(items[i].data,"PNG",x,y,w,h,undefined,"FAST");
+   }
+   pdf.save("manjeet-png-to-pdf.pdf");
+   status.textContent="PDF created successfully.";
+ }catch(err){
+   console.error(err);status.textContent="Unable to create PDF. Please try again.";
+ }finally{create.disabled=false;}
+};
+</script>
+</body>
+</html>
