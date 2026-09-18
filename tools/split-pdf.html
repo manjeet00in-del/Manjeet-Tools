@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Split PDF - Manjeet Digital Hub</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f5f8ff;color:#172033}
+.wrap{max-width:950px;margin:auto;padding:14px}.top{margin-bottom:12px}
+.back{text-decoration:none;color:#2563eb;font-weight:700}
+.card{background:#fff;border:1px solid #e3e9f5;border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(37,99,235,.08)}
+h1{font-size:22px;margin:0 0 5px}.sub{font-size:13px;color:#64748b;margin:0 0 15px}
+.upload{display:block;border:2px dashed #93b4ff;border-radius:14px;padding:22px;text-align:center;background:#f8fbff;cursor:pointer}
+.upload input{display:none}.upload b{display:block;margin-top:5px}.upload small{color:#64748b}
+.field{margin-top:12px}.field label{display:block;font-size:11px;font-weight:700;margin-bottom:5px}
+.field input{width:100%;padding:10px;border:1px solid #dbe3ef;border-radius:9px;font-size:14px}
+.bar{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}
+.btn{border:0;border-radius:9px;padding:10px 12px;background:#edf4ff;color:#1d4ed8;font-weight:700;cursor:pointer}
+.btn.primary{background:#2563eb;color:#fff}.btn:disabled{opacity:.45}
+.info,.status{font-size:12px;color:#64748b;margin:9px 0}.status{text-align:center}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.page{border:2px solid #e2e8f0;border-radius:12px;padding:7px;background:#fff;cursor:pointer}
+.page.selected{border-color:#2563eb;background:#f4f8ff}
+.page canvas{width:100%;height:180px;object-fit:contain;background:#f8fafc;border-radius:7px;display:block}
+.row{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:11px}
+.row input{width:18px;height:18px}
+.note{margin-top:12px;padding:10px;background:#f8fafc;border-radius:9px;color:#64748b;font-size:11px;line-height:1.5}
+@media(min-width:650px){.grid{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><a class="back" href="../index.html">← Back</a></div>
+<div class="card">
+<h1>✂️ Split PDF</h1>
+<p class="sub">Select pages or enter a page range and create a new PDF.</p>
+
+<label class="upload">
+<input id="pdfFile" type="file" accept="application/pdf,.pdf">
+<div style="font-size:30px">📄</div>
+<b>Choose PDF File</b>
+<small>Tap here to select a PDF</small>
+</label>
+
+<div class="field">
+<label>Page Range (optional)</label>
+<input id="range" type="text" placeholder="Example: 1-3, 5, 7-9" disabled>
+</div>
+
+<div class="bar">
+<button id="applyRange" class="btn" disabled>Apply Range</button>
+<button id="selectAll" class="btn" disabled>Select All</button>
+<button id="clearAll" class="btn" disabled>Clear Selection</button>
+<button id="createPDF" class="btn primary" disabled>⬇ Create & Download PDF</button>
+</div>
+
+<div id="info" class="info">No PDF selected.</div>
+<div id="pages" class="grid"></div>
+<div id="status" class="status"></div>
+
+<div class="note">
+<strong>How to use:</strong> Select pages by tapping them, or enter a range such as <b>1-3, 5, 8</b>. The selected pages will be copied into a new PDF in their original PDF quality.
+</div>
+</div>
+</div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+const file=document.getElementById("pdfFile");
+const pages=document.getElementById("pages");
+const info=document.getElementById("info");
+const status=document.getElementById("status");
+const range=document.getElementById("range");
+const applyRange=document.getElementById("applyRange");
+const selectAll=document.getElementById("selectAll");
+const clearAll=document.getElementById("clearAll");
+const createPDF=document.getElementById("createPDF");
+
+let pdfPreview=null;
+let sourceBytes=null;
+
+function checks(){
+ return [...pages.querySelectorAll('input[type="checkbox"]')];
+}
+function refresh(){
+ const c=checks();
+ const selected=c.filter(x=>x.checked).length;
+ info.textContent=pdfPreview ? `${pdfPreview.numPages} page(s) • ${selected} selected` : "No PDF selected.";
+ createPDF.disabled=selected===0;
+ pages.querySelectorAll(".page").forEach((p,i)=>p.classList.toggle("selected",!!c[i]?.checked));
+}
+function setSelected(indices){
+ const wanted=new Set(indices);
+ checks().forEach((x,i)=>x.checked=wanted.has(i));
+ refresh();
+}
+function parseRange(value,total){
+ const result=[];
+ const seen=new Set();
+ const parts=value.split(",").map(x=>x.trim()).filter(Boolean);
+ if(!parts.length) return [];
+ for(const part of parts){
+   if(/^\d+$/.test(part)){
+     const n=Number(part);
+     if(n<1||n>total) throw new Error("Page number out of range");
+     if(!seen.has(n)){seen.add(n);result.push(n-1);}
+   }else{
+     const m=part.match(/^(\d+)\s*-\s*(\d+)$/);
+     if(!m) throw new Error("Invalid page range");
+     let a=Number(m[1]),b=Number(m[2]);
+     if(a<1||b<1||a>total||b>total) throw new Error("Page number out of range");
+     const step=a<=b?1:-1;
+     for(let n=a;;n+=step){
+       if(!seen.has(n)){seen.add(n);result.push(n-1);}
+       if(n===b)break;
+     }
+   }
+ }
+ return result;
+}
+async function renderPage(n){
+ const p=await pdfPreview.getPage(n);
+ const viewport=p.getViewport({scale:1});
+ const canvas=document.createElement("canvas");
+ canvas.width=Math.ceil(viewport.width);
+ canvas.height=Math.ceil(viewport.height);
+ await p.render({canvasContext:canvas.getContext("2d"),viewport}).promise;
+
+ const box=document.createElement("div");
+ box.className="page selected";
+ box.innerHTML=`<div class="holder"></div><div class="row"><strong>Page ${n}</strong><input type="checkbox" checked aria-label="Select page ${n}"></div>`;
+ box.querySelector(".holder").appendChild(canvas);
+ const cb=box.querySelector("input");
+ cb.onchange=refresh;
+ box.onclick=e=>{
+   if(e.target.tagName!=="INPUT"){cb.checked=!cb.checked;refresh();}
+ };
+ pages.appendChild(box);
+}
+async function loadPDF(){
+ const f=file.files[0];
+ if(!f)return;
+ try{
+   status.textContent="Loading PDF...";
+   pages.innerHTML="";
+   sourceBytes=await f.arrayBuffer();
+
+   // PDF.js needs its own copy because pdf-lib will use the original bytes later.
+   pdfPreview=await pdfjsLib.getDocument({data:sourceBytes.slice(0)}).promise;
+
+   range.disabled=false;applyRange.disabled=false;selectAll.disabled=false;clearAll.disabled=false;
+   for(let n=1;n<=pdfPreview.numPages;n++){
+     status.textContent=`Rendering page ${n} of ${pdfPreview.numPages}...`;
+     await renderPage(n);
+   }
+   status.textContent="PDF ready.";
+   refresh();
+ }catch(e){
+   console.error(e);
+   status.textContent="Unable to open this PDF.";
+   info.textContent="Please try another PDF.";
+ }
+}
+file.onchange=loadPDF;
+
+selectAll.onclick=()=>setSelected(checks().map((_,i)=>i));
+clearAll.onclick=()=>setSelected([]);
+
+applyRange.onclick=()=>{
+ if(!pdfPreview)return;
+ try{
+   const selected=parseRange(range.value,pdfPreview.numPages);
+   if(!selected.length){alert("Enter a page range, for example 1-3, 5.");return;}
+   setSelected(selected);
+   status.textContent="Page range applied.";
+ }catch(e){
+   alert("Please enter a valid range within the PDF pages. Example: 1-3, 5, 7-9");
+ }
+};
+
+createPDF.onclick=async()=>{
+ if(!sourceBytes)return;
+ const selected=checks().map((x,i)=>x.checked?i:-1).filter(i=>i>=0);
+ if(!selected.length)return;
+ try{
+   createPDF.disabled=true;
+   status.textContent="Creating PDF...";
+   const src=await PDFLib.PDFDocument.load(sourceBytes.slice(0));
+   const out=await PDFLib.PDFDocument.create();
+   const copied=await out.copyPages(src,selected);
+   copied.forEach(p=>out.addPage(p));
+   const bytes=await out.save();
+   const blob=new Blob([bytes],{type:"application/pdf"});
+   const url=URL.createObjectURL(blob);
+   const a=document.createElement("a");
+   a.href=url;
+   a.download="manjeet-split-pdf.pdf";
+   document.body.appendChild(a);a.click();a.remove();
+   setTimeout(()=>URL.revokeObjectURL(url),1500);
+   status.textContent="Split PDF downloaded.";
+ }catch(e){
+   console.error(e);
+   status.textContent="Unable to create PDF.";
+   alert("This PDF could not be split. Password-protected PDFs may not work.");
+ }finally{
+   refresh();
+ }
+};
+</script>
+</body>
+</html>
