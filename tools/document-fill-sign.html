@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Document Fill & Sign V8.1 - Manjeet Digital Hub</title>
+<title>Document Fill & Sign V8.2 - Manjeet Digital Hub</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <style>
@@ -16,7 +16,8 @@
 <div class="wrap"><a class="back" href="../index.html">← Back</a><div class="card">
 <h1>✍️ Document Fill & Sign</h1>
 <p class="sub">Upload PDF or multiple JPG/PNG images, improve pages, add text and reuse up to two saved signatures on any page.</p>
-<label class="upload"><input id="files" type="file" multiple><div style="font-size:30px">📑</div><b>Choose PDF / Images</b><small>Multiple images and files supported</small></label>
+<div class="upload" id="mainUploadBox" role="button" tabindex="0"><div style="font-size:30px">📑</div><b>Choose PDF / Images</b><small>Multiple images and files supported</small></div>
+<input id="files" type="file" accept=".pdf,.jpg,.jpeg,.png,image/jpeg,image/png,application/pdf" multiple style="position:fixed;left:-10000px;top:-10000px;width:1px;height:1px;opacity:0">
 
 <div class="toolbar">
 <select class="btn" id="pageFilter" disabled style="width:auto"><option value="original">Original</option><option value="scan">Document Scan</option><option value="bw">B&W</option><option value="gray">Grayscale</option><option value="contrast">High Contrast</option><option value="bright">Bright</option></select>
@@ -81,13 +82,18 @@ const $=id=>document.getElementById(id);
 const input=$("files"),tabs=$("pageTabs"),stage=$("stage"),canvas=$("pageCanvas"),ctx=canvas.getContext("2d"),status=$("status");
 const pageFilter=$("pageFilter"),applyFilterBtn=$("applyFilter"),addTextBtn=$("addText"),signBtn=$("signBtn"),delBtn=$("deleteItem"),undoBtn=$("undo"),downloadBtn=$("download"),textControls=$("textControls"),fontFamily=$("fontFamily"),fontSize=$("fontSize"),editText=$("editText");
 let pages=[],current=0,selected=null,history=[],savedSigs=[null,null],cleanTarget=0,uploadedSigOriginal=null;
+const mainUploadBox=$("mainUploadBox");
+mainUploadBox.onclick=()=>{status.textContent="Opening file picker...";input.click()};
+mainUploadBox.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();input.click()}};
+input.addEventListener("click",()=>{status.textContent="Choose PDF or image from your phone.";});
+
 
 function snapshot(){history.push(JSON.stringify(pages.map(p=>p.items)));if(history.length>30)history.shift();undoBtn.disabled=history.length===0}
 function restore(){if(!history.length)return;const x=JSON.parse(history.pop());pages.forEach((p,i)=>p.items=x[i]||[]);selected=null;renderCurrent();undoBtn.disabled=history.length===0} undoBtn.onclick=restore;
 function imageFromFile(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{URL.revokeObjectURL(u);res(im)};im.onerror=()=>{URL.revokeObjectURL(u);rej()};im.src=u})}
 async function canvasFromImage(im){const c=document.createElement("canvas");c.width=im.naturalWidth;c.height=im.naturalHeight;c.getContext("2d").drawImage(im,0,0);return c}
 async function addPDF(file){const data=await file.arrayBuffer(),pdf=await pdfjsLib.getDocument({data}).promise;for(let n=1;n<=pdf.numPages;n++){status.textContent=`Loading PDF page ${n}/${pdf.numPages}...`;const p=await pdf.getPage(n),vp=p.getViewport({scale:1.5}),c=document.createElement("canvas");c.width=Math.ceil(vp.width);c.height=Math.ceil(vp.height);await p.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;pages.push({canvas:c,items:[],name:file.name+" - "+n})}}
-input.onchange=async()=>{const fs=[...input.files];if(!fs.length)return;try{pages=[];history=[];selected=null;tabs.innerHTML="";status.textContent="Loading files...";for(const f of fs){if(f.type==="application/pdf"||f.name.toLowerCase().endsWith(".pdf"))await addPDF(f);else if(f.type.startsWith("image/"))pages.push({canvas:await canvasFromImage(await imageFromFile(f)),items:[],name:f.name})}current=0;makeTabs();renderCurrent();[pageFilter,applyFilterBtn,addTextBtn,signBtn,downloadBtn].forEach(b=>b.disabled=!pages.length);status.textContent=`${pages.length} page(s) ready.`}catch(e){console.error(e);status.textContent="Unable to load one of the selected files."}};
+input.onchange=async()=>{status.textContent="File selected. Reading...";const fs=Array.from(input.files||[]);if(!fs.length){status.textContent="No file selected.";return;}try{pages=[];history=[];selected=null;tabs.innerHTML="";status.textContent="Loading files...";for(const f of fs){if(f.type==="application/pdf"||f.name.toLowerCase().endsWith(".pdf"))await addPDF(f);else if(f.type.startsWith("image/")||/\.(jpe?g|png)$/i.test(f.name))pages.push({canvas:await canvasFromImage(await imageFromFile(f)),items:[],name:f.name});else throw new Error("Unsupported file: "+f.name)}current=0;makeTabs();renderCurrent();[pageFilter,applyFilterBtn,addTextBtn,signBtn,downloadBtn].forEach(b=>b.disabled=!pages.length);status.textContent=`${pages.length} page(s) ready.`}catch(e){console.error(e);status.textContent="Unable to load one of the selected files."}};
 
 function makeTabs(){tabs.innerHTML="";pages.forEach((p,i)=>{const b=document.createElement("button");b.className="pagebtn"+(i===current?" active":"");b.textContent="Page "+(i+1);b.onclick=()=>{current=i;selected=null;makeTabs();renderCurrent();status.textContent=`Page ${i+1} selected.`};tabs.appendChild(b)})}
 function renderCurrent(){stage.querySelectorAll(".item").forEach(x=>x.remove());if(!pages.length){canvas.width=1;canvas.height=1;return}const p=pages[current],maxW=Math.min(820,window.innerWidth-36),ratio=p.canvas.height/p.canvas.width;stage.style.width=maxW+"px";stage.style.height=(maxW*ratio)+"px";canvas.width=p.canvas.width;canvas.height=p.canvas.height;ctx.drawImage(p.canvas,0,0);p.items.forEach((it,i)=>createItemElement(it,i));delBtn.disabled=true;textControls.classList.remove("show")}
