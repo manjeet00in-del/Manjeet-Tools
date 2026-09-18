@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>PDF Page Extractor - Manjeet Digital Hub</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f8ff;color:#172033}.wrap{max-width:950px;margin:auto;padding:14px}.back{text-decoration:none;color:#2563eb;font-weight:700}.card{margin-top:12px;background:#fff;border:1px solid #e3e9f5;border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(37,99,235,.08)}
+h1{font-size:22px;margin:0 0 5px}.sub{font-size:13px;color:#64748b;margin:0 0 15px}.upload{display:block;border:2px dashed #93b4ff;border-radius:14px;padding:22px;text-align:center;background:#f8fbff;cursor:pointer}.upload input{display:none}.upload b{display:block;margin-top:5px}.upload small{color:#64748b}
+.bar{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.btn{border:0;border-radius:9px;padding:10px 12px;background:#edf4ff;color:#1d4ed8;font-weight:700;cursor:pointer}.btn.primary{background:#2563eb;color:#fff}.btn:disabled{opacity:.45}
+.info,.status{font-size:12px;color:#64748b;margin:9px 0}.status{text-align:center}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.page{border:2px solid #e2e8f0;border-radius:12px;padding:7px;background:#fff;cursor:pointer}.page.selected{border-color:#2563eb;background:#f4f8ff}.page canvas{width:100%;height:180px;object-fit:contain;background:#f8fafc;border-radius:7px;display:block}.row{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:11px}.row input{width:18px;height:18px}.note{margin-top:12px;padding:10px;background:#f8fafc;border-radius:9px;color:#64748b;font-size:11px}
+@media(min-width:650px){.grid{grid-template-columns:repeat(4,1fr)}}
+</style></head><body><div class="wrap"><a class="back" href="../index.html">← Back</a><div class="card">
+<h1>📤 PDF Page Extractor</h1><p class="sub">Choose pages and extract them into a new PDF without reducing quality.</p>
+<label class="upload"><input id="file" type="file" accept="application/pdf,.pdf"><div style="font-size:30px">📄</div><b>Choose PDF File</b><small>Tap here to select a PDF</small></label>
+<div class="bar"><button id="all" class="btn" disabled>Select All</button><button id="clear" class="btn" disabled>Clear</button><button id="extract" class="btn primary" disabled>⬇ Extract Selected Pages</button></div>
+<div id="info" class="info">No PDF selected.</div><div id="pages" class="grid"></div><div id="status" class="status"></div>
+<div class="note">Selected pages are copied directly from the original PDF, so their original PDF quality is preserved.</div>
+</div></div>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+const file=document.getElementById("file"),pages=document.getElementById("pages"),info=document.getElementById("info"),status=document.getElementById("status"),all=document.getElementById("all"),clear=document.getElementById("clear"),extract=document.getElementById("extract");
+let pdf=null,bytes=null;
+const checks=()=>[...pages.querySelectorAll('input[type="checkbox"]')];
+function refresh(){const c=checks(),n=c.filter(x=>x.checked).length;info.textContent=pdf?`${pdf.numPages} page(s) • ${n} selected`:"No PDF selected.";extract.disabled=n===0;pages.querySelectorAll(".page").forEach((p,i)=>p.classList.toggle("selected",!!c[i]?.checked));}
+async function render(n){const p=await pdf.getPage(n),vp=p.getViewport({scale:1});const c=document.createElement("canvas");c.width=Math.ceil(vp.width);c.height=Math.ceil(vp.height);await p.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;const box=document.createElement("div");box.className="page";box.innerHTML=`<div class="holder"></div><div class="row"><b>Page ${n}</b><input type="checkbox"></div>`;box.querySelector(".holder").appendChild(c);const cb=box.querySelector("input");cb.onchange=refresh;box.onclick=e=>{if(e.target.tagName!=="INPUT"){cb.checked=!cb.checked;refresh();}};pages.appendChild(box);}
+file.onchange=async()=>{const f=file.files[0];if(!f)return;try{status.textContent="Loading PDF...";pages.innerHTML="";bytes=await f.arrayBuffer();pdf=await pdfjsLib.getDocument({data:bytes.slice(0)}).promise;all.disabled=false;clear.disabled=false;for(let i=1;i<=pdf.numPages;i++){status.textContent=`Rendering page ${i} of ${pdf.numPages}...`;await render(i);}status.textContent="PDF ready.";refresh();}catch(e){console.error(e);status.textContent="Unable to open this PDF.";}};
+all.onclick=()=>{checks().forEach(x=>x.checked=true);refresh();};clear.onclick=()=>{checks().forEach(x=>x.checked=false);refresh();};
+extract.onclick=async()=>{const selected=checks().map((x,i)=>x.checked?i:-1).filter(i=>i>=0);if(!selected.length||!bytes)return;try{extract.disabled=true;status.textContent="Extracting pages...";const src=await PDFLib.PDFDocument.load(bytes.slice(0)),out=await PDFLib.PDFDocument.create(),copied=await out.copyPages(src,selected);copied.forEach(p=>out.addPage(p));const data=await out.save(),blob=new Blob([data],{type:"application/pdf"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="manjeet-extracted-pages.pdf";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);status.textContent="Extracted PDF downloaded.";}catch(e){console.error(e);status.textContent="Unable to extract pages.";}finally{refresh();}};
+</script></body></html>

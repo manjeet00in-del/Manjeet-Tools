@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>PDF Compressor - Manjeet Digital Hub</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f8ff;color:#172033}.wrap{max-width:850px;margin:auto;padding:14px}
+.back{text-decoration:none;color:#2563eb;font-weight:700}.card{margin-top:12px;background:#fff;border:1px solid #e3e9f5;border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(37,99,235,.08)}
+h1{font-size:22px;margin:0 0 5px}.sub{font-size:13px;color:#64748b;margin:0 0 15px}.upload{display:block;border:2px dashed #93b4ff;border-radius:14px;padding:22px;text-align:center;background:#f8fbff;cursor:pointer}.upload input{display:none}.upload b{display:block;margin-top:5px}.upload small{color:#64748b}
+.field{margin-top:13px}.field label{display:block;font-size:11px;font-weight:700;margin-bottom:5px}.field select{width:100%;padding:10px;border:1px solid #dbe3ef;border-radius:9px;background:#fff}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:13px}.stat{background:#eff6ff;border-radius:10px;padding:10px;text-align:center}.stat span{display:block;font-size:10px;color:#64748b}.stat b{display:block;margin-top:4px;font-size:14px}
+.btn{width:100%;margin-top:13px;border:0;border-radius:9px;padding:11px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}.btn:disabled{opacity:.45}.status{text-align:center;color:#64748b;font-size:12px;margin-top:10px}.note{margin-top:12px;padding:10px;background:#fff7ed;border-radius:9px;color:#7c4a13;font-size:11px;line-height:1.5}
+</style></head><body><div class="wrap"><a class="back" href="../index.html">← Back</a><div class="card">
+<h1>🗜️ PDF Compressor</h1><p class="sub">Reduce PDF size directly in your browser.</p>
+<label class="upload"><input id="file" type="file" accept="application/pdf,.pdf"><div style="font-size:30px">📄</div><b>Choose PDF File</b><small>Tap here to select a PDF</small></label>
+<div class="field"><label>Compression Level</label><select id="level"><option value="1.5">Low — Better Quality</option><option value="1.2" selected>Medium — Balanced</option><option value="0.9">High — Smaller Size</option></select></div>
+<div class="stats"><div class="stat"><span>Original</span><b id="old">—</b></div><div class="stat"><span>Compressed</span><b id="new">—</b></div><div class="stat"><span>Reduced</span><b id="saved">—</b></div></div>
+<button class="btn" id="compress" disabled>Compress PDF</button><div id="status" class="status"></div>
+<div class="note"><b>Note:</b> Compression works by rendering each page and rebuilding the PDF. This can greatly reduce scanned/image-heavy PDFs, but selectable text may become an image. PDFs already optimized may not shrink much.</div>
+</div></div>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+const file=document.getElementById("file"),level=document.getElementById("level"),btn=document.getElementById("compress"),status=document.getElementById("status"),old=document.getElementById("old"),nw=document.getElementById("new"),saved=document.getElementById("saved");
+let bytes=null,name="compressed.pdf";
+const size=n=>n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB";
+file.onchange=async()=>{const f=file.files[0];if(!f)return;bytes=await f.arrayBuffer();name=f.name.replace(/\.pdf$/i,"")+"-compressed.pdf";old.textContent=size(f.size);nw.textContent="—";saved.textContent="—";btn.disabled=false;status.textContent="PDF ready.";};
+btn.onclick=async()=>{if(!bytes)return;try{btn.disabled=true;status.textContent="Opening PDF...";const pdf=await pdfjsLib.getDocument({data:bytes.slice(0)}).promise;const out=await PDFLib.PDFDocument.create();const scale=Number(level.value);const quality=scale>=1.5?.78:scale>=1.2?.62:.48;
+for(let i=1;i<=pdf.numPages;i++){status.textContent=`Compressing page ${i} of ${pdf.numPages}...`;const p=await pdf.getPage(i),vp=p.getViewport({scale});const c=document.createElement("canvas");c.width=Math.ceil(vp.width);c.height=Math.ceil(vp.height);const ctx=c.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,c.width,c.height);await p.render({canvasContext:ctx,viewport:vp}).promise;const data=c.toDataURL("image/jpeg",quality);const img=await out.embedJpg(data);const page=out.addPage([vp.width/scale,vp.height/scale]);page.drawImage(img,{x:0,y:0,width:page.getWidth(),height:page.getHeight()});}
+const result=await out.save({useObjectStreams:true});const original=bytes.byteLength;const pct=Math.max(0,(1-result.length/original)*100);nw.textContent=size(result.length);saved.textContent=pct.toFixed(1)+"%";
+const blob=new Blob([result],{type:"application/pdf"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);status.textContent=result.length<original?"Compressed PDF downloaded.":"PDF created, but this file could not be reduced further.";
+}catch(e){console.error(e);status.textContent="Unable to compress this PDF.";}finally{btn.disabled=false;}};
+</script></body></html>
