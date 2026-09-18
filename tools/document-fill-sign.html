@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Document Fill & Sign V6 - Manjeet Digital Hub</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f8ff;color:#172033}
+.wrap{max-width:1000px;margin:auto;padding:12px}.back{text-decoration:none;color:#2563eb;font-weight:700}
+.card{margin-top:10px;background:#fff;border:1px solid #e3e9f5;border-radius:18px;padding:14px;box-shadow:0 8px 24px rgba(37,99,235,.08)}
+h1{font-size:22px;margin:0 0 5px}.sub{font-size:12px;color:#64748b;margin:0 0 13px;line-height:1.5}
+.upload{display:block;border:2px dashed #93b4ff;border-radius:14px;padding:18px;text-align:center;background:#f8fbff;cursor:pointer}
+.upload input{display:none}.upload b{display:block;margin:5px 0}.upload small{color:#64748b}
+.toolbar{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.btn{border:0;border-radius:9px;padding:9px 11px;background:#edf4ff;color:#1d4ed8;font-weight:700;font-size:12px;cursor:pointer}.btn.primary{background:#2563eb;color:#fff}.btn.danger{background:#fff1f2;color:#be123c}.btn:disabled{opacity:.45}
+.pages{display:flex;gap:7px;overflow:auto;padding:3px 0 9px}.pagebtn{min-width:68px;border:1px solid #dbe3ef;background:#fff;border-radius:9px;padding:7px;font-size:11px}.pagebtn.active{border-color:#2563eb;background:#eff6ff;color:#1d4ed8;font-weight:700}
+.stagewrap{background:#e9eef8;border-radius:12px;padding:8px;overflow:auto}.stage{position:relative;margin:auto;background:white;box-shadow:0 2px 12px #0002;touch-action:none}.stage>canvas{display:block;width:100%;height:100%}
+.item{position:absolute;border:1px dashed transparent;cursor:move;user-select:none;touch-action:none}.item.selected{border-color:#2563eb}.textitem{background:transparent;color:#111;padding:2px;white-space:pre-wrap;min-width:30px}.sigitem img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none}
+.handle{display:none;position:absolute;width:18px;height:18px;border-radius:50%;background:#2563eb;right:-9px;bottom:-9px;cursor:nwse-resize}.item.selected .handle{display:block}
+.status{font-size:11px;color:#64748b;text-align:center;margin:8px 0}.ocrbox{margin-top:12px}.ocrbox textarea{width:100%;min-height:110px;border:1px solid #dbe3ef;border-radius:10px;padding:9px;font-size:12px}
+.modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:15px;z-index:20}.modal.show{display:flex}.dialog{width:min(480px,100%);background:#fff;border-radius:15px;padding:13px;max-height:92vh;overflow:auto}.dialog h3{margin:0 0 9px}.sigpreview{background:repeating-conic-gradient(#eee 0 25%,#fff 0 50%) 0/18px 18px;border:1px solid #dbe3ef;border-radius:10px;min-height:130px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:8px 0}.sigpreview canvas{max-width:100%;max-height:220px}.rangeRow{font-size:11px;font-weight:700;margin-top:8px}.rangeRow input{width:100%}
+#sigCanvas{width:100%;height:190px;border:1px solid #dbe3ef;border-radius:9px;touch-action:none;background:#fff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.field input,.field select{width:100%;padding:9px;border:1px solid #dbe3ef;border-radius:8px}.textcontrols{display:none;grid-template-columns:1.2fr .8fr;gap:8px;padding:9px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin:8px 0}.textcontrols.show{display:grid}.textcontrols label{font-size:10px;font-weight:700;color:#475569}.textcontrols select,.textcontrols input{width:100%;padding:7px;border:1px solid #dbe3ef;border-radius:7px;background:#fff}
+.note{margin-top:10px;padding:9px;background:#f8fafc;color:#64748b;border-radius:9px;font-size:10px;line-height:1.45}
+@media(max-width:600px){.stagewrap{padding:4px}.btn{padding:9px 9px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a class="back" href="../index.html">← Back</a>
+<div class="card">
+<h1>✍️ Document Fill & Sign</h1>
+<p class="sub">Upload PDF or multiple JPG/PNG images, improve page appearance, fill the document and add your signature.</p>
+
+<label class="upload">
+<input id="files" type="file" accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png" multiple>
+<div style="font-size:30px">📑</div><b>Choose PDF / Images</b>
+<small>Multiple images and files supported</small>
+</label>
+
+<div class="toolbar">
+<select class="btn" id="pageFilter" disabled style="width:auto">
+<option value="original">Original</option><option value="scan">Document Scan</option>
+<option value="bw">B&W</option><option value="gray">Grayscale</option>
+<option value="contrast">High Contrast</option><option value="bright">Bright</option>
+</select><button class="btn" id="applyFilter" disabled>✨ Apply Page Filter</button>
+<button class="btn" id="addText" disabled>📝 Add Text</button>
+<button class="btn" id="drawSign" disabled>✍️ Draw Signature</button>
+<label class="btn" style="cursor:pointer">🖼️ Upload Signature<input id="sigUpload" type="file" accept="image/*" hidden></label>
+<button class="btn danger" id="deleteItem" disabled>🗑️ Delete Selected</button>
+<button class="btn" id="undo" disabled>↶ Undo</button>
+<button class="btn primary" id="download" disabled>⬇ Download PDF</button>
+</div>
+
+<div id="textControls" class="textcontrols">
+<div><label>Font</label><select id="fontFamily"><option value="Arial">Arial</option><option value="Georgia">Georgia</option><option value="Times New Roman">Times New Roman</option><option value="Verdana">Verdana</option><option value="Courier New">Courier New</option></select></div>
+<div><label>Text Size</label><input id="fontSize" type="number" min="8" max="96" value="18"></div>
+<div style="grid-column:1/-1"><label>Edit Text</label><input id="editText" type="text" placeholder="Edit selected text"></div>
+</div>
+<div id="pageTabs" class="pages"></div>
+<div class="stagewrap"><div id="stage" class="stage"><canvas id="pageCanvas"></canvas></div></div>
+<div id="status" class="status">Choose a PDF or images to begin.</div>
+
+<div class="note">Files are processed in your browser. Use Page Filter to improve scanned documents before filling and signing. Internet is required to load the PDF libraries used by this GitHub Pages tool.</div>
+</div>
+</div>
+
+<div class="modal" id="cleanerModal"><div class="dialog">
+<h3>🪄 Clean Uploaded Signature</h3>
+<div class="sigpreview"><canvas id="cleanSigCanvas"></canvas></div>
+<div class="rangeRow">Ink Detection / Threshold: <span id="cleanTV">175</span><input id="cleanThreshold" type="range" min="60" max="245" value="175"></div>
+<div class="rangeRow">Noise Removal: <span id="cleanNV">2</span><input id="cleanNoise" type="range" min="0" max="5" value="2"></div>
+<div class="grid2">
+<div class="field"><label>Ink Color</label><select id="cleanInk"><option value="#111111">Black</option><option value="#123a8c">Blue</option><option value="#0b2f70">Dark Blue</option></select></div>
+<div class="field"><label>Background</label><select id="cleanBG"><option value="transparent">Transparent</option><option value="white">White</option></select></div>
+</div>
+<div class="toolbar"><button class="btn" id="cleanCancel">Cancel</button><button class="btn primary" id="useCleanSig">Use Transparent Signature</button></div>
+</div></div>
+
+<div class="modal" id="signModal"><div class="dialog">
+<h3>Draw Signature</h3>
+<canvas id="sigCanvas"></canvas>
+<div class="toolbar"><button class="btn" id="clearSig">Clear</button><button class="btn primary" id="useSig">Use Signature</button><button class="btn" id="closeSig">Cancel</button></div>
+</div></div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+const $=id=>document.getElementById(id);
+const input=$("files"),tabs=$("pageTabs"),stage=$("stage"),canvas=$("pageCanvas"),ctx=canvas.getContext("2d"),status=$("status");
+const pageFilter=$("pageFilter"),applyFilterBtn=$("applyFilter"),addTextBtn=$("addText"),drawBtn=$("drawSign"),delBtn=$("deleteItem"),undoBtn=$("undo"),downloadBtn=$("download"),sigUpload=$("sigUpload"),textControls=$("textControls"),fontFamily=$("fontFamily"),fontSize=$("fontSize"),editText=$("editText");
+let pages=[],current=0,selected=null,history=[];
+
+function snapshot(){history.push(JSON.stringify(pages.map(p=>p.items)));if(history.length>30)history.shift();undoBtn.disabled=history.length===0}
+function restore(){if(!history.length)return;const x=JSON.parse(history.pop());pages.forEach((p,i)=>p.items=x[i]||[]);selected=null;renderCurrent();undoBtn.disabled=history.length===0}
+undoBtn.onclick=restore;
+
+async function imageFromFile(file){
+ return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{URL.revokeObjectURL(u);res(im)};im.onerror=rej;im.src=u});
+}
+async function canvasFromImage(im){
+ const c=document.createElement("canvas");c.width=im.naturalWidth;c.height=im.naturalHeight;c.getContext("2d").drawImage(im,0,0);return c;
+}
+async function addPDF(file){
+ const data=await file.arrayBuffer(),pdf=await pdfjsLib.getDocument({data}).promise;
+ for(let n=1;n<=pdf.numPages;n++){
+  status.textContent=`Loading PDF page ${n}/${pdf.numPages}...`;
+  const p=await pdf.getPage(n),vp=p.getViewport({scale:1.5}),c=document.createElement("canvas");c.width=Math.ceil(vp.width);c.height=Math.ceil(vp.height);
+  await p.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;
+  pages.push({canvas:c,items:[],name:file.name+" - "+n});
+ }
+}
+input.onchange=async()=>{
+ const fs=[...input.files];if(!fs.length)return;
+ try{
+  pages=[];history=[];selected=null;tabs.innerHTML="";status.textContent="Loading files...";
+  for(const f of fs){
+   if(f.type==="application/pdf"||f.name.toLowerCase().endsWith(".pdf")) await addPDF(f);
+   else if(f.type.startsWith("image/")) pages.push({canvas:await canvasFromImage(await imageFromFile(f)),items:[],name:f.name});
+  }
+  current=0;makeTabs();renderCurrent();[pageFilter,applyFilterBtn,addTextBtn,drawBtn,downloadBtn].forEach(b=>b.disabled=!pages.length);status.textContent=`${pages.length} page(s) ready.`;
+ }catch(e){console.error(e);status.textContent="Unable to load one of the selected files."}
+};
+
+function makeTabs(){
+ tabs.innerHTML="";
+ pages.forEach((p,i)=>{const b=document.createElement("button");b.className="pagebtn"+(i===current?" active":"");b.textContent="Page "+(i+1);b.onclick=()=>{current=i;selected=null;makeTabs();renderCurrent()};tabs.appendChild(b)});
+}
+function renderCurrent(){
+ stage.querySelectorAll(".item").forEach(x=>x.remove());
+ if(!pages.length){canvas.width=1;canvas.height=1;return}
+ const p=pages[current],maxW=Math.min(820,window.innerWidth-36),ratio=p.canvas.height/p.canvas.width;
+ stage.style.width=maxW+"px";stage.style.height=(maxW*ratio)+"px";canvas.width=p.canvas.width;canvas.height=p.canvas.height;ctx.drawImage(p.canvas,0,0);
+ p.items.forEach((it,i)=>createItemElement(it,i));
+ delBtn.disabled=true;
+}
+function createItemElement(it,index){
+ const el=document.createElement("div");el.className="item "+(it.type==="text"?"textitem":"sigitem");el.style.left=(it.x*100)+"%";el.style.top=(it.y*100)+"%";el.style.width=(it.w*100)+"%";el.style.height=(it.h*100)+"%";el.dataset.index=index;
+ if(it.type==="text"){el.textContent=it.text;el.style.fontSize=(it.font||18)+"px";el.style.fontFamily=it.family||"Arial";el.style.color=it.color||"#111"}
+ else{const im=document.createElement("img");im.src=it.src;el.appendChild(im)}
+ const h=document.createElement("span");h.className="handle";el.appendChild(h);stage.appendChild(el);
+ el.onclick=e=>{e.stopPropagation();selectEl(el,index)};
+ drag(el,it);resize(el,h,it);
+}
+function selectEl(el,i){
+ stage.querySelectorAll(".item").forEach(x=>x.classList.remove("selected"));el.classList.add("selected");selected=i;delBtn.disabled=false;
+ const it=pages[current].items[i];
+ if(it&&it.type==="text"){textControls.classList.add("show");fontFamily.value=it.family||"Arial";fontSize.value=it.font||18;editText.value=it.text||""}
+ else{textControls.classList.remove("show")}
+}
+stage.onclick=()=>{selected=null;stage.querySelectorAll(".item").forEach(x=>x.classList.remove("selected"));delBtn.disabled=true;textControls.classList.remove("show")};
+function drag(el,it){
+ let sx,sy,ox,oy,moved=false;
+ const start=e=>{if(e.target.classList.contains("handle"))return;e.preventDefault();const q=e.touches?e.touches[0]:e;sx=q.clientX;sy=q.clientY;ox=it.x;oy=it.y;moved=false;document.addEventListener("pointermove",move);document.addEventListener("pointerup",end)};
+ const move=e=>{moved=true;it.x=Math.max(0,Math.min(1-it.w,ox+(e.clientX-sx)/stage.clientWidth));it.y=Math.max(0,Math.min(1-it.h,oy+(e.clientY-sy)/stage.clientHeight));el.style.left=it.x*100+"%";el.style.top=it.y*100+"%"};
+ const end=()=>{document.removeEventListener("pointermove",move);document.removeEventListener("pointerup",end)};
+ el.addEventListener("pointerdown",start);
+}
+function resize(el,h,it){
+ h.onpointerdown=e=>{e.stopPropagation();e.preventDefault();snapshot();const sx=e.clientX,sy=e.clientY,ow=it.w,oh=it.h;
+ const mv=q=>{it.w=Math.max(.05,Math.min(1-it.x,ow+(q.clientX-sx)/stage.clientWidth));it.h=Math.max(.025,Math.min(1-it.y,oh+(q.clientY-sy)/stage.clientHeight));el.style.width=it.w*100+"%";el.style.height=it.h*100+"%"};
+ const up=()=>{document.removeEventListener("pointermove",mv);document.removeEventListener("pointerup",up)};document.addEventListener("pointermove",mv);document.addEventListener("pointerup",up)};
+}
+addTextBtn.onclick=()=>{
+ const text=prompt("Enter text:");if(!text)return;snapshot();pages[current].items.push({type:"text",text,x:.12,y:.12,w:.35,h:.055,font:18,family:"Arial",color:"#111"});renderCurrent()
+};
+fontFamily.onchange=()=>{if(selected===null)return;const it=pages[current].items[selected];if(!it||it.type!=="text")return;snapshot();it.family=fontFamily.value;renderCurrent();};
+fontSize.onchange=()=>{if(selected===null)return;const it=pages[current].items[selected];if(!it||it.type!=="text")return;snapshot();it.font=Math.max(8,Math.min(96,Number(fontSize.value)||18));renderCurrent();};
+editText.onchange=()=>{if(selected===null)return;const it=pages[current].items[selected];if(!it||it.type!=="text")return;snapshot();it.text=editText.value;renderCurrent();};
+delBtn.onclick=()=>{if(selected===null)return;snapshot();pages[current].items.splice(selected,1);selected=null;textControls.classList.remove("show");renderCurrent()};
+
+
+function applyPageFilter(){
+ if(!pages.length)return;
+ const p=pages[current],src=p.canvas,c=document.createElement("canvas");
+ c.width=src.width;c.height=src.height;
+ const x=c.getContext("2d",{willReadFrequently:true});x.drawImage(src,0,0);
+ if(pageFilter.value==="original"){status.textContent="Original page selected.";return}
+ const im=x.getImageData(0,0,c.width,c.height),d=im.data;
+ for(let i=0;i<d.length;i+=4){
+  let r=d[i],g=d[i+1],b=d[i+2],lum=.299*r+.587*g+.114*b;
+  if(pageFilter.value==="gray"){r=g=b=lum}
+  else if(pageFilter.value==="bw"){let v=lum>175?255:0;r=g=b=v}
+  else if(pageFilter.value==="contrast"){let f=1.55;r=(r-128)*f+128;g=(g-128)*f+128;b=(b-128)*f+128}
+  else if(pageFilter.value==="bright"){r+=32;g+=32;b+=32}
+  else if(pageFilter.value==="scan"){let v=(lum-115)*1.35+165;if(lum>185)v+=28;r=g=b=v}
+  d[i]=Math.max(0,Math.min(255,r));d[i+1]=Math.max(0,Math.min(255,g));d[i+2]=Math.max(0,Math.min(255,b));
+ }
+ x.putImageData(im,0,0);p.canvas=c;renderCurrent();status.textContent="Page filter applied.";
+}
+applyFilterBtn.onclick=applyPageFilter;
+
+const sm=$("signModal"),sc=$("sigCanvas"),sctx=sc.getContext("2d");let drawing=false;
+function fitSig(){const r=sc.getBoundingClientRect(),d=devicePixelRatio||1;sc.width=r.width*d;sc.height=r.height*d;sctx.scale(d,d);sctx.lineWidth=2.2;sctx.lineCap="round";sctx.strokeStyle="#111"}
+drawBtn.onclick=()=>{sm.classList.add("show");setTimeout(fitSig,50)};
+$("closeSig").onclick=()=>sm.classList.remove("show");
+$("clearSig").onclick=()=>sctx.clearRect(0,0,sc.width,sc.height);
+sc.onpointerdown=e=>{drawing=true;const r=sc.getBoundingClientRect();sctx.beginPath();sctx.moveTo(e.clientX-r.left,e.clientY-r.top)};
+sc.onpointermove=e=>{if(!drawing)return;const r=sc.getBoundingClientRect();sctx.lineTo(e.clientX-r.left,e.clientY-r.top);sctx.stroke()};
+window.addEventListener("pointerup",()=>drawing=false);
+$("useSig").onclick=()=>{
+ const raw=sc.getContext("2d").getImageData(0,0,sc.width,sc.height),d=raw.data;let minX=sc.width,minY=sc.height,maxX=-1,maxY=-1;
+ for(let y=0;y<sc.height;y++)for(let x=0;x<sc.width;x++){if(d[(y*sc.width+x)*4+3]>10){minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y)}}
+ if(maxX<0){alert("Please draw a signature first.");return}
+ const pad=8,x0=Math.max(0,minX-pad),y0=Math.max(0,minY-pad),w=Math.min(sc.width-x0,maxX-minX+1+pad*2),h=Math.min(sc.height-y0,maxY-minY+1+pad*2),c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").putImageData(sctx.getImageData(x0,y0,w,h),0,0);
+ const src=c.toDataURL("image/png");snapshot();pages[current].items.push({type:"sig",src,x:.2,y:.2,w:.32,h:.10});sm.classList.remove("show");renderCurrent()
+};
+let uploadedSigOriginal=null;
+const cleanerModal=$("cleanerModal"),cleanSigCanvas=$("cleanSigCanvas"),cleanSigCtx=cleanSigCanvas.getContext("2d",{willReadFrequently:true});
+const cleanThreshold=$("cleanThreshold"),cleanNoise=$("cleanNoise"),cleanInk=$("cleanInk"),cleanBG=$("cleanBG");
+
+function hexRGB(hex){return [parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)]}
+
+function renderCleanSignature(){
+ if(!uploadedSigOriginal)return;
+ const W=uploadedSigOriginal.width,H=uploadedSigOriginal.height;
+ const src=uploadedSigOriginal.getContext("2d").getImageData(0,0,W,H),d=src.data,T=+cleanThreshold.value,N=+cleanNoise.value;
+ let mask=new Uint8Array(W*H),i,x,y,lum;
+ for(i=0;i<mask.length;i++){
+  lum=.299*d[i*4]+.587*d[i*4+1]+.114*d[i*4+2];
+  mask[i]=lum<T?1:0;
+ }
+ if(N){
+  const m2=new Uint8Array(mask),rad=Math.min(2,N);
+  for(y=rad;y<H-rad;y++)for(x=rad;x<W-rad;x++){
+   let n=0;
+   for(let yy=-rad;yy<=rad;yy++)for(let xx=-rad;xx<=rad;xx++)n+=mask[(y+yy)*W+x+xx];
+   if(mask[y*W+x]&&n<=N)m2[y*W+x]=0;
+  }
+  mask=m2;
+ }
+ const [cr,cg,cb]=hexRGB(cleanInk.value),trans=cleanBG.value==="transparent";
+ cleanSigCanvas.width=W;cleanSigCanvas.height=H;
+ const out=cleanSigCtx.createImageData(W,H);
+ for(i=0;i<mask.length;i++){
+  if(mask[i]){
+   out.data[i*4]=cr;out.data[i*4+1]=cg;out.data[i*4+2]=cb;out.data[i*4+3]=255;
+  }else{
+   out.data[i*4]=255;out.data[i*4+1]=255;out.data[i*4+2]=255;out.data[i*4+3]=trans?0:255;
+  }
+ }
+ cleanSigCtx.putImageData(out,0,0);
+ $("cleanTV").textContent=cleanThreshold.value;$("cleanNV").textContent=cleanNoise.value;
+}
+
+function trimCleanSignature(){
+ const W=cleanSigCanvas.width,H=cleanSigCanvas.height,d=cleanSigCtx.getImageData(0,0,W,H).data;
+ let minX=W,minY=H,maxX=-1,maxY=-1;
+ for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+  const i=(y*W+x)*4;
+  const visible=cleanBG.value==="transparent"?d[i+3]>20:(d[i]<245||d[i+1]<245||d[i+2]<245);
+  if(visible){minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)}
+ }
+ if(maxX<0)return null;
+ const pad=Math.max(5,Math.round(Math.min(W,H)*.025)),sx=Math.max(0,minX-pad),sy=Math.max(0,minY-pad);
+ const sw=Math.min(W-sx,maxX-minX+1+pad*2),sh=Math.min(H-sy,maxY-minY+1+pad*2);
+ const c=document.createElement("canvas");c.width=sw;c.height=sh;c.getContext("2d").drawImage(cleanSigCanvas,sx,sy,sw,sh,0,0,sw,sh);
+ return c;
+}
+
+sigUpload.onchange=async()=>{
+ const f=sigUpload.files[0];if(!f||!pages.length)return;
+ try{
+  const im=await imageFromFile(f),max=1400,sc=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));
+  uploadedSigOriginal=document.createElement("canvas");uploadedSigOriginal.width=Math.round(im.naturalWidth*sc);uploadedSigOriginal.height=Math.round(im.naturalHeight*sc);
+  uploadedSigOriginal.getContext("2d").drawImage(im,0,0,uploadedSigOriginal.width,uploadedSigOriginal.height);
+  cleanThreshold.value=175;cleanNoise.value=2;cleanInk.value="#111111";cleanBG.value="transparent";
+  renderCleanSignature();cleanerModal.classList.add("show");status.textContent="Adjust threshold until only the signature remains.";
+ }catch(e){console.error(e);status.textContent="Unable to open signature image."}
+};
+cleanThreshold.oninput=renderCleanSignature;cleanNoise.oninput=renderCleanSignature;cleanInk.onchange=renderCleanSignature;cleanBG.onchange=renderCleanSignature;
+$("cleanCancel").onclick=()=>cleanerModal.classList.remove("show");
+$("useCleanSig").onclick=()=>{
+ const c=trimCleanSignature();if(!c)return alert("No signature detected. Increase the threshold.");
+ const src=c.toDataURL("image/png");snapshot();pages[current].items.push({type:"sig",src,x:.2,y:.2,w:.32,h:Math.max(.055,.32*(c.height/c.width)*(stage.clientWidth/stage.clientHeight))});
+ cleanerModal.classList.remove("show");renderCurrent();status.textContent="Transparent signature added. Drag or resize it.";
+};
+
+async function exportPage(p){
+ const c=document.createElement("canvas");c.width=p.canvas.width;c.height=p.canvas.height;const x=c.getContext("2d");x.drawImage(p.canvas,0,0);
+ for(const it of p.items){
+  const X=it.x*c.width,Y=it.y*c.height,W=it.w*c.width,H=it.h*c.height;
+  if(it.type==="text"){x.fillStyle=it.color||"#111";x.font=`${Math.max(12,(it.font||18)*(c.width/stage.clientWidth))}px "${it.family||"Arial"}"`;x.textBaseline="top";x.fillText(it.text,X,Y)}
+  else{await new Promise(res=>{const im=new Image();im.onload=()=>{x.drawImage(im,X,Y,W,H);res()};im.src=it.src})}
+ }
+ return c;
+}
+downloadBtn.onclick=async()=>{
+ if(!pages.length)return;try{downloadBtn.disabled=true;status.textContent="Creating signed PDF...";const out=await PDFLib.PDFDocument.create();
+ for(let i=0;i<pages.length;i++){status.textContent=`Creating page ${i+1}/${pages.length}...`;const c=await exportPage(pages[i]),data=c.toDataURL("image/jpeg",.92),img=await out.embedJpg(data);const pg=out.addPage([c.width,c.height]);pg.drawImage(img,{x:0,y:0,width:c.width,height:c.height})}
+ const b=await out.save(),blob=new Blob([b],{type:"application/pdf"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="manjeet-filled-signed-document.pdf";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500);status.textContent="Signed PDF downloaded.";
+ }catch(e){console.error(e);status.textContent="Unable to create signed PDF."}finally{downloadBtn.disabled=false}
+};
+</script>
+</body>
+</html>
