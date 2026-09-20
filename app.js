@@ -1,6 +1,6 @@
 /* =========================================================
    MANJEET DIGITAL HUB - COMPLETE APP.JS
-   Version: 4.6
+   Version: 4.7
    Smart Digital Tools. Simple Solutions.
    ========================================================= */
 
@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if(currentYear)currentYear.textContent=new Date().getFullYear();
 
   const toolData={
-    aienhancer:{title:"Smart Photo Enhancer",icon:"✨"},fillandsign:{title:"Document Fill & Sign",icon:"✍️"},
+    aienhancer:{title:"Smart Photo Enhancer",icon:"✨"},fillandsign:{title:"Document Fill & Sign",icon:"✍️"},photosignature:{title:"Photo + Signature Maker",icon:"📸"},
     idprint:{title:"ID Card Print",icon:"🪪"},idsheet:{title:"ID Card Print Sheet",icon:"🪪"},pvcautocrop:{title:"PVC Auto Crop",icon:"✂️"},passport:{title:"Passport Photo Maker",icon:"🪪"},photocropresize:{title:"Photo Crop And Resize",icon:"📐"},resume:{title:"Resume Maker",icon:"📄"},bgremover:{title:"BG Remover",icon:"🪄"},
     compressor:{title:"Image Compressor",icon:"🗜️"},resizer:{title:"Image Resizer",icon:"↔️"},converter:{title:"Image Converter",icon:"🔄"},reducer:{title:"Photo Size Reducer",icon:"📉"},social:{title:"Social Media Resizer",icon:"📱"},
     jpgpdf:{title:"JPG → PDF",icon:"🖼️"},pngpdf:{title:"PNG → PDF",icon:"📄"},pdf:{title:"Images → PDF",icon:"📄"},mergepdf:{title:"Merge PDF",icon:"📚"},splitpdf:{title:"Split PDF",icon:"✂️"},pdfjpg:{title:"PDF → JPG",icon:"🖼️"},pdfpng:{title:"PDF → PNG",icon:"🖼️"},pdfcompressor:{title:"PDF Compressor",icon:"🗜️"},pdfextractor:{title:"PDF Page Extractor",icon:"📤"},pdfreorder:{title:"PDF Page Reorder",icon:"🔀"},pdfrotate:{title:"PDF Rotate",icon:"🔄"},pdfprint:{title:"PDF Print Sheet",icon:"🖨️"},
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function openTool(t){
     const routes={
-      aienhancer:"tools/smart-photo-enhancer.html",fillandsign:"tools/document-fill-sign.html",
+      aienhancer:"tools/smart-photo-enhancer.html",fillandsign:"tools/document-fill-sign.html",photosignature:"tools/photo-signature-maker.html",
       pngpdf:"tools/png-to-pdf.html",pdfjpg:"tools/pdf-to-jpg.html",pdfpng:"tools/pdf-to-png.html",splitpdf:"tools/split-pdf.html",pdfcompressor:"tools/pdf-compressor.html",pdfextractor:"tools/pdf-page-extractor.html",jpgpdf:"tools/jpg-to-pdf.html",pvcautocrop:"tools/pvc-auto-crop.html",bgremover:"tools/bg-remover.html",photocropresize:"tools/photo-crop-resize.html",schoolid:"tools/school-id-card-maker.html",passport:"tools/passport-photo-maker.html",employeeid:"tools/employee-id-card-maker.html",marriagebio:"tools/marriage-biodata-maker.html",document:"tools/document-scanner.html",visiting:"tools/visiting-card-maker.html",resume:"tools/resume-maker.html",certificate:"tools/certificate-maker.html",signature:"tools/signature-maker.html",idprint:"tools/id-card-print.html",idsheet:"tools/id-card-print-sheet.html",label:"tools/label-sticker-maker.html"
     };
     if(routes[t]){window.location.href=routes[t];return;}
@@ -72,5 +72,5 @@ document.addEventListener("DOMContentLoaded", function () {
   }}
   document.addEventListener("keydown",function(e){const m=navigator.platform.toUpperCase().indexOf("MAC")>=0?e.metaKey:e.ctrlKey;if(m&&e.key.toLowerCase()==="k"){e.preventDefault();if(searchInput){searchInput.focus();searchInput.select();}}});
   if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
-  console.log("Manjeet Digital Hub v4.6 loaded successfully.");
+  console.log("Manjeet Digital Hub v4.7 loaded successfully.");
 });
