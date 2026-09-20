@@ -1,4 +1,4 @@
-const CACHE_NAME = "manjeet-tools-v11";
+const CACHE_NAME = "manjeet-tools-v12";
 const FILES_TO_CACHE = ["./","./index.html","./style.css","./app.js","./dashboard-enhancements.js","./manifest.json","./icon.svg","./tools/school-id-card-maker.html"];
 self.addEventListener("install",event=>{event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(FILES_TO_CACHE)));self.skipWaiting();});
 self.addEventListener("activate",event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE_NAME).map(key=>caches.delete(key)))));self.clients.claim();});
