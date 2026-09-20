@@ -1,43 +1,5 @@
-const CACHE_NAME = "manjeet-tools-v10";
-
-const FILES_TO_CACHE = [
-  "./",
-  "./index.html",
-  "./style.css",
-  "./app.js",
-  "./manifest.json",
-  "./icon.svg",
-  "./tools/school-id-card-maker.html"
-];
-
-self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(FILES_TO_CACHE);
-    })
-  );
-
-  self.skipWaiting();
-});
-
-self.addEventListener("activate", event => {
-  event.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
-      );
-    })
-  );
-
-  self.clients.claim();
-});
-
-self.addEventListener("fetch", event => {
-  event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      return cachedResponse || fetch(event.request);
-    })
-  );
-});
+const CACHE_NAME = "manjeet-tools-v11";
+const FILES_TO_CACHE = ["./","./index.html","./style.css","./app.js","./dashboard-enhancements.js","./manifest.json","./icon.svg","./tools/school-id-card-maker.html"];
+self.addEventListener("install",event=>{event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(FILES_TO_CACHE)));self.skipWaiting();});
+self.addEventListener("activate",event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE_NAME).map(key=>caches.delete(key)))));self.clients.claim();});
+self.addEventListener("fetch",event=>{const req=event.request,url=new URL(req.url);if(req.mode==="navigate"&&(url.pathname.endsWith("/")||url.pathname.endsWith("/index.html"))){event.respondWith(fetch(req).then(async response=>{if(!response.ok)return response;let html=await response.text();if(!html.includes("dashboard-enhancements.js"))html=html.replace("</body>",'<script src="./dashboard-enhancements.js"></script></body>');return new Response(html,{status:response.status,statusText:response.statusText,headers:{"Content-Type":"text/html; charset=utf-8"}})}).catch(()=>caches.match("./index.html")));return;}event.respondWith(caches.match(req).then(cached=>cached||fetch(req)));});
