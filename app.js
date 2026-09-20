@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function openTool(t){
     const routes={
-      aienhancer:"tools/smart-photo-enhancer.html",fillandsign:"tools/document-fill-sign.html",photosignature:"tools/photo-signature-maker.html",applicationwriter:"https://manjeet00in-del.github.io/Background-remover/",
+      aienhancer:"tools/smart-photo-enhancer.html",fillandsign:"tools/document-fill-sign.html",photosignature:"tools/photo-signature-maker.html",applicationwriter:"tools/smart-application-writer.html",
       pngpdf:"tools/png-to-pdf.html",pdfjpg:"tools/pdf-to-jpg.html",pdfpng:"tools/pdf-to-png.html",splitpdf:"tools/split-pdf.html",pdfcompressor:"tools/pdf-compressor.html",pdfextractor:"tools/pdf-page-extractor.html",jpgpdf:"tools/jpg-to-pdf.html",pvcautocrop:"tools/pvc-auto-crop.html",bgremover:"tools/bg-remover.html",photocropresize:"tools/photo-crop-resize.html",schoolid:"tools/school-id-card-maker.html",passport:"tools/passport-photo-maker.html",employeeid:"tools/employee-id-card-maker.html",marriagebio:"tools/marriage-biodata-maker.html",document:"tools/document-scanner.html",visiting:"tools/visiting-card-maker.html",resume:"tools/resume-maker.html",certificate:"tools/certificate-maker.html",signature:"tools/signature-maker.html",idprint:"tools/id-card-print.html",idsheet:"tools/id-card-print-sheet.html",label:"tools/label-sticker-maker.html"
     };
     if(routes[t]){window.location.href=routes[t];return;}
