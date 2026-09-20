@@ -1,12 +1,15 @@
 {
-  "name": "Manjeet Tools",
-  "short_name": "Manjeet Tools",
-  "description": "Free online tools for images, calculators, documents and more.",
+  "name": "Manjeet Digital Hub",
+  "short_name": "MDH",
+  "description": "Photo, PDF, ID card, finance and everyday digital tools in one place.",
+  "id": "./",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2563eb",
-  "orientation": "portrait",
+  "orientation": "any",
+  "categories": ["utilities", "productivity"],
   "icons": [
     {
       "src": "icon.svg",
