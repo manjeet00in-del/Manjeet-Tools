@@ -24,6 +24,15 @@
     .mdh-hero-panel .hero-subline{position:relative;z-index:2;margin:0 auto;max-width:670px;color:rgba(255,255,255,.86);font-size:11px;line-height:1.55}
     .hero .search-container,.hero .hero-pills{position:relative;z-index:3}
     @media(max-width:480px){.hero .hero-inner{padding-top:20px;padding-bottom:25px}.mdh-hero-panel{padding:22px 12px 21px;border-radius:21px;margin-bottom:15px}.mdh-hero-panel h1{font-size:25px}.mdh-hero-panel .hero-mainline{font-size:17px}.mdh-hero-panel .hero-subline{font-size:9.5px;padding:0 4px}}
+
+    .privacy-banner{position:relative;overflow:hidden;width:min(820px,100%);margin:17px auto 4px;padding:15px 18px;border:1px solid #bfdbfe;border-radius:18px;background:linear-gradient(120deg,#f8fbff,#eef7ff 48%,#f5f3ff);box-shadow:0 9px 25px rgba(37,99,235,.10);display:flex;align-items:center;justify-content:center;gap:16px}
+    .privacy-banner:after{content:"";position:absolute;top:0;left:-45%;width:28%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);transform:skewX(-18deg);animation:privacyShine 4.8s ease-in-out infinite}
+    .privacy-shield{position:relative;z-index:2;width:50px;height:56px;flex:0 0 50px;display:grid;place-items:center;border-radius:16px 16px 23px 23px;background:linear-gradient(145deg,#2563eb,#4f46e5);color:#fff;font-size:25px;box-shadow:0 8px 18px rgba(37,99,235,.28);animation:privacyFloat 2.8s ease-in-out infinite}
+    .privacy-shield:before{content:"";position:absolute;inset:-6px;border:1px solid rgba(37,99,235,.25);border-radius:20px 20px 27px 27px;animation:privacyPulse 2.8s ease-out infinite}
+    .privacy-copy{position:relative;z-index:2;text-align:left}.privacy-title{font-size:18px;font-weight:800;letter-spacing:-.3px;color:#0f172a}.privacy-title span{color:#2563eb}.privacy-points{display:flex;gap:13px;flex-wrap:wrap;margin-top:5px;font-size:10px;font-weight:600;color:#475569}.privacy-points span{opacity:0;transform:translateY(5px);animation:privacyPoint .55s ease forwards}.privacy-points span:nth-child(1){animation-delay:.25s}.privacy-points span:nth-child(2){animation-delay:.5s}.privacy-points span:nth-child(3){animation-delay:.75s}.privacy-points b{color:#16a34a;margin-right:3px}
+    @keyframes privacyFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}@keyframes privacyPulse{0%{transform:scale(.94);opacity:.8}70%,100%{transform:scale(1.22);opacity:0}}@keyframes privacyShine{0%,58%{left:-45%}82%,100%{left:125%}}@keyframes privacyPoint{to{opacity:1;transform:translateY(0)}}
+    @media(max-width:560px){.privacy-banner{padding:12px 11px;gap:10px;border-radius:15px}.privacy-shield{width:43px;height:48px;flex-basis:43px;font-size:21px}.privacy-title{font-size:15px}.privacy-points{gap:5px 9px;font-size:8.5px}}
+    @media(prefers-reduced-motion:reduce){.privacy-banner:after,.privacy-shield,.privacy-shield:before,.privacy-points span{animation:none}.privacy-points span{opacity:1;transform:none}}
   </style>
 </head>
 <body>
@@ -35,7 +44,7 @@
 <section class="hero"><div class="hero-glow glow-one"></div><div class="hero-glow glow-two"></div><div class="container hero-inner">
 <div class="mdh-hero-panel"><div class="hero-badge"><span class="status-dot"></span>Free Digital Tools</div><h1>Manjeet Digital Hub</h1><div class="hero-mainline">Online Photo, PDF, ID Card &amp; Digital Tools</div><p class="hero-subline">Passport photos, ID cards, PDFs, resumes and everyday digital services — all in one place.</p></div>
 <div class="search-container"><span class="search-icon">🔍</span><input type="search" id="toolSearch" placeholder="Search tools..." autocomplete="off"><span class="search-shortcut">Ctrl K</span></div>
-<div class="hero-pills"><span>✓ Free to use</span><span>✓ Mobile friendly</span><span>✓ No login required</span></div>
+<div class="hero-pills"><span>✓ Free to use</span><span>✓ Mobile friendly</span><span>✓ No login required</span></div><div class="privacy-banner" aria-label="Privacy information"><div class="privacy-shield" aria-hidden="true">🔒</div><div class="privacy-copy"><div class="privacy-title">Your Data. <span>Your Privacy.</span></div><div class="privacy-points"><span><b>✓</b> Browser-first processing</span><span><b>✓</b> No login required</span><span><b>✓</b> Privacy-focused tools</span></div></div></div>
 </div></section>
 <section class="tools-section" id="tools"><div class="container">
 <div class="section-heading"><div><span class="section-label">TOOLS</span><h2>All Digital Tools</h2><p>Useful tools for your everyday digital work.</p></div></div>
