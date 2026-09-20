@@ -1,4 +1,4 @@
-const CACHE_NAME = "manjeet-tools-v6";
+const CACHE_NAME = "manjeet-tools-v8";
 
 const FILES_TO_CACHE = [
   "./",
