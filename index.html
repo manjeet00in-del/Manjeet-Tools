@@ -69,6 +69,7 @@
 <div class="modal" id="toolModal" aria-hidden="true"><div class="modal-overlay" id="modalOverlay"></div><div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-header"><div class="modal-title-area"><span id="modalIcon" class="modal-icon">🛠️</span><h2 id="modalTitle">Tool</h2></div><button id="closeTool" class="close-button" type="button" aria-label="Close">✕</button></div><div id="toolContent" class="tool-content"></div></div></div>
 <footer class="site-footer"><div class="container footer-inner"><div><strong>Manjeet Digital Hub</strong><p>Smart Digital Tools. Simple Solutions.</p></div><div class="footer-links"><a href="#tools">Tools</a><a href="#portals">Portals</a><a href="#about">About</a></div><div class="footer-copy">© <span id="currentYear"></span> Manjeet Digital Hub</div></div></footer>
 <script src="./app.js"></script>
+<script src="./govt-portals.js"></script>
 <script>document.addEventListener("keydown",function(event){if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="k"){event.preventDefault();const search=document.getElementById("toolSearch");if(search){search.focus();search.select();}}});if("serviceWorker"in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("./service-worker.js").catch(function(){});});}</script>
 </body>
 </html>
