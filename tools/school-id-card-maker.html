@@ -3363,29 +3363,11 @@ body{
 
 </head>
 
-<body>
+<body onload="setTimeout(function(){window.print()},500)" onafterprint="window.close()">
 
 ${imageHTML}
 
-\x3Cscript>
 
-window.onload=function(){
-
-    setTimeout(function(){
-
-        window.print();
-
-    },500);
-
-};
-
-window.onafterprint=function(){
-
-    window.close();
-
-};
-
-<\/script>
 
 </body>
 
