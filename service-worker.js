@@ -1,5 +1,5 @@
 // Network-first navigation: never serve an outdated tool page from Cache Storage.
-const CACHE_NAME = "manjeet-tools-v22";
+const CACHE_NAME = "manjeet-tools-v23";
 const FILES_TO_CACHE = ["./style.css","./app.js","./dashboard-enhancements.js","./launch-polish.js","./pwa-install.js","./feedback.js","./tutorial.js","./govt-portals.js","./tool-brand.js","./brand-logo-light.svg","./manifest.json","./icon.svg"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE)));
@@ -9,13 +9,21 @@ self.addEventListener("activate", event => {
   event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))).then(() => self.clients.claim()));
 });
 function inject(html,prefix,isHome){
-  if(isHome&&!html.includes('dashboard-enhancements.js'))html=html.replace('</body>','<script src="'+prefix+'dashboard-enhancements.js"></script></body>');
-  if(isHome&&!html.includes('launch-polish.js'))html=html.replace('</body>','<script src="'+prefix+'launch-polish.js?v=22"></script></body>');
-  if(isHome&&!html.includes('pwa-install.js'))html=html.replace('</body>','<script src="'+prefix+'pwa-install.js?v=22"></script></body>');
-  if(isHome&&!html.includes('govt-portals.js'))html=html.replace('</body>','<script src="'+prefix+'govt-portals.js?v=22"></script></body>');
-  if(!html.includes('feedback.js'))html=html.replace('</body>','<script src="'+prefix+'feedback.js?v=22"></script></body>');
-  if(!isHome&&!html.includes('tutorial.js'))html=html.replace('</body>','<script src="'+prefix+'tutorial.js?v=22"></script></body>');
-  if(!isHome&&!html.includes('tool-brand.js'))html=html.replace('<body>','<body><script src="'+prefix+'tool-brand.js?v=22" defer></script>');
+  // Append only at the FINAL body close. Tool scripts contain print-document
+  // templates with their own </body> text; replacing the first one corrupts JS.
+  const additions=[];
+  if(isHome&&!html.includes('dashboard-enhancements.js'))additions.push('<script src="'+prefix+'dashboard-enhancements.js"></script>');
+  if(isHome&&!html.includes('launch-polish.js'))additions.push('<script src="'+prefix+'launch-polish.js?v=23"></script>');
+  if(isHome&&!html.includes('pwa-install.js'))additions.push('<script src="'+prefix+'pwa-install.js?v=23"></script>');
+  if(isHome&&!html.includes('govt-portals.js'))additions.push('<script src="'+prefix+'govt-portals.js?v=23"></script>');
+  if(!html.includes('feedback.js'))additions.push('<script src="'+prefix+'feedback.js?v=23"></script>');
+  if(!isHome&&!html.includes('tutorial.js'))additions.push('<script src="'+prefix+'tutorial.js?v=23"></script>');
+  const close=html.toLowerCase().lastIndexOf('</body>');
+  if(close!==-1&&additions.length)html=html.slice(0,close)+additions.join('')+html.slice(close);
+  if(!isHome&&!html.includes('tool-brand.js')){
+    const open=html.toLowerCase().indexOf('<body>');
+    if(open!==-1)html=html.slice(0,open+6)+'<script src="'+prefix+'tool-brand.js?v=23" defer></script>'+html.slice(open+6);
+  }
   return html;
 }
 self.addEventListener("fetch", event => {
