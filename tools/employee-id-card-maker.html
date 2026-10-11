@@ -151,8 +151,9 @@ async function printCards(){
    .item{text-align:center}.item img{width:${o==='portrait'?'54mm':'85.6mm'};height:${o==='portrait'?'85.6mm':'54mm'};object-fit:fill;display:block}
    .lbl{font-size:10px;margin-top:3mm}@media print{.lbl{display:none}}
    </style></head><body><div class="sheet"><div class="item"><img src="${fu}"><div class="lbl">Front</div></div><div class="item"><img src="${bu}"><div class="lbl">Back</div></div></div>
-   \x3Cscript>window.onload=function(){setTimeout(function(){window.print()},250)}<\/script></body></html>`);
+</body></html>`);
    w.document.close();
+   w.addEventListener('load',function(){setTimeout(function(){w.print()},250)},{once:true});
  }finally{btns.forEach(b=>b.disabled=false)}
 }
 
