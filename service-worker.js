@@ -8,6 +8,7 @@ self.addEventListener("install", event => {
 self.addEventListener("activate", event => {
   event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))).then(() => self.clients.claim()));
 });
+function replaceLast(html,needle,replacement){const at=html.lastIndexOf(needle);return at<0?html:html.slice(0,at)+replacement+html.slice(at+needle.length)}
 function inject(html,prefix,isHome){
   // Append only at the FINAL body close. Tool scripts contain print-document
   // templates with their own </body> text; replacing the first one corrupts JS.
