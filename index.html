@@ -101,6 +101,6 @@
 </div></footer>
 <script src="./app.js"></script>
 <script src="./govt-portals.js"></script>
-<script>document.addEventListener("keydown",function(event){if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="k"){event.preventDefault();const search=document.getElementById("toolSearch");if(search){search.focus();search.select();}}});if("serviceWorker"in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("./service-worker.js").catch(function(){});});}</script>
+<script>document.addEventListener("keydown",function(event){if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="k"){event.preventDefault();const search=document.getElementById("toolSearch");if(search){search.focus();search.select();}}});if("serviceWorker"in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("./service-worker.js",{updateViaCache:"none"}).then(function(reg){reg.update().catch(function(){});}).catch(function(){});});}</script>
 </body>
 </html>
