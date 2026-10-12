@@ -749,6 +749,8 @@ textarea{
 
 }
 
+.front-auth{position:absolute;left:20px;right:20px;bottom:14px;display:flex;justify-content:space-between;align-items:end;gap:12px;pointer-events:none}.card-preview{position:relative}.barcode-block{display:flex;flex-direction:column;align-items:center;width:145px;max-width:45%}.barcode-block svg{width:100%;height:34px;background:#fff}.barcode-block span{font-size:8px;letter-spacing:1px;color:#334155}.principal-block{min-width:90px;text-align:center;font-size:10px;font-weight:700;color:#334155;border-top:1px solid #94a3b8;padding-top:2px}.principal-block img{display:block;max-width:100px;height:35px;object-fit:contain;margin:0 auto 2px}.front-body{padding-bottom:75px!important}
+@media(max-width:600px){.front-auth{left:12px;right:12px;bottom:10px}.barcode-block{width:115px}.principal-block{min-width:75px;font-size:8px}.principal-block img{height:26px}}
 /* PRINT */
 
 @media print{
@@ -1181,6 +1183,16 @@ Passport-size photo recommended
   </div>
 </div>
 
+<!-- AUTHORIZED SIGNATURE AND BARCODE -->
+<div class="section">
+<div class="section-title">✍️ Principal Signature &amp; Barcode</div>
+<div class="form-grid">
+<div class="field full"><label>Principal Signature (PNG / JPG)</label><input id="principalSignInput" type="file" accept="image/*"><small>Use a genuine authorized signature. Transparent PNG recommended.</small></div>
+<div class="field full"><label>Barcode Value (optional; defaults to Roll No.)</label><input id="barcodeValue" type="text" placeholder="Student ID / Roll Number"></div>
+<div class="field full"><label><input id="showBarcode" type="checkbox" checked style="width:auto;margin-right:6px">Show barcode on front card</label></div>
+</div>
+</div>
+
 <!-- BACK SIDE TEXT -->
 
 <div class="section">
@@ -1467,6 +1479,7 @@ Student Name
 
 </div>
 
+<div class="front-auth" id="frontAuth"><div class="barcode-block" id="barcodeBlock"><svg id="barcodePreview" viewBox="0 0 270 55" role="img" aria-label="Student barcode"></svg><span id="barcodeCaption"></span></div><div class="principal-block"><img id="principalSignPreview" alt="Principal signature" style="display:none"><span>Principal Sign</span></div></div>
 <div
 class="card-footer"
 id="frontFooter">
@@ -1734,6 +1747,7 @@ let currentTemplate = "blue";
 let logoData = "";
 
 let photoData = "";
+let principalSignData = "";
 
 let currentSide = "front";
 
@@ -2218,6 +2232,16 @@ function getColors(){
 }
 
 
+// CODE39 is drawn locally, so the card works without an external barcode API.
+const CODE39={"0":"nnnwwnwnn","1":"wnnwnnnnw","2":"nnwwnnnnw","3":"wnwwnnnnn","4":"nnnwwnnnw","5":"wnnwwnnnn","6":"nnwwwnnnn","7":"nnnwnnwnw","8":"wnnwnnwnn","9":"nnwwnnwnn","A":"wnnnnwnnw","B":"nnwnnwnnw","C":"wnwnnwnnn","D":"nnnnwwnnw","E":"wnnnwwnnn","F":"nnwnwwnnn","G":"nnnnnwwnw","H":"wnnnnwwnn","I":"nnwnnwwnn","J":"nnnnwwwnn","K":"wnnnnnnww","L":"nnwnnnnww","M":"wnwnnnnwn","N":"nnnnwnnww","O":"wnnnwnnwn","P":"nnwnwnnwn","Q":"nnnnnnwww","R":"wnnnnnwwn","S":"nnwnnnwwn","T":"nnnnwnwwn","U":"wwnnnnnnw","V":"nwwnnnnnw","W":"wwwnnnnnn","X":"nwnnwnnnw","Y":"wwnnwnnnn","Z":"nwwnwnnnn","-":"nwnnnnwnw",".":"wwnnnnwnn"," ":"nwwnnnwnn","$":"nwnwnwnnn","/":"nwnwnnnwn","+":"nwnnnwnwn","%":"nnnwnwnwn","*":"nwnnwnwnn"};
+function barcodeText(){return String(document.getElementById("barcodeValue").value||inputs.rollNo.value||"0001").toUpperCase().replace(/[^0-9A-Z .\-$/+%]/g,"").slice(0,24)||"0001"}
+function barcodeBars(text){let pattern="*"+text+"*", bars=[],x=0;for(const ch of pattern){const p=CODE39[ch];if(!p)continue;for(let i=0;i<9;i++){const w=p[i]==="w"?3:1;if(i%2===0)bars.push([x,w]);x+=w}x+=1}return {bars,width:x}}
+function paintBarcode(ctx,value,x,y,width,height){const data=barcodeBars(value),scale=width/data.width;ctx.fillStyle="#fff";ctx.fillRect(x-3,y-3,width+6,height+6);ctx.fillStyle="#111827";for(const bar of data.bars)ctx.fillRect(x+bar[0]*scale,y,Math.max(.6,bar[1]*scale),height)}
+function updateAuthPreview(){const sign=document.getElementById("principalSignPreview");sign.src=principalSignData||"";sign.style.display=principalSignData?"block":"none";const box=document.getElementById("barcodeBlock"),svg=document.getElementById("barcodePreview"),value=barcodeText(),data=barcodeBars(value);box.style.display=document.getElementById("showBarcode").checked?"flex":"none";svg.setAttribute("viewBox","0 0 "+data.width+" 55");svg.innerHTML=data.bars.map(b=>'<rect x="'+b[0]+'" y="0" width="'+b[1]+'" height="55" fill="#111827"/>').join("");document.getElementById("barcodeCaption").textContent=value}
+document.getElementById("principalSignInput").addEventListener("change",function(){const file=this.files&&this.files[0];if(!file){principalSignData="";updateCard();return}if(!file.type.startsWith("image/")){alert("Please upload an image.");return}const reader=new FileReader();reader.onload=()=>{principalSignData=reader.result;updateCard()};reader.readAsDataURL(file)});
+document.getElementById("barcodeValue").addEventListener("input",updateCard);
+document.getElementById("showBarcode").addEventListener("change",updateCard);
+
 /* UPDATE CARD */
 
 function updateCard(){
@@ -2321,6 +2345,8 @@ function updateCard(){
         inputs.studentContact.value ||
         "-";
 
+
+    updateAuthPreview();
 
     /* COLORS */
 
@@ -2723,6 +2749,16 @@ async function createCardCanvas(side){
             430
         );
 
+
+        /* AUTHORIZATION */
+        if(document.getElementById("showBarcode").checked){
+            const code=barcodeText();
+            paintBarcode(ctx,code,55,493,275,70);
+            ctx.fillStyle="#334155";ctx.font="15px Arial";ctx.textAlign="center";ctx.fillText(code,192,584);ctx.textAlign="left";
+        }
+        if(principalSignData){try{const sign=await loadImage(principalSignData);const ratio=Math.min(180/sign.width,65/sign.height);ctx.drawImage(sign,750+(180-sign.width*ratio)/2,485,sign.width*ratio,sign.height*ratio)}catch(e){}}
+        ctx.strokeStyle="#64748b";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(740,565);ctx.lineTo(950,565);ctx.stroke();
+        ctx.fillStyle="#334155";ctx.font="700 17px Arial";ctx.textAlign="center";ctx.fillText("Principal Sign",845,588);ctx.textAlign="left";
 
         /* FOOTER */
 
@@ -3446,6 +3482,10 @@ function resetForm(){
 
     photoData =
         "";
+    principalSignData="";
+    document.getElementById("principalSignInput").value="";
+    document.getElementById("barcodeValue").value="";
+    document.getElementById("showBarcode").checked=true;
 
 
     document.getElementById(
