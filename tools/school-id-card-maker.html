@@ -3710,6 +3710,7 @@ function resetForm(){
         "none";
 
 
+    document.getElementById("resetIdLayout").click();
     updateCard();
 
     showSide("front");
@@ -3730,9 +3731,9 @@ const idCanvasFont=()=>idFont().includes(" ")?"'"+idFont()+"'":idFont();
 function updateIdEditor(){
  const card=document.getElementById("frontCard"),ratio=card.getBoundingClientRect().width/1011;
  card.style.fontFamily=idFont();
- card.querySelector(".school-name").style.fontSize=idSize("idSchoolFont")+"px";
- card.querySelector(".student-name").style.fontSize=idSize("idStudentFont")+"px";
- card.querySelectorAll(".detail-row").forEach(el=>el.style.fontSize=idSize("idDetailFont")+"px");
+ card.querySelector(".school-name").style.fontSize=(idSize("idSchoolFont")*card.getBoundingClientRect().width/506)+"px";
+ card.querySelector(".student-name").style.fontSize=(idSize("idStudentFont")*card.getBoundingClientRect().width/506)+"px";
+ card.querySelectorAll(".detail-row").forEach(el=>el.style.fontSize=(idSize("idDetailFont")*card.getBoundingClientRect().width/506)+"px");
  for(const k of Object.keys(idLayoutTargets)){
    card.querySelectorAll(idLayoutTargets[k]).forEach(el=>el.style.transform="translate("+idLayoutOffsets[k].x*ratio+"px,"+idLayoutOffsets[k].y*ratio+"px)");
  }
