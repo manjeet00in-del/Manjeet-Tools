@@ -781,6 +781,31 @@ textarea{
 #frontCard[data-design="navy"] .student-photo{border-radius:2px;border-color:#d4af37!important}
 #frontCard[data-design="navy"] .student-name{color:#0f172a}
 @media(max-width:600px){#frontCard .front-body{padding-bottom:36px!important}#frontCard .principal-block img{height:21px;max-height:21px}#frontCard .barcode-block svg{height:22px}.template-btn{font-size:10px}}
+/* Keep the actual card visible while editing fields and switching designs. */
+.preview-panel{
+  position:sticky;
+  top:76px;
+  align-self:start;
+  max-height:calc(100dvh - 88px);
+  overflow:auto;
+  overscroll-behavior:contain;
+  z-index:15;
+}
+@media(max-width:800px){
+  .preview-panel{
+    top:58px;
+    max-height:min(355px,calc(100dvh - 70px));
+    box-shadow:0 8px 24px rgba(15,23,42,.13);
+    border-color:#cbd5e1;
+  }
+  .preview-panel .panel-title{margin-bottom:5px;font-size:12px}
+  .preview-panel .preview-tabs{margin-bottom:6px}
+  .preview-panel .preview-tab{padding:5px}
+  .preview-panel .preview-area{min-height:0;padding:5px}
+}
+@media print{
+  .preview-panel{position:static;max-height:none;overflow:visible;box-shadow:none}
+}
 /* PRINT */
 
 @media print{
