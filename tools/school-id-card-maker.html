@@ -805,6 +805,25 @@ textarea{
  #frontCard .principal-block{min-width:70px}
  #frontCard .principal-block img{height:22px;max-height:22px}
 }
+/* Larger photo and clearer details; authorization directly below content. */
+#frontCard .front-body{grid-template-columns:125px minmax(0,1fr);gap:18px;padding:16px 19px 82px!important}
+#frontCard .student-photo,#frontCard .student-placeholder{width:119px;height:155px}
+#frontCard .student-name{font-size:21px;margin-bottom:10px}
+#frontCard .detail-row{font-size:11px;margin:4px 0;line-height:1.4}
+#frontCard .detail-label{width:80px;flex:none}
+#frontCard .front-auth{bottom:43px;left:25px;right:25px}
+#frontCard .barcode-block svg{height:36px}
+#frontCard .principal-block img{height:36px;max-height:36px}
+@media(max-width:600px){
+ #frontCard .front-body{grid-template-columns:85px minmax(0,1fr);gap:9px;padding:8px 9px 59px!important}
+ #frontCard .student-photo,#frontCard .student-placeholder{width:82px;height:108px}
+ #frontCard .student-name{font-size:13px;margin-bottom:5px}
+ #frontCard .detail-row{font-size:7.5px;margin:2px 0;line-height:1.35}
+ #frontCard .detail-label{width:53px}
+ #frontCard .front-auth{bottom:27px;left:13px;right:13px}
+ #frontCard .barcode-block svg{height:25px}
+ #frontCard .principal-block img{height:23px;max-height:23px}
+}
 /* Keep the actual card visible while editing fields and switching designs. */
 .preview-panel{
   position:sticky;
@@ -2768,9 +2787,9 @@ async function createCardCanvas(side){
                 ctx.drawImage(
                     photo,
                     45,
-                    190,
-                    190,
-                    245
+                    185,
+                    220,
+                    270
                 );
 
             }catch(e){}
@@ -2784,9 +2803,9 @@ async function createCardCanvas(side){
 
             ctx.fillRect(
                 45,
-                190,
-                190,
-                245
+                185,
+                220,
+                270
             );
 
             ctx.fillStyle =
@@ -2797,8 +2816,8 @@ async function createCardCanvas(side){
 
             ctx.fillText(
                 "👤",
-                100,
-                335
+                120,
+                345
             );
 
         }
@@ -2810,17 +2829,17 @@ async function createCardCanvas(side){
             "#172033";
 
         ctx.font =
-            "900 32px Arial";
+            "900 36px Arial";
 
         ctx.fillText(
             fitText(
                 inputs.studentName.value ||
                 "Student Name",
-                680,
-                32
+                665,
+                36
             ),
-            275,
-            205
+            295,
+            213
         );
 
 
@@ -2828,8 +2847,8 @@ async function createCardCanvas(side){
             ctx,
             "Class",
             inputs.studentClass.value,
-            275,
-            255
+            295,
+            263
         );
 
 
@@ -2837,8 +2856,8 @@ async function createCardCanvas(side){
             ctx,
             "Section",
             inputs.section.value,
-            275,
-            290
+            295,
+            298
         );
 
 
@@ -2846,8 +2865,8 @@ async function createCardCanvas(side){
             ctx,
             "Roll No.",
             inputs.rollNo.value,
-            275,
-            325
+            295,
+            333
         );
 
 
@@ -2855,8 +2874,8 @@ async function createCardCanvas(side){
             ctx,
             "DOB",
             inputs.dob.value,
-            275,
-            360
+            295,
+            368
         );
 
 
@@ -2864,8 +2883,8 @@ async function createCardCanvas(side){
             ctx,
             "Blood Group",
             inputs.bloodGroup.value,
-            275,
-            395
+            295,
+            403
         );
 
 
@@ -2873,20 +2892,20 @@ async function createCardCanvas(side){
             ctx,
             "Contact",
             inputs.studentContact.value,
-            275,
-            430
+            295,
+            438
         );
 
 
         /* AUTHORIZATION */
         if(document.getElementById("showBarcode").checked){
             const code=barcodeText();
-            paintBarcode(ctx,code,55,514,275,62);
-            ctx.fillStyle="#334155";ctx.font="15px Arial";ctx.textAlign="center";ctx.fillText(code,192,595);ctx.textAlign="left";
+            paintBarcode(ctx,code,55,473,275,62);
+            ctx.fillStyle="#334155";ctx.font="15px Arial";ctx.textAlign="center";ctx.fillText(code,192,553);ctx.textAlign="left";
         }
-        if(principalSignData){try{const sign=await loadImage(principalSignData);const ratio=Math.min(180/sign.width,60/sign.height);const w=sign.width*ratio,h=sign.height*ratio;ctx.drawImage(sign,750+(180-w)/2,567-h,w,h)}catch(e){}}
-        ctx.strokeStyle="#64748b";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(740,577);ctx.lineTo(950,577);ctx.stroke();
-        ctx.fillStyle="#334155";ctx.font="700 17px Arial";ctx.textAlign="center";ctx.fillText("Principal Sign",845,600);ctx.textAlign="left";
+        if(principalSignData){try{const sign=await loadImage(principalSignData);const ratio=Math.min(180/sign.width,60/sign.height);const w=sign.width*ratio,h=sign.height*ratio;ctx.drawImage(sign,750+(180-w)/2,525-h,w,h)}catch(e){}}
+        ctx.strokeStyle="#64748b";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(740,537);ctx.lineTo(950,537);ctx.stroke();
+        ctx.fillStyle="#334155";ctx.font="700 17px Arial";ctx.textAlign="center";ctx.fillText("Principal Sign",845,559);ctx.textAlign="left";
 
         /* FOOTER */
 
