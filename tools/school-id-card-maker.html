@@ -824,6 +824,18 @@ textarea{
  #frontCard .barcode-block svg{height:25px}
  #frontCard .principal-block img{height:23px;max-height:23px}
 }
+/* Draggable elements: transforms do not affect the underlying input form. */
+#frontCard .school-info,#frontCard .school-logo,#frontCard .student-details,
+#frontCard .student-photo,#frontCard .student-placeholder,
+#frontCard .barcode-block,#frontCard .principal-block{touch-action:none;cursor:grab;user-select:none;position:relative}
+#frontCard .mdh-dragging{cursor:grabbing!important;z-index:8}
+#frontCard .school-info{flex:1}
+#frontCard .school-name{white-space:normal;overflow:visible}
+#frontCard .student-details{min-width:0}
+#frontCard .front-auth{pointer-events:auto}
+#frontCard .barcode-block,#frontCard .principal-block{pointer-events:auto}
+.id-layout-controls small{font-size:11px;color:#64748b}
+.id-layout-controls input[type=range]{padding:4px}
 /* Keep the actual card visible while editing fields and switching designs. */
 .preview-panel{
   position:sticky;
@@ -999,6 +1011,18 @@ Create Your ID Card
 </div>
 
 
+<!-- ID CARD TYPOGRAPHY AND POSITION EDITOR -->
+<div class="section id-layout-controls">
+ <div class="section-title">✏️ Text & Layout Editor</div>
+ <div class="form-grid">
+  <div class="field full"><label for="idFontFamily">Font Style</label><select id="idFontFamily"><option value="Arial">Arial</option><option value="Georgia">Georgia</option><option value="Verdana">Verdana</option><option value="Tahoma">Tahoma</option><option value="Trebuchet MS">Trebuchet MS</option><option value="Times New Roman">Times New Roman</option></select></div>
+  <div class="field"><label for="idSchoolFont">School Name Size</label><input id="idSchoolFont" type="range" min="13" max="28" value="19"><small id="idSchoolFontValue">19px</small></div>
+  <div class="field"><label for="idStudentFont">Student Name Size</label><input id="idStudentFont" type="range" min="13" max="28" value="21"><small id="idStudentFontValue">21px</small></div>
+  <div class="field full"><label for="idDetailFont">Details Size</label><input id="idDetailFont" type="range" min="8" max="17" value="11"><small id="idDetailFontValue">11px</small></div>
+  <div class="field full"><small>👆 Preview mein School Text, Student Text, Photo, Logo, Barcode ya Principal Sign ko touch/mouse se drag karein. PNG export mein bhi nayi position rahegi.</small></div>
+  <div class="field full"><button type="button" class="action secondary" id="resetIdLayout">↺ Reset Font & Positions</button></div>
+ </div>
+</div>
 <!-- TEMPLATES -->
 
 <div class="section">
@@ -2390,7 +2414,8 @@ function updateCard(){
         getColors();
 
 
-    /* SCHOOL */
+    ctx.restore();
+        /* SCHOOL */
 
     document.getElementById(
         "previewSchoolName"
@@ -2692,7 +2717,7 @@ async function createCardCanvas(side){
     if(side === "front"){
 
         /* LOGO */
-
+        ctx.save();ctx.translate(idLayoutOffsets.logo.x,idLayoutOffsets.logo.y);
         if(logoData){
 
             try{
@@ -2731,13 +2756,13 @@ async function createCardCanvas(side){
         }
 
 
-        /* SCHOOL */
+        ctx.save();ctx.translate(idLayoutOffsets.school.x,idLayoutOffsets.school.y);
+/* SCHOOL */
 
         ctx.fillStyle =
             "#ffffff";
 
-        ctx.font =
-            "900 36px Arial";
+        ctx.font = "900 "+Math.round(idSize("idSchoolFont")*1.89)+"px "+idCanvasFont();
 
         ctx.fillText(
             fitText(
@@ -2773,7 +2798,9 @@ async function createCardCanvas(side){
         );
 
 
-        /* PHOTO */
+        ctx.restore();
+ctx.save();ctx.translate(idLayoutOffsets.photo.x,idLayoutOffsets.photo.y);
+/* PHOTO */
 
         if(photoData){
 
@@ -2823,13 +2850,14 @@ async function createCardCanvas(side){
         }
 
 
-        /* STUDENT */
+        ctx.restore();
+ctx.save();ctx.translate(idLayoutOffsets.student.x,idLayoutOffsets.student.y);
+/* STUDENT */
 
         ctx.fillStyle =
             "#172033";
 
-        ctx.font =
-            "900 36px Arial";
+        ctx.font = "900 "+Math.round(idSize("idStudentFont")*1.72)+"px "+idCanvasFont();
 
         ctx.fillText(
             fitText(
@@ -2897,15 +2925,18 @@ async function createCardCanvas(side){
         );
 
 
-        /* AUTHORIZATION */
+        ctx.restore();
+/* AUTHORIZATION */
         if(document.getElementById("showBarcode").checked){
             const code=barcodeText();
+            ctx.save();ctx.translate(idLayoutOffsets.barcode.x,idLayoutOffsets.barcode.y);
             paintBarcode(ctx,code,55,473,275,62);
-            ctx.fillStyle="#334155";ctx.font="15px Arial";ctx.textAlign="center";ctx.fillText(code,192,553);ctx.textAlign="left";
+            ctx.fillStyle="#334155";ctx.font="15px Arial";ctx.textAlign="center";ctx.fillText(code,192,553);ctx.textAlign="left";ctx.restore();
         }
+        ctx.save();ctx.translate(idLayoutOffsets.principal.x,idLayoutOffsets.principal.y);
         if(principalSignData){try{const sign=await loadImage(principalSignData);const ratio=Math.min(180/sign.width,60/sign.height);const w=sign.width*ratio,h=sign.height*ratio;ctx.drawImage(sign,750+(180-w)/2,525-h,w,h)}catch(e){}}
         ctx.strokeStyle="#64748b";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(740,537);ctx.lineTo(950,537);ctx.stroke();
-        ctx.fillStyle="#334155";ctx.font="700 17px Arial";ctx.textAlign="center";ctx.fillText("Principal Sign",845,559);ctx.textAlign="left";
+        ctx.fillStyle="#334155";ctx.font="700 17px Arial";ctx.textAlign="center";ctx.fillText("Principal Sign",845,559);ctx.textAlign="left";ctx.restore();
 
         /* FOOTER */
 
@@ -3132,8 +3163,7 @@ function drawDetail(
     ctx.fillStyle =
         "#64748b";
 
-    ctx.font =
-        "700 18px Arial";
+    ctx.font = "700 "+Math.round(idSize("idDetailFont")*1.64)+"px "+idCanvasFont();
 
     ctx.fillText(
         label,
@@ -3145,8 +3175,7 @@ function drawDetail(
     ctx.fillStyle =
         "#172033";
 
-    ctx.font =
-        "700 18px Arial";
+    ctx.font = "700 "+Math.round(idSize("idDetailFont")*1.64)+"px "+idCanvasFont();
 
     ctx.fillText(
         value || "-",
@@ -3692,6 +3721,54 @@ function resetForm(){
 }
 
 
+/* Live typography + drag positioning (coordinates stored in 1011px export units). */
+const idLayoutOffsets={school:{x:0,y:0},logo:{x:0,y:0},photo:{x:0,y:0},student:{x:0,y:0},barcode:{x:0,y:0},principal:{x:0,y:0}};
+const idLayoutTargets={school:".school-info",logo:"#logoPreview",photo:"#studentPhoto, #photoPlaceholder",student:".student-details",barcode:"#barcodeBlock",principal:".principal-block"};
+const idFont=()=>document.getElementById("idFontFamily").value;
+const idSize=(id)=>Number(document.getElementById(id).value);
+const idCanvasFont=()=>idFont().includes(" ")?"'"+idFont()+"'":idFont();
+function updateIdEditor(){
+ const card=document.getElementById("frontCard"),ratio=card.getBoundingClientRect().width/1011;
+ card.style.fontFamily=idFont();
+ card.querySelector(".school-name").style.fontSize=idSize("idSchoolFont")+"px";
+ card.querySelector(".student-name").style.fontSize=idSize("idStudentFont")+"px";
+ card.querySelectorAll(".detail-row").forEach(el=>el.style.fontSize=idSize("idDetailFont")+"px");
+ for(const k of Object.keys(idLayoutTargets)){
+   card.querySelectorAll(idLayoutTargets[k]).forEach(el=>el.style.transform="translate("+idLayoutOffsets[k].x*ratio+"px,"+idLayoutOffsets[k].y*ratio+"px)");
+ }
+ ["idSchoolFont","idStudentFont","idDetailFont"].forEach(id=>document.getElementById(id+"Value").textContent=idSize(id)+"px");
+}
+["idFontFamily","idSchoolFont","idStudentFont","idDetailFont"].forEach(id=>document.getElementById(id).addEventListener("input",updateIdEditor));
+document.getElementById("resetIdLayout").addEventListener("click",()=>{
+ for(const k of Object.keys(idLayoutOffsets)){idLayoutOffsets[k].x=0;idLayoutOffsets[k].y=0;}
+ document.getElementById("idFontFamily").value="Arial";
+ for(const [id,size] of [["idSchoolFont",19],["idStudentFont",21],["idDetailFont",11]])document.getElementById(id).value=size;
+ updateIdEditor();
+});
+let idDragging=null;
+document.getElementById("frontCard").addEventListener("pointerdown",e=>{
+ const card=document.getElementById("frontCard");
+ for(const [key,selector] of Object.entries(idLayoutTargets)){
+  const target=e.target.closest(selector.split(",").map(t=>t.trim()).join(","));
+  if(!target||!card.contains(target)||getComputedStyle(target).display==="none")continue;
+  e.preventDefault();idDragging={key,target,startX:e.clientX,startY:e.clientY,ox:idLayoutOffsets[key].x,oy:idLayoutOffsets[key].y,width:card.getBoundingClientRect().width};
+  target.classList.add("mdh-dragging");card.setPointerCapture(e.pointerId);return;
+ }
+});
+document.getElementById("frontCard").addEventListener("pointermove",e=>{
+ if(!idDragging)return;
+ const scale=1011/idDragging.width;
+ idLayoutOffsets[idDragging.key].x=Math.max(-260,Math.min(260,idDragging.ox+(e.clientX-idDragging.startX)*scale));
+ idLayoutOffsets[idDragging.key].y=Math.max(-140,Math.min(140,idDragging.oy+(e.clientY-idDragging.startY)*scale));
+ updateIdEditor();
+});
+function endIdDrag(){if(idDragging){idDragging.target.classList.remove("mdh-dragging");idDragging=null;}}
+document.getElementById("frontCard").addEventListener("pointerup",endIdDrag);
+document.getElementById("frontCard").addEventListener("pointercancel",endIdDrag);
+window.addEventListener("resize",updateIdEditor);
+const idOldUpdateCard=updateCard;
+updateCard=function(){idOldUpdateCard();updateIdEditor();};
+updateIdEditor();
 /* INITIAL */
 
 updateCard();
