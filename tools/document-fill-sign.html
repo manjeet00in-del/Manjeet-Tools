@@ -11,6 +11,8 @@
 .siglib{margin:10px 0;padding:10px;background:#f8fbff;border:1px solid #dbeafe;border-radius:12px}.siglib h3{font-size:13px;margin:0 0 8px}.sigslot{display:grid;grid-template-columns:70px 1fr;gap:8px;align-items:center;padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;margin-top:7px}.sigthumb{height:55px;background:repeating-conic-gradient(#eee 0 25%,#fff 0 50%) 0/14px 14px;border-radius:7px;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:10px;color:#64748b}.sigthumb img{max-width:100%;max-height:100%}.sigactions{display:flex;gap:6px;flex-wrap:wrap}.sigactions .btn{padding:7px 8px}.hiddeninput{display:none}
 @media(max-width:600px){.stagewrap{padding:4px}.btn{padding:9px 9px}}
 </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Document Fill & Sign | Manjeet Digital Hub","url":"https://manjeetdigitalhub.in/tools/document-fill-sign.html","isPartOf":{"@type":"WebSite","name":"Manjeet Digital Hub","url":"https://manjeetdigitalhub.in/"},"description":"Fill fields and add a signature to supported digital documents in your browser."}</script>
 </head>
 <body>
 <div class="wrap"><a class="back" href="../index.html">← Back</a><div class="card">
@@ -172,5 +174,15 @@ async function exportPage(p){const c=document.createElement("canvas");c.width=p.
 downloadBtn.onclick=async()=>{if(!pages.length)return;try{downloadBtn.disabled=true;const out=await PDFLib.PDFDocument.create();for(let i=0;i<pages.length;i++){status.textContent=`Creating page ${i+1}/${pages.length}...`;const c=await exportPage(pages[i]),data=c.toDataURL("image/jpeg",.92),img=await out.embedJpg(data),pg=out.addPage([c.width,c.height]);pg.drawImage(img,{x:0,y:0,width:c.width,height:c.height})}const b=await out.save(),blob=new Blob([b],{type:"application/pdf"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="manjeet-filled-signed-document.pdf";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500);status.textContent="Signed PDF downloaded."}catch(e){console.error(e);status.textContent="Unable to create signed PDF."}finally{downloadBtn.disabled=false}};
 refreshSigSlot(0);refreshSigSlot(1);
 </script>
+
+<section id="mdh-seo-guide" aria-label="About Document Fill & Sign" style="box-sizing:border-box;max-width:920px;margin:24px auto;padding:18px 20px;background:#f8fafc;color:#1e293b;border:1px solid #e2e8f0;border-radius:12px;font:normal 14px/1.7 Arial,sans-serif">
+<h2 style="font-size:20px;margin:0 0 8px">Document Fill & Sign – Free Online Tool</h2>
+<p style="margin:0 0 10px">Fill fields and add a signature to supported digital documents in your browser.</p>
+<h3 style="font-size:16px;margin:12px 0 5px">How to use Document Fill & Sign</h3>
+<p style="margin:0 0 10px">Upload your document, add details and check the signature placement before saving the finished file.</p>
+<h3 style="font-size:16px;margin:12px 0 5px">Frequently asked question</h3>
+<p style="margin:0 0 8px"><strong>Should I review the signed document?</strong> Yes. Preview every page and confirm the contents and signature position before sharing.</p>
+<p style="margin:10px 0 0">Explore more free tools on <a href="../index.html" style="color:#1d4ed8;text-decoration:underline">Manjeet Digital Hub</a>.</p>
+</section>
 </body>
 </html>
