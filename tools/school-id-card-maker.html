@@ -1538,7 +1538,7 @@ id="frontCard">
 
 <div
 class="card-header"
-id="frontHeader">
+id="frontHeader" style="background:#2563eb">
 
 <img
 id="logoPreview"
@@ -1636,7 +1636,7 @@ Student Name
 <div class="front-auth" id="frontAuth"><div class="barcode-block" id="barcodeBlock"><svg id="barcodePreview" viewBox="0 0 270 55" role="img" aria-label="Student barcode"></svg><span id="barcodeCaption"></span></div><div class="principal-block"><img id="principalSignPreview" alt="Principal signature" style="display:none"><span>Principal Sign</span></div></div>
 <div
 class="card-footer"
-id="frontFooter">
+id="frontFooter" style="background:#1d4ed8">
 </div>
 
 </div>
@@ -1653,7 +1653,7 @@ style="display:none">
 
 <div
 class="back-top"
-id="backHeader">
+id="backHeader" style="background:#2563eb">
 
 <span id="previewBackTitle">
 STUDENT IDENTITY CARD
@@ -3613,6 +3613,39 @@ ${imageHTML}
 
 
 
+
+<!-- Resilient preview bootstrap: visible defaults and fallback updates even if an optional editor fails. -->
+<script>
+(function(){
+ function fallbackPreview(){
+   const byId=id=>document.getElementById(id);
+   const read=(id,fallback)=>byId(id)?.value?.trim()||fallback;
+   const put=(id,value)=>{const el=byId(id);if(el)el.textContent=value;};
+   put("previewSchoolName",read("schoolName","ABC PUBLIC SCHOOL"));
+   put("previewSession",read("session","2026 - 2027"));
+   put("previewSchoolContact",read("schoolContact",""));
+   put("previewStudentName",read("studentName","Student Name"));
+   for(const [out,input] of [["previewClass","studentClass"],["previewSection","section"],["previewRoll","rollNo"],["previewDOB","dob"],["previewBlood","bloodGroup"],["previewStudentContact","studentContact"]])put(out,read(input,"-"));
+   const header=byId("frontHeader"),footer=byId("frontFooter");
+   if(header&&!header.style.background)header.style.background="#2563eb";
+   if(footer&&!footer.style.background)footer.style.background="#1d4ed8";
+   const svg=byId("barcodePreview"),box=byId("barcodeBlock");
+   if(svg&&!svg.innerHTML.trim()&&typeof barcodeBars==="function"){
+      const d=barcodeBars(read("barcodeValue",read("rollNo","0001")));
+      svg.setAttribute("viewBox","0 0 "+d.width+" 55");
+      svg.innerHTML=d.bars.map(b=>'<rect x="'+b[0]+'" y="0" width="'+b[1]+'" height="55" fill="#111827"/>').join("");
+   }
+   if(box)box.style.display=byId("showBarcode")?.checked===false?"none":"flex";
+ }
+ window.addEventListener("DOMContentLoaded",()=>{
+   try{if(typeof updateCard==="function")updateCard();else fallbackPreview();}
+   catch(e){console.error("ID editor bootstrap:",e);fallbackPreview();}
+   document.querySelectorAll("#schoolName,#session,#studentName,#studentClass,#section,#rollNo,#dob,#bloodGroup,#studentContact").forEach(el=>el.addEventListener("input",()=>{
+     try{if(typeof updateCard==="function")updateCard();else fallbackPreview();}catch(e){fallbackPreview();}
+   }));
+ });
+})();
+</script>
 </body>
 
 </html>
