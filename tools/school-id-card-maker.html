@@ -845,6 +845,13 @@ textarea{
 #frontCard .barcode-block,#frontCard .principal-block{pointer-events:auto}
 .id-layout-controls small{font-size:11px;color:#64748b}
 .id-layout-controls input[type=range]{padding:4px}
+/* Prompt-based, browser-only generator UI. */
+.smart-template-section{border:1px solid #c7d2fe;border-radius:13px;padding:12px;margin:10px 0;background:linear-gradient(140deg,#f8faff,#f5f3ff)}
+.smart-template-section textarea{min-height:75px;resize:vertical}
+.smart-template-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.smart-template-message{font-size:11px;color:#475569;line-height:1.5;margin-top:8px}
+.smart-template-examples{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.smart-template-examples button{border:1px solid #c7d2fe;background:white;padding:6px 9px;border-radius:20px;font-size:10px;color:#4338ca;cursor:pointer}
 /* Keep the actual card visible while editing fields and switching designs. */
 .preview-panel{
   position:sticky;
@@ -1030,6 +1037,22 @@ Create Your ID Card
   <div class="field full"><label for="idDetailFont">Details Size</label><input id="idDetailFont" type="range" min="8" max="17" value="11"><small id="idDetailFontValue">11px</small></div>
   <div class="field full"><small>👆 Preview mein School Text, Student Text, Photo, Logo, Barcode ya Principal Sign ko touch/mouse se drag karein. PNG export mein bhi nayi position rahegi.</small></div>
   <div class="field full"><button type="button" class="action secondary" id="resetIdLayout">↺ Reset Font & Positions</button></div>
+ </div>
+</div>
+<!-- SMART PROMPT TO TEMPLATE: all processing stays in the browser -->
+<div class="section smart-template-section">
+ <div class="section-title">✨ Smart Template Generator <span style="font-size:10px;color:#059669">(100% Free)</span></div>
+ <div class="field full"><label for="smartTemplatePrompt">Describe your ID card design (Hindi / English)</label>
+ <textarea id="smartTemplatePrompt" rows="3" maxlength="650" placeholder="Example: Premium blue and gold school ID, elegant font, large photo, prominent school name"></textarea></div>
+ <div class="smart-template-actions">
+  <button type="button" class="action" id="smartGenerate">✨ Generate Design</button>
+  <button type="button" class="action secondary" id="smartSurprise">🎲 Surprise Me</button>
+ </div>
+ <div id="smartTemplateMessage" role="status" aria-live="polite" class="smart-template-message">Prompt keywords से रंग, font, photo size और alignment बदलेंगे। कोई API या login जरूरी नहीं।</div>
+ <div class="smart-template-examples">
+  <button type="button" data-smart-example="Premium blue and gold, elegant serif font, large photo">Blue & Gold</button>
+  <button type="button" data-smart-example="Modern green and white, clean font, compact details">Green Modern</button>
+  <button type="button" data-smart-example="Royal purple and pink, bold school name, large photo">Royal Purple</button>
  </div>
 </div>
 <!-- TEMPLATES -->
@@ -3780,6 +3803,60 @@ window.addEventListener("resize",updateIdEditor);
 const idOldUpdateCard=updateCard;
 updateCard=function(){idOldUpdateCard();updateIdEditor();};
 updateIdEditor();
+/* Smart prompt parser: deliberately rule-based, no claim of generative AI. */
+const smartPresets=[
+ {terms:/gold|golden|सुनहर|सोना|premium|luxury|royal/i,header:"#15336a",footer:"#c69c39",accent:"#c69c39",background:"#fffdf6",font:"Georgia"},
+ {terms:/green|emerald|हरा|हरित|nature|eco/i,header:"#086d56",footer:"#065f46",accent:"#059669",background:"#f4fff9",font:"Verdana"},
+ {terms:/purple|violet|बैंगनी|pink|गुलाबी/i,header:"#6d28d9",footer:"#db2777",accent:"#a78bfa",background:"#fdf9ff",font:"Georgia"},
+ {terms:/red|maroon|लाल|मरून|crimson/i,header:"#991b1b",footer:"#7f1d1d",accent:"#dc2626",background:"#fffafa",font:"Arial"},
+ {terms:/black|navy|dark|काला|काली|नेवी|corporate/i,header:"#111827",footer:"#334155",accent:"#d4af37",background:"#f8fafc",font:"Tahoma"},
+ {terms:/orange|saffron|केसरिया|नारंगी/i,header:"#c2410c",footer:"#ea580c",accent:"#f59e0b",background:"#fffaf0",font:"Trebuchet MS"},
+ {terms:/blue|नीला|नीली|azure/i,header:"#1e40af",footer:"#1d4ed8",accent:"#3b82f6",background:"#f8fbff",font:"Arial"}
+];
+function smartHexFor(text){const m=text.match(/#[0-9a-fA-F]{6}\b/);return m?m[0]:null;}
+function generateSmartTemplate(raw){
+ const text=String(raw||"").trim();
+ const message=document.getElementById("smartTemplateMessage");
+ if(!text){message.textContent="पहले डिजाइन का description लिखें या example चुनें।";return;}
+ const low=text.toLowerCase();
+ let preset=smartPresets.find(p=>p.terms.test(low))||smartPresets[6];
+ // Make two-color prompts deterministic; header follows first matching color word.
+ const colorNames=[["gold", "#c69c39"],["blue","#1e40af"],["green","#086d56"],["red","#991b1b"],["purple","#6d28d9"],["black","#111827"],["pink","#db2777"],["orange","#c2410c"],["navy","#0f172a"]];
+ const hits=colorNames.map(([word,color])=>({at:low.indexOf(word),color})).filter(x=>x.at>=0).sort((a,b)=>a.at-b.at);
+ const primary=smartHexFor(text)||hits[0]?.color||preset.header;
+ const secondary=hits.find(h=>h.color!==primary)?.color||preset.footer;
+ const ids={customHeader:primary,customFooter:secondary,customBackground:preset.background,customAccent:secondary};
+ for(const [id,value] of Object.entries(ids))document.getElementById(id).value=value;
+ currentTemplate="custom";
+ document.querySelectorAll(".template-btn").forEach(b=>b.classList.toggle("active",b.dataset.template==="custom"));
+ document.getElementById("customColorsSection").style.display="block";
+ let font=preset.font;
+ if(/modern|clean|simple|साधारण|सरल/i.test(low))font="Verdana";
+ if(/classic|elegant|serif|शाही|क्लासिक/i.test(low))font="Georgia";
+ if(/bold|मोटा|बड़ा नाम|big name/i.test(low))document.getElementById("idSchoolFont").value="23";
+ else document.getElementById("idSchoolFont").value="19";
+ document.getElementById("idStudentFont").value=/big text|large text|बड़ा टेक्स्ट/i.test(low)?"25":"21";
+ document.getElementById("idDetailFont").value=/compact|छोटा|small details/i.test(low)?"9":"11";
+ document.getElementById("idFontFamily").value=font;
+ // Position presets are applied to the existing drag offsets, retaining manual edit afterward.
+ for(const key of Object.keys(idLayoutOffsets)){idLayoutOffsets[key].x=0;idLayoutOffsets[key].y=0;}
+ if(/large photo|big photo|बड़ी फोटो|बड़ा फोटो/i.test(low)){
+   idLayoutOffsets.photo.x=8;idLayoutOffsets.photo.y=12;
+ }
+ if(/top logo|logo top|लोगो ऊपर/i.test(low))idLayoutOffsets.logo.y=-8;
+ if(/signature up|sign up|साइन ऊपर/i.test(low))idLayoutOffsets.principal.y=-22;
+ updateCard();
+ updateIdEditor();
+ message.textContent="✓ नया Smart Design तैयार है! नीचे Custom Colors में रंग बदलें या Preview पर elements drag करें। PNG में बदलाव लागू होंगे।";
+}
+document.getElementById("smartGenerate").addEventListener("click",()=>generateSmartTemplate(document.getElementById("smartTemplatePrompt").value));
+document.querySelectorAll("[data-smart-example]").forEach(btn=>btn.addEventListener("click",()=>{document.getElementById("smartTemplatePrompt").value=btn.dataset.smartExample;generateSmartTemplate(btn.dataset.smartExample);}));
+let smartSurpriseIndex=0;
+document.getElementById("smartSurprise").addEventListener("click",()=>{
+ const prompts=["Premium blue and gold school card, elegant font, large photo","Modern green and white card, clean font, compact details","Royal purple pink school card, bold school name","Navy corporate style, signature up","Bright saffron orange card, bold school name"];
+ const selected=prompts[smartSurpriseIndex++%prompts.length];
+ document.getElementById("smartTemplatePrompt").value=selected;generateSmartTemplate(selected);
+});
 /* INITIAL */
 
 updateCard();
