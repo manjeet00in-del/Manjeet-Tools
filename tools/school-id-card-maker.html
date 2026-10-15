@@ -3669,38 +3669,6 @@ ${imageHTML}
 
 
 
-<!-- Resilient preview bootstrap: visible defaults and fallback updates even if an optional editor fails. -->
-<script>
-(function(){
- function fallbackPreview(){
-   const byId=id=>document.getElementById(id);
-   const read=(id,fallback)=>byId(id)?.value?.trim()||fallback;
-   const put=(id,value)=>{const el=byId(id);if(el)el.textContent=value;};
-   put("previewSchoolName",read("schoolName","ABC PUBLIC SCHOOL"));
-   put("previewSession",read("session","2026 - 2027"));
-   put("previewSchoolContact",read("schoolContact",""));
-   put("previewStudentName",read("studentName","Student Name"));
-   for(const [out,input] of [["previewClass","studentClass"],["previewSection","section"],["previewRoll","rollNo"],["previewDOB","dob"],["previewBlood","bloodGroup"],["previewStudentContact","studentContact"]])put(out,read(input,"-"));
-   const header=byId("frontHeader"),footer=byId("frontFooter");
-   if(header&&!header.style.background)header.style.background="#2563eb";
-   if(footer&&!footer.style.background)footer.style.background="#1d4ed8";
-   const svg=byId("barcodePreview"),box=byId("barcodeBlock");
-   if(svg&&!svg.innerHTML.trim()&&typeof barcodeBars==="function"){
-      const d=barcodeBars(read("barcodeValue",read("rollNo","0001")));
-      svg.setAttribute("viewBox","0 0 "+d.width+" 55");
-      svg.innerHTML=d.bars.map(b=>'<rect x="'+b[0]+'" y="0" width="'+b[1]+'" height="55" fill="#111827"/>').join("");
-   }
-   if(box)box.style.display=byId("showBarcode")?.checked===false?"none":"flex";
- }
- window.addEventListener("DOMContentLoaded",()=>{
-   try{if(typeof updateCard==="function")updateCard();else fallbackPreview();}
-   catch(e){console.error("ID editor bootstrap:",e);fallbackPreview();}
-   document.querySelectorAll("#schoolName,#session,#studentName,#studentClass,#section,#rollNo,#dob,#bloodGroup,#studentContact").forEach(el=>el.addEventListener("input",()=>{
-     try{if(typeof updateCard==="function")updateCard();else fallbackPreview();}catch(e){fallbackPreview();}
-   }));
- });
-})();
-</script>
 </body>
 
 </html>
