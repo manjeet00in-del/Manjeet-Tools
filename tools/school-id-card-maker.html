@@ -1342,6 +1342,14 @@ Passport-size photo recommended
 <div class="section-title">✍️ Principal Signature &amp; Barcode</div>
 <div class="form-grid">
 <div class="field full"><label>Principal Signature (PNG / JPG)</label><input id="principalSignInput" type="file" accept="image/*"><small>Use a genuine authorized signature. White paper backgrounds are removed automatically (processed on your device).</small></div>
+<div class="field full" id="signatureAdjustPanel">
+<label for="signatureBgAdjust">Signature Background Remove — Adjust: <strong id="signatureBgValue">55</strong></label>
+<input type="range" id="signatureBgAdjust" min="0" max="100" value="55" step="1" aria-label="Signature background removal strength">
+<small>0 = Original • 55 = Auto • 100 = Strong. Increase slowly if the paper background is visible.</small>
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:5px">
+<img id="signatureCleanPreview" alt="Transparent signature preview" style="display:none;max-width:180px;max-height:65px;object-fit:contain;background:repeating-conic-gradient(#e2e8f0 0 25%,white 0 50%) 0 0/14px 14px;border:1px solid #cbd5e1;border-radius:6px;padding:4px">
+<button type="button" class="action secondary" id="signatureBgReset">↺ Auto (55)</button>
+</div></div>
 <div class="field full"><label>Barcode Value (optional; defaults to Roll No.)</label><input id="barcodeValue" type="text" placeholder="Student ID / Roll Number"></div>
 <div class="field full"><label><input id="showBarcode" type="checkbox" checked style="width:auto;margin-right:6px">Show barcode on front card</label></div>
 </div>
@@ -2392,7 +2400,9 @@ function barcodeText(){return String(document.getElementById("barcodeValue").val
 function barcodeBars(text){let pattern="*"+text+"*", bars=[],x=0;for(const ch of pattern){const p=CODE39[ch];if(!p)continue;for(let i=0;i<9;i++){const w=p[i]==="w"?3:1;if(i%2===0)bars.push([x,w]);x+=w}x+=1}return {bars,width:x}}
 function paintBarcode(ctx,value,x,y,width,height){const data=barcodeBars(value),scale=width/data.width;ctx.fillStyle="#fff";ctx.fillRect(x-3,y-3,width+6,height+6);ctx.fillStyle="#111827";for(const bar of data.bars)ctx.fillRect(x+bar[0]*scale,y,Math.max(.6,bar[1]*scale),height)}
 function updateAuthPreview(){const sign=document.getElementById("principalSignPreview");sign.src=principalSignData||"";sign.style.display=principalSignData?"block":"none";const box=document.getElementById("barcodeBlock"),svg=document.getElementById("barcodePreview"),value=barcodeText(),data=barcodeBars(value);box.style.display=document.getElementById("showBarcode").checked?"flex":"none";svg.setAttribute("viewBox","0 0 "+data.width+" 55");svg.innerHTML=data.bars.map(b=>'<rect x="'+b[0]+'" y="0" width="'+b[1]+'" height="55" fill="#111827"/>').join("");document.getElementById("barcodeCaption").textContent=value}
-async function transparentSignature(file){
+let signatureSourceFile=null;
+let signatureAdjustVersion=0;
+async function transparentSignature(file,strength=55){
     const url=URL.createObjectURL(file);
     try{
         const img=await loadImage(url);
@@ -2402,38 +2412,69 @@ async function transparentSignature(file){
         canvas.height=Math.max(1,Math.round(img.height*scale));
         const ctx=canvas.getContext("2d",{willReadFrequently:true});
         ctx.drawImage(img,0,0,canvas.width,canvas.height);
-        const pixels=ctx.getImageData(0,0,canvas.width,canvas.height),d=pixels.data;
-        // Preserve existing transparency. Remove near-white paper only for mostly-white images.
-        let white=0,opaque=0;
-        for(let i=0;i<d.length;i+=4){if(d[i+3]>220){opaque++;if(Math.min(d[i],d[i+1],d[i+2])>215)white++;}}
-        if(opaque && white/opaque>.35){
+        if(strength===0)return canvas.toDataURL("image/png");
+        const data=ctx.getImageData(0,0,canvas.width,canvas.height),d=data.data;
+        const w=canvas.width,h=canvas.height;
+        // Estimate paper colour using bright, neutral border samples.
+        const samples=[];
+        const read=(x,y)=>{const i=(y*w+x)*4;const r=d[i],g=d[i+1],b=d[i+2];
+          if(d[i+3]>200 && Math.min(r,g,b)>120 && Math.max(r,g,b)-Math.min(r,g,b)<75)samples.push([r,g,b]);};
+        const step=Math.max(1,Math.floor(Math.min(w,h)/90));
+        for(let x=0;x<w;x+=step){read(x,0);read(x,h-1);}
+        for(let y=0;y<h;y+=step){read(0,y);read(w-1,y);}
+        const median=(arr)=>{arr.sort((a,b)=>a-b);return arr[Math.floor(arr.length/2)]||255;};
+        const paper=samples.length?[0,1,2].map(ch=>median(samples.map(v=>v[ch]))):[255,255,255];
+        const automatic=55;
+        const threshold=34+(strength-automatic)*0.65;
+        const feather=36+(strength-automatic)*0.28;
+        const isPaper=paper.every(c=>c>145);
+        if(isPaper){
+          // Preserve coloured ink by considering colour distance to the sampled paper.
           for(let i=0;i<d.length;i+=4){
-            const light=Math.min(d[i],d[i+1],d[i+2]);
-            const alpha=Math.max(0,Math.min(1,(245-light)/55));
+            const r=d[i],g=d[i+1],b=d[i+2];
+            const dr=paper[0]-r,dg=paper[1]-g,db=paper[2]-b;
+            const distance=Math.sqrt((dr*dr+dg*dg+db*db)/3);
+            const alpha=Math.max(0,Math.min(1,(distance-threshold)/Math.max(8,feather)));
             d[i+3]=Math.round(d[i+3]*alpha);
           }
-          ctx.putImageData(pixels,0,0);
+          ctx.putImageData(data,0,0);
         }
-        // Crop surrounding whitespace so signature sits close to the label.
-        const p=ctx.getImageData(0,0,canvas.width,canvas.height).data;
-        let left=canvas.width,top=canvas.height,right=-1,bottom=-1;
-        for(let y=0;y<canvas.height;y++)for(let x=0;x<canvas.width;x++){
-          const i=(y*canvas.width+x)*4;
-          if(p[i+3]>38){left=Math.min(left,x);top=Math.min(top,y);right=Math.max(right,x);bottom=Math.max(bottom,y);}
+        // Crop transparent margins. If nothing remains, return image uncropped.
+        const p=ctx.getImageData(0,0,w,h).data;
+        let left=w,top=h,right=-1,bottom=-1;
+        for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+          const i=(y*w+x)*4;
+          if(p[i+3]>40){left=Math.min(left,x);top=Math.min(top,y);right=Math.max(right,x);bottom=Math.max(bottom,y);}
         }
         if(right<left)return canvas.toDataURL("image/png");
-        const pad=5,x0=Math.max(0,left-pad),y0=Math.max(0,top-pad),w=Math.min(canvas.width,right+pad+1)-x0,h=Math.min(canvas.height,bottom+pad+1)-y0;
-        const out=document.createElement("canvas");out.width=w;out.height=h;
-        out.getContext("2d").drawImage(canvas,x0,y0,w,h,0,0,w,h);
+        const pad=5,x0=Math.max(0,left-pad),y0=Math.max(0,top-pad),cw=Math.min(w,right+pad+1)-x0,ch=Math.min(h,bottom+pad+1)-y0;
+        const out=document.createElement("canvas");out.width=cw;out.height=ch;
+        out.getContext("2d").drawImage(canvas,x0,y0,cw,ch,0,0,cw,ch);
         return out.toDataURL("image/png");
     }finally{URL.revokeObjectURL(url);}
 }
-document.getElementById("principalSignInput").addEventListener("change",async function(){
+async function refreshSignatureBackground(){
+    const preview=document.getElementById("signatureCleanPreview");
+    const value=Number(document.getElementById("signatureBgAdjust").value);
+    document.getElementById("signatureBgValue").textContent=String(value);
+    const ticket=++signatureAdjustVersion;
+    if(!signatureSourceFile){principalSignData="";preview.style.display="none";updateCard();return;}
+    try{
+      const cleaned=await transparentSignature(signatureSourceFile,value);
+      if(ticket!==signatureAdjustVersion)return;
+      principalSignData=cleaned;preview.src=cleaned;preview.style.display="block";
+      updateCard();
+    }catch(e){if(ticket===signatureAdjustVersion){console.error(e);alert("Signature process nahi ho paaya. JPG/PNG try karein.");}}
+}
+document.getElementById("principalSignInput").addEventListener("change",function(){
     const file=this.files&&this.files[0];
-    if(!file){principalSignData="";updateCard();return;}
-    if(!file.type.startsWith("image/")){alert("Please upload an image.");return;}
-    try{principalSignData=await transparentSignature(file);updateCard();}
-    catch(e){console.error(e);alert("Could not process signature. Try a PNG or JPG.");}
+    if(file&&!file.type.startsWith("image/")){alert("Please upload a JPG or PNG image.");return;}
+    signatureSourceFile=file||null;
+    refreshSignatureBackground();
+});
+document.getElementById("signatureBgAdjust").addEventListener("input",refreshSignatureBackground);
+document.getElementById("signatureBgReset").addEventListener("click",()=>{
+    document.getElementById("signatureBgAdjust").value="55";refreshSignatureBackground();
 });
 document.getElementById("barcodeValue").addEventListener("input",updateCard);
 document.getElementById("showBarcode").addEventListener("change",updateCard);
