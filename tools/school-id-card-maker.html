@@ -3765,6 +3765,11 @@ function resetForm(){
     photoData =
         "";
     principalSignData="";
+    signatureSourceFile=null;
+    signatureAdjustVersion++;
+    document.getElementById("signatureBgAdjust").value="55";
+    document.getElementById("signatureBgValue").textContent="55";
+    document.getElementById("signatureCleanPreview").style.display="none";
     document.getElementById("principalSignInput").value="";
     document.getElementById("barcodeValue").value="";
     document.getElementById("showBarcode").checked=true;
