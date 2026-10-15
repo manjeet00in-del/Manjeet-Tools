@@ -852,6 +852,20 @@ textarea{
 .smart-template-message{font-size:11px;color:#475569;line-height:1.5;margin-top:8px}
 .smart-template-examples{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
 .smart-template-examples button{border:1px solid #c7d2fe;background:white;padding:6px 9px;border-radius:20px;font-size:10px;color:#4338ca;cursor:pointer}
+/* Barcode visible on compact mobile preview; keep away from signature. */
+#frontCard .front-auth{z-index:6;display:flex!important;align-items:flex-end;justify-content:space-between;pointer-events:auto}
+#frontCard #barcodeBlock{flex:0 0 41%;width:41%;max-width:41%;min-width:0;display:flex;visibility:visible;opacity:1;align-items:center;justify-content:flex-end;min-height:42px;overflow:visible;transform-origin:left bottom}
+#frontCard #barcodePreview{display:block!important;width:100%!important;height:37px!important;min-height:25px;overflow:visible;background:white}
+#frontCard #barcodePreview rect{fill:#111827}
+#frontCard #barcodeCaption{display:block;font-weight:700;font-size:9px;line-height:1.1;margin-top:2px}
+#frontCard .principal-block{flex:0 0 35%;max-width:40%;min-width:0}
+@media(max-width:600px){
+ #frontCard .front-auth{bottom:23px;left:10px;right:10px}
+ #frontCard #barcodeBlock{flex-basis:42%;width:42%;max-width:42%;min-height:27px}
+ #frontCard #barcodePreview{height:29px!important;min-height:23px}
+ #frontCard #barcodeCaption{font-size:8px}
+ #frontCard .principal-block{flex-basis:35%;max-width:40%}
+}
 /* Keep the actual card visible while editing fields and switching designs. */
 .preview-panel{
   position:sticky;
